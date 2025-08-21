@@ -1,6 +1,6 @@
-import express from 'express'
+import express from 'express';
 import path from 'path';
-import expressLayouts from 'express-ejs-layouts'
+import expressLayouts from 'express-ejs-layouts';
 
 const app = express()
 const PORT = process.env.PORT || 3000;
