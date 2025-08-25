@@ -7,5 +7,16 @@
   "trailingComma": "es5",
   "arrowParens": "avoid",
   "bracketSpacing": true,
-  "endOfLine": "lf"
+  "endOfLine": "lf",
+  "plugins": ["prettier-plugin-sql"],
+  "overrides": [
+    {
+      "files": "*.sql",
+      "options": {
+        "parser": "sql",
+        "language": "postgresql",
+        "keywordCase": "upper"
+      }
+    }
+  ]
 }
