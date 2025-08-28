@@ -1,28 +1,36 @@
 {
-  "name": "jigsaw",
-  "version": "1.0.0",
-  "description": "",
-  "main": "/src/app.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/express-ejs-layouts": "^2.5.4",
-    "@types/node": "^24.0.14",
-    "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.0",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-ejs-layouts": "^2.5.1",
-    "pg": "^8.16.3"
-  }
+    "name": "jigsaw",
+    "version": "1.0.0",
+    "description": "",
+    "main": "/src/app.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon",
+        "migrate": "ts-node src/scripts/migrate.ts up",
+        "migrate:revert": "ts-node src/scripts/migrate.ts down",
+        "migrate:status": "ts-node src/scripts/migrate.ts status",
+        "start:db": " docker compose -f docker-compose.dev.yml up -d",
+        "start": "npm run start:db && npm run migrate && npm run dev"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/express": "^5.0.3",
+        "@types/express-ejs-layouts": "^2.5.4",
+        "@types/node": "^24.0.14",
+        "@types/pg": "^8.15.5",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.6.2",
+        "prettier-plugin-sql": "^0.19.2",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.0",
+        "ejs": "^3.1.10",
+        "express": "^5.1.0",
+        "express-ejs-layouts": "^2.5.1",
+        "pg": "^8.16.3"
+    }
 }

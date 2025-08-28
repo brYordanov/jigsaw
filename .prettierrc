@@ -2,10 +2,21 @@
   "semi": false,
   "singleQuote": true,
   "printWidth": 100,
-  "tabWidth": 2,
+  "tabWidth": 4,
   "useTabs": false,
   "trailingComma": "es5",
   "arrowParens": "avoid",
   "bracketSpacing": true,
-  "endOfLine": "lf"
+  "endOfLine": "lf",
+  "plugins": ["prettier-plugin-sql"],
+  "overrides": [
+    {
+      "files": "*.sql",
+      "options": {
+        "parser": "sql",
+        "language": "postgresql",
+        "keywordCase": "upper"
+      }
+    }
+  ]
 }
