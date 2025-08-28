@@ -8,7 +8,9 @@
         "dev": "nodemon",
         "migrate": "ts-node src/scripts/migrate.ts up",
         "migrate:revert": "ts-node src/scripts/migrate.ts down",
-        "migrate:status": "ts-node src/scripts/migrate.ts status"
+        "migrate:status": "ts-node src/scripts/migrate.ts status",
+        "start:db": " docker compose -f docker-compose.dev.yml up -d",
+        "start": "npm run start:db && npm run migrate && npm run dev"
     },
     "keywords": [],
     "author": "",
