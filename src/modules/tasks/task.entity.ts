@@ -14,7 +14,6 @@ export interface TaskRow {
     days: number[] | null
     hours: number[] | null
     minutes: number[] | null
-    jump: number | null
 
     last_run_at: string | null
     next_run_at: string | null
@@ -24,29 +23,4 @@ export interface TaskRow {
 
     created_at: string
     updated_at: string
-}
-
-export interface Task {
-    id: number
-    name: string
-    description: string | null
-    isSingleTimeOnly: boolean
-    isEnabled: boolean
-
-    scheduleType: ScheduleType
-    intervalType: IntervalType
-
-    days: number[] | null
-    hours: number[] | null
-    minutes: number[] | null
-    jump: number | null
-
-    lastRunAt: string | null
-    nextRunAt: string | null
-    timeoutSeconds: number | null
-    lastPingAt: string | null
-    expiresAt: string | null
-
-    createdAt: string
-    updatedAt: string
 }
