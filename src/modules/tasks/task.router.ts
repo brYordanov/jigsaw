@@ -1,16 +1,26 @@
 import { Router } from 'express'
 import { TaskService } from './task.service'
-import { TaskRow } from './task.entity'
+import { listTasksQuerySchema } from './task.dtos'
 
 export const taskRouter = Router()
 const service = new TaskService()
 
-taskRouter.get('/', (req, res) => {
-    res.send(111)
+taskRouter.get('/', async (req, res) => {
+    res.send(await service.getAll())
+})
+
+taskRouter.get('/paginate', async (req, res) => {
+    const parsed = listTasksQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+        res.send('fuck you')
+        return
+    }
+    res.send(await service.paginate(parsed.data))
 })
 
 taskRouter.get('/:id', async (req, res) => {
-    res.send(await service.getByIdOrFail(Number(req.params)))
+    const { id } = req.params
+    res.send(await service.getByIdOrFail(Number(id)))
 })
 
 taskRouter.post('/', async (req, res) => {
@@ -18,5 +28,6 @@ taskRouter.post('/', async (req, res) => {
 })
 
 taskRouter.patch('/:id', async (req, res) => {
-    res.send(await service.updateTask(Number(req.params), req.body))
+    const { id } = req.params
+    res.send(await service.updateTask(Number(id), req.body))
 })
