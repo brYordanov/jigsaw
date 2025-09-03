@@ -15,9 +15,6 @@ export type FilterSpec =
 export type FilterConfig = Record<string, FilterSpec>
 
 export interface PaginateConfig<TFilters extends Record<string, any>> {
-    pool: Pool
-    table: string
-    returnCols: string
     filters: TFilters
     filterConfig: FilterConfig
     sort: string
