@@ -41,54 +41,31 @@ export class TaskRepository {
     }
 
     async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse> {
-        // const where: string[] = []
-        // const vals: any[] = []
-        // let i = 1
+        const FILTERS_NAME = {
+            schedule_type: 'eq',
+            interval_type: 'eq',
+            is_enabled: 'eq',
+            name: { op: 'ilike' },
+        } as const
 
-        // if (params.schedule_type) {
-        //     where.push(`schedule_type = $${i++}`)
-        //     vals.push(params.schedule_type)
-        // }
-        // if (params.interval_type) {
-        //     where.push(`interval_type = $${i++}`)
-        //     vals.push(params.interval_type)
-        // }
-        // if (params.interval_type) {
-        //     where.push(`is_enabled = $${i++}`)
-        //     vals.push(params.is_enabled)
-        // }
-        // if (params.search) {
-        //     where.push(`name ILIKE $${i++}`)
-        //     vals.push(`%${params.search}%`)
-        // }
+        const ALLOWED_SORT = ['created_at', 'updated_at', 'name', 'next_run_at'] as const
 
-        // const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
-        // const sort: sortOptionsType = sortOptionsSchema.parse(params.sort)
-
-        // const listSql = `
-        //     SELECT ${this.COLS}
-        //     FROM ${TABLE_NAME}
-        //     ${whereSql}
-        //     ORDER BY ${sort} ${params.dir}
-        //     LIMIT $${i++} OFFSET $${i++}
-        // `
-
-        // const listVals = [...vals, params.limit, params.offset]
-
-        // const countSql = `
-        //     SELECT COUNT(*)::int AS count FROM tasks ${whereSql}
-        // `
-        // const [rowRes, countRes] = await Promise.all([
-        //     this.pool.query<TaskRow>(listSql, listVals),
-        //     this.pool.query<{ count: number }>(countSql, vals),
-        // ])
-
-        // return {
-        //     items: rowRes.rows,
-        //     total: countRes.rows[0].count,
-        //     limit: params.limit,
-        //     offset: params.offset,
-        // }
-        return paginate(this.pool, TABLE_NAME, this.COLS, params)
+        return paginate<TaskRow, any>({
+            pool: this.pool,
+            table: TABLE_NAME,
+            returnCols: this.COLS,
+            filters: {
+                schedule_type: params.schedule_type,
+                interval_type: params.interval_type,
+                is_enabled: params.is_enabled,
+                name: params.search,
+            },
+            filterConfig: FILTERS_NAME,
+            sort: params.sort,
+            dir: params.dir,
+            allowedSort: ALLOWED_SORT,
+            limit: params.limit,
+            offset: params.offset,
+        })
     }
 }

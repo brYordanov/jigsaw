@@ -1,7 +1,8 @@
-import { Pool, QueryConfig } from 'pg'
+import { Pool, QueryConfig, QueryResultRow } from 'pg'
+import { PaginateConfig } from './types'
 
 export const getById = async (
-    pool: any,
+    pool: Pool,
     returningCols: string,
     table: string,
     id: number
@@ -16,7 +17,7 @@ export const getAll = async (pool: any, returningCols: string, table: string): P
 }
 
 export const create = async (
-    pool: any,
+    pool: Pool,
     table: string,
     returningCols: string,
     data: Record<string, any>
@@ -43,7 +44,7 @@ export const create = async (
 }
 
 export const update = async (
-    pool: any,
+    pool: Pool,
     table: string,
     returnCols: string,
     id: number,
@@ -67,75 +68,96 @@ export const update = async (
     return rows[0]
 }
 
-type Dir = 'ASC' | 'DESC'
-
-type FilterSpec =
-    | 'eq'
-    | { op: 'eq' }
-    | { op: 'ilike' }
-    | { op: 'in' }
-    | { op: 'gte' }
-    | { op: 'lte' }
-    | { op: 'gt' }
-    | { op: 'lt' }
-    | { op: 'is'; value: 'null' | 'not null' }
-
-type FilterConfig = Record<string, FilterSpec>
-
-interface PagianteConfig<TFilters extends Record<string, any>> {
-    pool: Pool
-    table: string
-    returnCols: readonly string[]
-    filters: TFilters
-    filterConfig: FilterConfig
-    sort: string
-    dir: Dir
-    allowedSort: readonly string[]
-    limit: number
-    offset: number
-}
-
-export const paginate = async (
-    pool: any,
-    table: string,
-    returnCols: string,
-    params: Record<string, any>
+export const paginate = async <
+    TRow extends QueryResultRow = any,
+    TFilters extends Record<string, any> = any,
+>(
+    cfg: PaginateConfig<TFilters>
 ) => {
-    const where: string[] = []
-    const vals: any[] = []
+    const {
+        pool,
+        table,
+        returnCols,
+        filters,
+        filterConfig,
+        sort,
+        dir,
+        allowedSort,
+        limit,
+        offset,
+    } = cfg
+
+    const whereParts: string[] = []
+    const values: any[] = []
     let i = 1
 
-    Object.keys(params).map(key => {
-        where.push(`${key} = $${i++}`)
-        vals.push(params[key])
-    })
+    for (const [key, spec] of Object.entries(filterConfig)) {
+        if (!(key in filters)) continue
+        const val = (filters as any)[key]
+        if (val === undefined) continue
 
-    const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
-    const sort = params.sort
+        if (typeof spec === 'object' && 'op' in spec) {
+            switch (spec.op) {
+                case 'ilike':
+                    whereParts.push(`${key} ILIKE $${i++}`)
+                    values.push(typeof val === 'string' ? `%${val}%` : val)
+                    break
+                case 'in':
+                    whereParts.push(`${key} = ANY($${i++})`)
+                    values.push(val)
+                    break
+                case 'gte':
+                    whereParts.push(`${key} >= $${i++}`)
+                    values.push(val)
+                    break
+                case 'lte':
+                    whereParts.push(`${key} <= $${i++}`)
+                    values.push(val)
+                    break
+                case 'gt':
+                    whereParts.push(`${key} > $${i++}`)
+                    values.push(val)
+                    break
+                case 'lt':
+                    whereParts.push(`${key} < $${i++}`)
+                    values.push(val)
+                    break
+                case 'is':
+                    whereParts.push(`${key} IS ${spec.value.toUpperCase()}`)
+                    break
+                default:
+                    whereParts.push(`${key} = $${i++}`)
+                    values.push(val)
+            }
+        } else {
+            whereParts.push(`${key} = $${i++}`)
+            values.push(val)
+        }
+    }
 
-    const listSql = `
-            SELECT ${returnCols}
-            FROM ${table}
-            ${whereSql}
-            ORDER BY ${sort} ${params.dir}
-            LIMIT $${i++} OFFSET $${i++}
-        `
+    const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+    const safeSort = allowedSort.includes(sort) ? sort : allowedSort[0]
+    const safeDir = (dir || 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
-    const listVals = [...vals, params.limit, params.offset]
+    const listSql =
+        `SELECT ${returnCols} FROM ${table} ` +
+        `${whereSql} ` +
+        `ORDER BY ${safeSort} ${safeDir} ` +
+        `LIMIT $${i++} OFFSET $${i++}`
 
-    const countSql = `
-            SELECT COUNT(*)::int AS count FROM ${table} ${whereSql}
-        `
+    const listVals = [...values, limit, offset]
 
-    const [rowRes, countRes] = await Promise.all([
-        pool.query(listSql, listVals),
-        pool.query(countSql, vals),
+    const countSql = `SELECT COUNT(*)::int AS count FROM ${table} ${whereSql}`
+
+    const [listRes, countRes] = await Promise.all([
+        pool.query<TRow>(listSql, listVals),
+        pool.query<{ count: number }>(countSql, values),
     ])
 
     return {
-        items: rowRes.rows,
-        total: countRes.rows[0].count,
-        limit: params.limit,
-        offset: params.offset,
+        items: listRes.rows,
+        total: countRes.rows[0]?.count ?? 0,
+        limit,
+        offset,
     }
 }
