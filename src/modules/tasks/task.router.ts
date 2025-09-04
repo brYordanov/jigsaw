@@ -31,3 +31,8 @@ taskRouter.patch('/:id', async (req, res) => {
     const { id } = req.params
     res.send(await service.updateTask(Number(id), req.body))
 })
+
+taskRouter.delete('/:id', async (req, res) => {
+    const { id } = req.params
+    res.send(await service.deleteById(Number(id)))
+})

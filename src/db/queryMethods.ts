@@ -17,10 +17,8 @@ export class RepoMethods {
     }
 
     async getAll(): Promise<any> {
-        const { rows } = await this.pool.query(
-            `SELECT ${this.returningCols} FROM ${this.tableName}`
-        )
-        return rows[0]
+        const { rows } = await this.pool.query(`SELECT * FROM ${this.tableName}`)
+        return rows
     }
 
     async create(data: Record<string, any>): Promise<any> {
@@ -145,5 +143,9 @@ export class RepoMethods {
             limit,
             offset,
         }
+    }
+
+    async deleteById(id: number): Promise<void> {
+        await this.pool.query(`DELETE FROM ${this.tableName} WHERE id=${id}`)
     }
 }

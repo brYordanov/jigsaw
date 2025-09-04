@@ -1,34 +1,26 @@
 import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { TaskRow } from './task.entity'
-import {
-    CreateTaskBodyDto,
-    ListTasksQueryDto,
-    sortOptionsSchema,
-    sortOptionsType,
-    UpdateTaskBodyDto,
-} from './task.dtos'
+import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { PaginatedResponse } from './task.type'
 import { RepoMethods } from '../../db/queryMethods'
 
 const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
-  schedule_type, interval_type, days, hours, minutes, last_run_at, next_run_at, 
+  schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 
   timeout_seconds, last_ping_at, expires_at,
   created_at, updated_at` as const
 
 const TABLE_NAME_DEFAULT = 'tasks' as const
 
 export class TaskRepository {
+    private readonly repository: RepoMethods
     constructor(
         private readonly pool: Pool = defaultPool,
         private readonly RETURN_COLS: string = RETURN_COLS_DEFAULT,
-        private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT,
-        private readonly repository: RepoMethods = new RepoMethods(
-            this.pool,
-            this.RETURN_COLS,
-            this.TABLE_NAME
-        )
-    ) {}
+        private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT
+    ) {
+        this.repository = new RepoMethods(this.pool, this.TABLE_NAME, this.RETURN_COLS)
+    }
 
     async getAll(): Promise<TaskRow[]> {
         return this.repository.getAll()
@@ -70,5 +62,9 @@ export class TaskRepository {
             limit: params.limit,
             offset: params.offset,
         })
+    }
+
+    async deleteById(id: number): Promise<void> {
+        this.repository.deleteById(id)
     }
 }

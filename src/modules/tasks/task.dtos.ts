@@ -2,6 +2,15 @@ import z from 'zod'
 
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
+const daysOfWeek = z.enum([
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+])
 const isoDate = z.coerce.date().transform(d => d.toISOString())
 
 export const sortOptionsSchema = z
@@ -14,7 +23,8 @@ const baseSchema = z.object({
     description: z.string().max(2000).nullable().optional(),
     is_single_time_only: z.boolean().default(true),
     is_enabled: z.boolean().default(true),
-    days: z.array(z.number().int().min(0).max(31)).nullable().optional(),
+    days_of_month: z.array(z.number().int().min(0).max(31)).nullable().optional(),
+    days_of_week: daysOfWeek.nullable().optional(),
     hours: z.array(z.number().int().min(0).max(23)).nullable().optional(),
     minutes: z.array(z.number().int().min(0).max(59)).nullable().optional(),
     timeout_seconds: z.number().int().positive().nullable().optional(),
@@ -43,7 +53,8 @@ export const updateTaskSchema = z.object({
     is_enabled: z.boolean().optional(),
     schedule_type: schedule_type.optional(),
     interval_type: interval_type.optional(),
-    days: z.array(z.number().int().min(0).max(31)).nullable().optional(),
+    days_of_month: z.array(z.number().int().min(0).max(31)).nullable().optional(),
+    days_of_week: daysOfWeek.nullable().optional(),
     hours: z.array(z.number().int().min(0).max(23)).nullable().optional(),
     minutes: z.array(z.number().int().min(0).max(59)).nullable().optional(),
     timeout_seconds: z.number().int().positive().nullable().optional(),

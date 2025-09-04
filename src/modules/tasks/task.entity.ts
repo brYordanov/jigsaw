@@ -11,7 +11,8 @@ export interface TaskRow {
     schedule_type: ScheduleType
     interval_type: IntervalType
 
-    days: number[] | null
+    days_of_month: number[] | null
+    days_of_week: number[] | null
     hours: number[] | null
     minutes: number[] | null
 

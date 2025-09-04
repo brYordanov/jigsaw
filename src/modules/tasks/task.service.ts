@@ -28,4 +28,8 @@ export class TaskService {
     async updateTask(id: number, body: UpdateTaskBodyDto) {
         return this.repo.updateTask(id, body)
     }
+
+    async deleteById(id: number): Promise<void> {
+        await this.repo.deleteById(id)
+    }
 }
