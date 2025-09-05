@@ -1,11 +1,23 @@
-.field-container {
+.field {
     display: flex;
     align-items: center;
     gap: 5px;
+    background-color: #e0e0e0;
+    border-radius: var(--br-primary);
+    color: #212121;
+    padding: 10px 20px;
 
     input,
-    textarea {
-        border-radius: 5px;
+    textarea,
+    select {
+        flex: 1;
         padding: 5px;
+        background-color: #fff;
+        border-radius: var(--br-primary);
+        border: 0;
     }
+}
+
+.error {
+    color: red;
 }

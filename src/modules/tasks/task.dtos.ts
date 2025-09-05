@@ -19,8 +19,8 @@ export const sortOptionsSchema = z
 export type sortOptionsType = z.infer<typeof sortOptionsSchema>
 
 const baseSchema = z.object({
-    name: z.string().min(1),
-    description: z.string().max(2000).nullable().optional(),
+    name: z.string().min(3),
+    description: z.string().max(2).nullable().optional(),
     is_single_time_only: z.boolean().default(true),
     is_enabled: z.boolean().default(true),
     days_of_month: z.array(z.number().int().min(0).max(31)).nullable().optional(),

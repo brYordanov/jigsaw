@@ -1,0 +1,148 @@
+<div class="create-page">
+    <h1>Create Task</h1>
+    <form action="/task/create" method="POST" class="create-page__form js_create_form" novalidate>
+        <div class="field-container">
+
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="<%= values.name || '' %>" />
+            </div>
+            <% if (errors.name) { %><p class="error"><%= errors.name %></p><% } %>
+        </div>    
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea
+                    name="description"
+                    id="description"
+                    style="min-width: 233px"
+                    ><%= values.description || '' %></textarea>
+                </div>
+                <% if (errors.description) { %><p class="error"><%= errors.description %></p><% } %>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="expires_at">Expires At</label>
+                    <input type="date" required name="expires_at" id="expires_at"  value=""/>
+                </div>
+                <% if (errors.expires_at) { %><p class="error"><%= errors.expires_at %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Single time</p>
+                    <label class="switch" for="is_single_time_only">
+                        <input
+                        type="checkbox"
+                        class="switch__input"
+                        name="is_single_time_only"
+                        id="is_single_time_only"
+                        <%= values.is_single_time_only ? 'checked' : '' %>
+                        />
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Enabled</p>
+                    <label class="switch" for="is_enabled">
+                        <input type="checkbox" class="switch__input" name="is_enabled" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="schedule_type">Schedule Type</label>
+                    <select name="schedule_type" id="schedule_type">
+                        <option value="fixed">fixed</option>
+                        <option value="deadman">deadman</option>
+                    </select>
+                </div>
+            </div>
+        
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="interval_type">Interval Type</label>
+                    <select name="interval_type" id="interval_type">
+                        <option value="monthly">monthly</option>
+                        <option value="weekly">weekly</option>
+                        <option value="daily">daily</option>
+                        <option value="hourly">hourly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="days_of_month">Days of Month</label>
+                    <input type="text" name="days_of_month" id="days_of_month" />
+                </div>
+                <% if (errors.days_of_month) { %><p class="error"><%= errors.days_of_month %></p><% } %>
+            </div>
+
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="days_of_week">Days of Week </label>
+                    <select
+                    name="days_of_week"
+                    id="days_of_week"
+                    multiple
+                    style="min-height: 135px; padding: 10px"
+                    >
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                    <option value="saturday">Saturday</option>
+                    <option value="sunday">Sunday</option>
+                </select>
+            </div>
+        </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="hours">Hours</label>
+                    <input type="text" name="hours" id="hours" />
+                </div>
+                <% if (errors.hours) { %><p class="error"><%= errors.hours %></p><% } %>
+            </div>
+
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="minutes">Minutes</label>
+                    <input type="text" name="minutes" id="minutes" />
+                </div>
+                <% if (errors.minutes) { %><p class="error"><%= errors.minutes %></p><% } %>
+            </div>
+
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="timeout_seconds">Seconds Timeout</label>
+                    <input type="number" name="timeout_seconds" id="timeout_seconds" />
+                </div>
+                <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
+            </div>
+        <button type="submit" class="create-page__btn">Create</button>
+    </form>
+</div>

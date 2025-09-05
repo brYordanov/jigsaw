@@ -7,16 +7,24 @@
 }
 
 .create-page__form {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
 .create-page__btn {
-    padding: 10px 20px;
+    align-self: center;
+    width: 80%;
+    padding: 16px 0;
     background-color: var(--color-primary);
     color: #fff;
     border: 0;
-    border-radius: 5px;
+    border-radius: var(--br-primary);
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
+}
+
+.create-page__btn:hover {
+    filter: grayscale(0.2);
 }

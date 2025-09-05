@@ -11,6 +11,8 @@ export const HttpStatus = {
     NOT_FOUND: 404, // Resource not found
     CONFLICT: 409, // Conflict (e.g. optimistic lock / unique constraint)
     UNPROCESSABLE_ENTITY: 422, // Validation error (input is understood, but invalid)
+
+    UNEXPECTED_SERVER_ERROR: 500,
 } as const
 
 export type HttpStatusCode = (typeof HttpStatus)[keyof typeof HttpStatus]
