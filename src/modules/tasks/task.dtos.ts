@@ -12,6 +12,15 @@ const daysOfWeek = z.enum([
     'Sunday',
 ])
 const isoDate = z.coerce.date().transform(d => d.toISOString())
+const futureDate = isoDate.refine(
+    date => {
+        if (!date) return true
+        const now = new Date()
+        const dateVal = new Date(date)
+        return dateVal > now
+    },
+    { message: 'Expiration date must be in the future' }
+)
 
 export const sortOptionsSchema = z
     .enum(['created_at', 'updated_at', 'name', 'next_run_at'])
@@ -20,7 +29,7 @@ export type sortOptionsType = z.infer<typeof sortOptionsSchema>
 
 const baseSchema = z.object({
     name: z.string().min(3),
-    description: z.string().max(2).nullable().optional(),
+    description: z.string().max(200).nullable().optional(),
     is_single_time_only: z.boolean().default(true),
     is_enabled: z.boolean().default(true),
     days_of_month: z.array(z.number().int().min(0).max(31)).nullable().optional(),
@@ -28,7 +37,7 @@ const baseSchema = z.object({
     hours: z.array(z.number().int().min(0).max(23)).nullable().optional(),
     minutes: z.array(z.number().int().min(0).max(59)).nullable().optional(),
     timeout_seconds: z.number().int().positive().nullable().optional(),
-    expires_at: isoDate.nullable().optional(),
+    expires_at: futureDate.nullable().optional(),
 })
 
 export const createTaskSchema = z.discriminatedUnion('schedule_type', [
