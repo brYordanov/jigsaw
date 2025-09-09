@@ -13,8 +13,10 @@ const service = new TaskService()
 ViewTaskRouter.get('/', async (req, res) => {
     const params = listTasksQuerySchema.parse(req.query)
 
-    const tasks = await service.paginate(params)
-    res.render('pages/task-list', tasks)
+    const { items: tasks } = await service.paginate(params)
+    if (!params.is_enabled) params.is_enabled === false
+
+    res.render('pages/task-list', { tasks, filterValues: params })
 })
 
 ViewTaskRouter.get('/create', (req, res) => {
@@ -26,12 +28,10 @@ ViewTaskRouter.post('/create', coerseFormValuesMD, async (req, res) => {
         const dto = createTaskSchema.parse(req.body)
         const task = await service.createTask(dto)
 
-        return res.redirect(`/`)
+        return res.redirect(`/task`)
     } catch (err: any) {
         if (err instanceof ZodError) {
             const { firstPerField, grouped } = groupZodIssues(err.issues)
-            console.log(grouped)
-            console.log(normalizeFormValues(req.body))
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: normalizeFormValues(req.body),

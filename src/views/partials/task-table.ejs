@@ -1,0 +1,33 @@
+<table class="list-table">
+    <thead>
+        <tr>
+            <th><a href="/task/create" class="btn btn-primary">➕</a></th>
+            <th>id</th>
+            <th>name</th>
+            <th>enabled</th>
+            <th>schedule type</th>
+            <th>interval type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% if (tasks && tasks.length) { %>
+        <% tasks.forEach(function(task) { %>
+        <tr>
+            <td>
+                <button class="btn btn-primary">🗑</button>
+                <a href="/something" class="btn btn-secondary"> ✏️ </a>
+            </td>
+            <td><%= task.id %></td>
+            <td><%= task.name %></td>
+            <td><%= task.is_enabled ? 'true' : 'false' %></td>
+            <td><%= task.schedule_type %></td>
+            <td><%= task.interval_type %></td>
+        </tr>
+        <% }) %>
+        <% } else { %>
+        <tr>
+            <td colspan="5">No tasks found.</td>
+        </tr>
+        <% } %>
+    </tbody>
+</table>

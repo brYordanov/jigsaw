@@ -1,6 +1,9 @@
 @import './components/toggle-input.css';
 @import './components/fields.css';
 @import './components/create-page.css';
+@import './components/list-page.css';
+@import './components/btns.css';
+@import './components/filters.css';
 
 * {
     box-sizing: border-box;
@@ -10,5 +13,16 @@
 
 :root {
     --color-primary: #2196f3;
+    --color-secondary: #ccc;
     --br-primary: 10px;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
 }

@@ -1,22 +1,28 @@
 {
-  "semi": false,
-  "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 4,
-  "useTabs": false,
-  "trailingComma": "es5",
-  "arrowParens": "avoid",
-  "bracketSpacing": true,
-  "endOfLine": "lf",
-  "plugins": ["prettier-plugin-sql"],
-  "overrides": [
-    {
-      "files": "*.sql",
-      "options": {
-        "parser": "sql",
-        "language": "postgresql",
-        "keywordCase": "upper"
-      }
-    }
-  ]
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "trailingComma": "es5",
+    "arrowParens": "avoid",
+    "bracketSpacing": true,
+    "endOfLine": "lf",
+    "plugins": ["prettier-plugin-sql", "prettier-plugin-ejs"],
+    "overrides": [
+        {
+            "files": "*.sql",
+            "options": {
+                "parser": "sql",
+                "language": "postgresql",
+                "keywordCase": "upper"
+            }
+        },
+        {
+            "files": ["*.ejs", "**/*.ejs"],
+            "options": {
+                "parser": "html"
+            }
+        }
+    ]
 }

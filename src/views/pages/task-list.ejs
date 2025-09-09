@@ -1,4 +1,9 @@
-<h1>Task Manager</h1>
+<main class="list-page">
+    <div class="list-page__head">
+        <h1 class="list-page__title">Task Manager</h1>
+    </div>
 
-<div id="main"></div>
-<a href="/task/create">Create task</a>
+    <%- include('../partials/task-filters', {filterValues}) %>
+
+    <%- include('../partials/task-table', {tasks}) %>
+</main>

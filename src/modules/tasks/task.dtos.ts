@@ -23,7 +23,7 @@ const futureDate = isoDate.refine(
 )
 
 export const sortOptionsSchema = z
-    .enum(['created_at', 'updated_at', 'name', 'next_run_at'])
+    .enum(['created_at', 'updated_at', 'name', 'next_run_at', 'last_run_at'])
     .default('created_at')
 export type sortOptionsType = z.infer<typeof sortOptionsSchema>
 
@@ -73,7 +73,7 @@ export const updateTaskSchema = z.object({
 export type UpdateTaskBodyDto = z.infer<typeof updateTaskSchema>
 
 export const listTasksQuerySchema = z.object({
-    limit: z.coerce.number().int().min(1).max(100).default(20),
+    limit: z.coerce.number().int().min(1).max(100).default(4),
     offset: z.coerce.number().int().min(0).default(0),
     schedule_type: schedule_type.optional(),
     interval_type: interval_type.optional(),

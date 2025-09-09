@@ -12,7 +12,7 @@ taskRouter.get('/', async (req, res) => {
 taskRouter.get('/paginate', async (req, res) => {
     const parsed = listTasksQuerySchema.safeParse(req.query)
     if (!parsed.success) {
-        res.send('fuck you')
+        res.send('param validation error')
         return
     }
     res.send(await service.paginate(parsed.data))
