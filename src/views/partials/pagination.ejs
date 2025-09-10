@@ -1,0 +1,17 @@
+<nav class="pagination">
+    <% if (paginateData.hasPrev) { %>
+    <a class="btn btn-primary" href="/task<%= paginateData.prevHref %>">← Prev</a>
+    <% } else { %>
+    <span class="btn btn--disabled">← Prev</span>
+    <% } %>
+
+    <span class="paginateData__info">
+        Page <%= paginateData.page %> of <%= paginateData.totalPages %>
+    </span>
+
+    <% if (paginateData.hasNext) { %>
+    <a class="btn btn-primary" href="/task<%= paginateData.nextHref %>">Next →</a>
+    <% } else { %>
+    <span class="btn btn--disabled">Next →</span>
+    <% } %>
+</nav>

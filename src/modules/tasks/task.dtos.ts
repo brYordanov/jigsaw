@@ -21,6 +21,17 @@ const futureDate = isoDate.refine(
     },
     { message: 'Expiration date must be in the future' }
 )
+const qBool = z.preprocess(v => {
+    if (v === 'true' || v === true) return true
+    if (v === 'false' || v === false) return false
+    return undefined
+}, z.boolean().optional())
+const qAny = <T extends z.ZodTypeAny>(schema: T) =>
+    z.preprocess((v: unknown) => {
+        if (Array.isArray(v)) v = v[v.length - 1]
+        if (v === undefined || v === null || v === '' || v === 'any') return undefined
+        return v
+    }, schema.optional())
 
 export const sortOptionsSchema = z
     .enum(['created_at', 'updated_at', 'name', 'next_run_at', 'last_run_at'])
@@ -75,9 +86,9 @@ export type UpdateTaskBodyDto = z.infer<typeof updateTaskSchema>
 export const listTasksQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(4),
     offset: z.coerce.number().int().min(0).default(0),
-    schedule_type: schedule_type.optional(),
-    interval_type: interval_type.optional(),
-    is_enabled: z.coerce.boolean().optional(),
+    schedule_type: qAny(schedule_type),
+    interval_type: qAny(interval_type),
+    is_enabled: qBool,
     search: z.string().max(200).optional(),
     sort: sortOptionsSchema,
     dir: z.enum(['ASC', 'DESC']).default('DESC'),

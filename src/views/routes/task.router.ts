@@ -10,13 +10,57 @@ import { normalizeFormValues } from '../../middlewares/normalizeFormValues'
 export const ViewTaskRouter = Router()
 const service = new TaskService()
 
+function buildPager({
+    limit,
+    offset,
+    total,
+    filters,
+}: {
+    limit: number
+    offset: number
+    total: number
+    filters: Record<string, any>
+}) {
+    const toQueryString = (obj: Record<string, any>) =>
+        '?' +
+        Object.entries(obj)
+            .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+            .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+            .join('&')
+
+    const prevOffset = Math.max(0, offset - limit)
+    const nextOffset = offset + limit < total ? offset + limit : null
+
+    return {
+        hasPrev: offset > 0,
+        hasNext: nextOffset !== null,
+        prevHref: offset > 0 ? toQueryString({ ...filters, limit, offset: prevOffset }) : null,
+        nextHref:
+            nextOffset !== null ? toQueryString({ ...filters, limit, offset: nextOffset }) : null,
+        page: Math.floor(offset / limit) + 1,
+        totalPages: Math.ceil(total / limit),
+    }
+}
+
 ViewTaskRouter.get('/', async (req, res) => {
     const params = listTasksQuerySchema.parse(req.query)
+    const { items: tasks, total, limit, offset } = await service.paginate(params)
+    const paginateData = buildPager({ limit, offset, total, filters: params })
 
-    const { items: tasks } = await service.paginate(params)
-    if (!params.is_enabled) params.is_enabled === false
+    if (req.get('HX-Request') === 'true') {
+        return res.render('partials/task-list-section', {
+            tasks,
+            filterValues: params,
+            paginateData,
+            layout: false,
+        })
+    }
 
-    res.render('pages/task-list', { tasks, filterValues: params })
+    res.render('pages/task-list', {
+        tasks,
+        filterValues: params,
+        paginateData,
+    })
 })
 
 ViewTaskRouter.get('/create', (req, res) => {

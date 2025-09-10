@@ -1,4 +1,12 @@
-<form method="GET" action="/task" class="filters">
+<form 
+  method="GET" 
+  action="/task" 
+  class="filters" 
+  hx-get="/task" 
+  hx-target="#results" 
+  hx-swap="outerHTML" 
+  hx-include=".filters" 
+  hx-trigger="submit, change delay:300ms from:input, change from:select">
   <div class="field">
     <label for="search">Search</label>
     <input type="text" name="search" id="search" value="<%= filterValues.search %>" />
@@ -7,7 +15,8 @@
   <div class="field">
     <label for="schedule_type">Schedule Type</label>
     <select name="schedule_type" id="schedule_type">
-      <option value="fixed" <%= (!filterValues.schedule_type || filterValues.schedule_type === 'fixed') ? 'selected' : '' %>>fixed</option>
+      <option value="" <%= !filterValues.schedule_type ? 'selected' : '' %>>any</option>
+      <option value="fixed" <%= filterValues.schedule_type === 'fixed' ? 'selected' : '' %>>fixed</option>
       <option value="deadman" <%= filterValues.schedule_type === 'deadman' ? 'selected' : '' %>>deadman</option>
     </select>
   </div>
@@ -15,7 +24,8 @@
   <div class="field">
     <label for="interval_type">Interval Type</label>
     <select name="interval_type" id="interval_type">
-      <option value="monthly" <%= (!filterValues.interval_type || filterValues.interval_type === 'monthly') ? 'selected' : '' %>>monthly</option>
+      <option value="" <%= !filterValues.interval_type ? 'selected' : '' %>>any</option>
+      <option value="monthly" <%= filterValues.interval_type === 'monthly'? 'selected' : '' %>>monthly</option>
       <option value="weekly" <%= filterValues.interval_type === 'weekly' ? 'selected' : '' %>>weekly</option>
       <option value="daily" <%= filterValues.interval_type === 'daily' ? 'selected' : '' %>>daily</option>
       <option value="hourly" <%= filterValues.interval_type === 'hourly' ? 'selected' : '' %>>hourly</option>
@@ -23,17 +33,12 @@
   </div>
 
   <div class="field">
-    <p>Enabled</p>
-    <label class="switch" for="is_enabled">
-        <input
-        type="checkbox"
-        class="switch__input"
-        name="is_enabled"
-        id="is_enabled"
-        <%= filterValues.is_enabled === true ? 'checked' : '' %>
-      />
-      <span class="switch__slider round"></span>
-    </label>
+    <label for="is_enabled">Enabled</label>
+    <select name="is_enabled" id="is_enabled">
+      <option value="" <%= filterValues.is_enabled == null ? 'selected' : '' %>>any</option>
+      <option value="true"  <%= filterValues.is_enabled === true ? 'selected' : '' %>>enabled</option>
+      <option value="false" <%= filterValues.is_enabled === false ? 'selected' : '' %>>disabled</option>
+    </select>
   </div>
 
   <div class="field">
