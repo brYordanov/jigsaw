@@ -5,6 +5,7 @@
 @import './components/btns.css';
 @import './components/filters.css';
 @import './components/pagination.css';
+@import './components/navigation.css';
 
 * {
     box-sizing: border-box;
