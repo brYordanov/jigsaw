@@ -1,0 +1,64 @@
+<form 
+  method="GET" 
+  action="/task" 
+  class="filters" 
+  hx-get="/task" 
+  hx-target="#results" 
+  hx-swap="outerHTML" 
+  hx-include=".filters" 
+  hx-trigger="submit, change delay:300ms from:input, change from:select">
+  <div class="field">
+    <label for="search">Search</label>
+    <input type="text" name="search" id="search" value="<%= filterValues.search %>" />
+  </div>
+
+  <div class="field">
+    <label for="schedule_type">Schedule Type</label>
+    <select name="schedule_type" id="schedule_type">
+      <option value="" <%= !filterValues.schedule_type ? 'selected' : '' %>>any</option>
+      <option value="fixed" <%= filterValues.schedule_type === 'fixed' ? 'selected' : '' %>>fixed</option>
+      <option value="deadman" <%= filterValues.schedule_type === 'deadman' ? 'selected' : '' %>>deadman</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="interval_type">Interval Type</label>
+    <select name="interval_type" id="interval_type">
+      <option value="" <%= !filterValues.interval_type ? 'selected' : '' %>>any</option>
+      <option value="monthly" <%= filterValues.interval_type === 'monthly'? 'selected' : '' %>>monthly</option>
+      <option value="weekly" <%= filterValues.interval_type === 'weekly' ? 'selected' : '' %>>weekly</option>
+      <option value="daily" <%= filterValues.interval_type === 'daily' ? 'selected' : '' %>>daily</option>
+      <option value="hourly" <%= filterValues.interval_type === 'hourly' ? 'selected' : '' %>>hourly</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="is_enabled">Enabled</label>
+    <select name="is_enabled" id="is_enabled">
+      <option value="" <%= filterValues.is_enabled == null ? 'selected' : '' %>>any</option>
+      <option value="true"  <%= filterValues.is_enabled === true ? 'selected' : '' %>>enabled</option>
+      <option value="false" <%= filterValues.is_enabled === false ? 'selected' : '' %>>disabled</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="sort">Sort</label>
+    <select name="sort" id="sort">
+      <option value="created_at" <%= (!filterValues.sort || filterValues.sort === 'created_at') ? 'selected' : '' %>>created_at</option>
+      <option value="updated_at" <%= filterValues.sort === 'updated_at' ? 'selected' : '' %>>updated_at</option>
+      <option value="next_run_at" <%= filterValues.sort === 'next_run_at' ? 'selected' : '' %>>next_run_at</option>
+      <option value="name" <%= filterValues.sort === 'name' ? 'selected' : '' %>>name</option>
+      <option value="last_run_at" <%= filterValues.sort === 'last_run_at' ? 'selected' : '' %>>last_run_at</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="dir">Direction</label>
+    <select name="dir" id="dir">
+      <option value="ASC" <%= filterValues.dir === 'ASC' ? 'selected' : '' %>>ASC</option>
+      <option value="DESC" <%= (!filterValues.dir || filterValues.dir === 'DESC') ? 'selected' : ''  %> >DESC</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">🔎</button>
+</form>

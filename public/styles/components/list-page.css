@@ -1,0 +1,30 @@
+.list-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.list-page__title {
+    margin-bottom: 20px;
+}
+
+.list-table {
+    width: 80%;
+    border: 1px solid;
+    border-radius: var(--br-primary);
+
+    th,
+    td {
+        padding: 10px 0;
+        text-align: center;
+    }
+
+    thead th {
+        border-bottom: 1px solid;
+    }
+
+    thead th:not(:last-child),
+    tbody td:not(:last-child) {
+        border-right: 1px solid;
+    }
+}

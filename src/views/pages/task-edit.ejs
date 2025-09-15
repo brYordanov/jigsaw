@@ -1,0 +1,148 @@
+<section class="task-form">
+    <h1>Edit Task</h1>
+    <form method="POST" action="/task/edit/<%= values.id %>" class="task-form__form" novalidate>
+        <span id="saving" class="spinner" hidden>Saving…</span>
+        <div class="field-container">
+
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="<%= values.name || '' %>" />
+            </div>
+            <% if (errors.name) { %><p class="error"><%= errors.name %></p><% } %>
+        </div>    
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea
+                    name="description"
+                    id="description"
+                    style="min-width: 233px"
+                    ><%= values.description || '' %></textarea>
+                </div>
+                <% if (errors.description) { %><p class="error"><%= errors.description %></p><% } %>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="expires_at">Expires At</label>
+                    <input type="date" required name="expires_at" id="expires_at"  value="<%= values.expires_at || '' %>"/>
+                </div>
+                <% if (errors.expires_at) { %><p class="error"><%= errors.expires_at %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Single time</p>
+                    <label class="switch" for="is_single_time_only">
+                        <input
+                        type="checkbox"
+                        class="switch__input"
+                        name="is_single_time_only"
+                        id="is_single_time_only"
+                        <%= values.is_single_time_only ? 'checked' : '' %>
+                        />
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Enabled</p>
+                    <label class="switch" for="is_enabled">
+                        <input type="checkbox" class="switch__input" name="is_enabled" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="schedule_type">Schedule Type</label>
+                    <select name="schedule_type" id="schedule_type">
+                        <option value="fixed" <%= (!values.schedule_type || values.schedule_type === 'fixed') ? 'selected' : '' %>>fixed</option>
+                        <option value="deadman" <%= values.schedule_type === 'deadman' ? 'selected' : '' %>>deadman</option>
+                    </select>
+                </div>
+            </div>
+        
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="interval_type">Interval Type</label>
+                    <select name="interval_type" id="interval_type">
+                        <option value="monthly"  <%= (!values.interval_type || values.interval_type === 'monthly') ? 'selected' : '' %>>monthly</option>
+                        <option value="weekly" <%= values.interval_type === 'weekly' ? 'selected' : '' %> >weekly</option>
+                        <option value="daily" <%= values.interval_type === 'daily' ? 'selected' : '' %>>daily</option>
+                        <option value="hourly" <%= values.interval_type === 'hourly' ? 'selected' : '' %>>hourly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="days_of_month">Days of Month</label>
+                    <input type="text" name="days_of_month" id="days_of_month" value="<%= values.days_of_month %>"/>
+                </div>
+                <% if (errors.days_of_month) { %><p class="error"><%= errors.days_of_month %></p><% } %>
+            </div>
+
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="days_of_week">Days of Week </label>
+                    <select
+                    name="days_of_week"
+                    id="days_of_week"
+                    multiple
+                    style="min-height: 135px; padding: 10px"
+                    >
+                    <option value="monday" <%= values.days_of_week && values.days_of_week.includes('monday') ? 'selected' : ''  %>>Monday</option>
+                    <option value="tuesday" <%= values.days_of_week && values.days_of_week.includes('tuesday') ? 'selected' : ''  %>>Tuesday</option>
+                    <option value="wednesday" <%= values.days_of_week && values.days_of_week.includes('wednesday') ? 'selected' : ''  %>>Wednesday</option>
+                    <option value="thursday" <%= values.days_of_week && values.days_of_week.includes('thursday') ? 'selected' : ''  %>>Thursday</option>
+                    <option value="friday" <%= values.days_of_week && values.days_of_week.includes('friday') ? 'selected' : ''  %>>Friday</option>
+                    <option value="saturday" <%= values.days_of_week && values.days_of_week.includes('saturday') ? 'selected' : ''  %>>Saturday</option>
+                    <option value="sunday" <%= values.days_of_week && values.days_of_week.includes('sunday') ? 'selected' : ''  %>>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="hours">Hours</label>
+                    <input type="text" name="hours" id="hours" value="<%= values.hours %>"/>
+                </div>
+                <% if (errors.hours) { %><p class="error"><%= errors.hours %></p><% } %>
+            </div>
+
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="minutes">Minutes</label>
+                    <input type="text" name="minutes" id="minutes" value="<%= values.minutes %>"/>
+                </div>
+                <% if (errors.minutes) { %><p class="error"><%= errors.minutes %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="timeout_seconds">Seconds Timeout</label>
+                    <input type="number" name="timeout_seconds" id="timeout_seconds"  value="<%= values.timeout_seconds %>"/>
+                </div>
+                <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
+            </div>
+        <button type="submit" class="task-form__btn">Save</button>
+    </form>
+</section>

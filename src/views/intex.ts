@@ -1,11 +1,9 @@
 import { Router } from 'express'
+import { ViewTaskRouter } from './routes/task.router'
 
 export const viewRouter = Router()
 
 viewRouter.get('/', (req, res) => {
-  res.render('pages/index', { title: 'Home' })
+    res.render('pages/index')
 })
-
-viewRouter.get('/create', (req, res) => {
-  res.render('pages/create-form', {})
-})
+viewRouter.use('/task', ViewTaskRouter)

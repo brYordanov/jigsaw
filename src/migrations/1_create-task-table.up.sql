@@ -11,38 +11,35 @@ END
 $$;
 
 CREATE TABLE IF NOT EXISTS tasks (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  is_single_time_only BOOLEAN NOT NULL DEFAULT TRUE,
-  is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-
-  schedule_type schedule_type_enum NOT NULL,
-  interval_type interval_type_enum NOT NULL,
-
-  days INTEGER[],
-  hours INTEGER[],
-  minutes INTEGER[],
-  jump INTEGER,
-
-  last_run_at TIMESTAMPTZ,
-  next_run_at TIMESTAMPTZ,
-  timeout_seconds INTEGER,
-  last_ping_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ, 
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-  CHECK (timeout_seconds IS NULL OR timeout_seconds > 0),
-  CHECK (jump IS NULL OR jump > 0)
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    is_single_time_only BOOLEAN NOT NULL DEFAULT TRUE,
+    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    schedule_type schedule_type_enum NOT NULL,
+    interval_type interval_type_enum NOT NULL,
+    days_of_month INTEGER[],
+    days_of_week INTEGER[],
+    hours INTEGER[],
+    minutes INTEGER[],
+    last_run_at TIMESTAMPTZ,
+    next_run_at TIMESTAMPTZ,
+    timeout_seconds INTEGER,
+    last_ping_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (
+        timeout_seconds IS NULL
+        OR timeout_seconds > 0
+    )
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_next_run_at_is_enabled
-  ON tasks (next_run_at)
-  WHERE is_enabled = TRUE;
+CREATE INDEX IF NOT EXISTS idx_tasks_next_run_at_is_enabled ON tasks (next_run_at)
+WHERE
+    is_enabled = TRUE;
 
-CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION set_updated_at () RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;

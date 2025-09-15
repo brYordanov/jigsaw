@@ -1,0 +1,30 @@
+@import './components/toggle-input.css';
+@import './components/fields.css';
+@import './components/task-form.css';
+@import './components/list-page.css';
+@import './components/btns.css';
+@import './components/filters.css';
+@import './components/pagination.css';
+@import './components/navigation.css';
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+:root {
+    --color-primary: #2196f3;
+    --color-secondary: #ccc;
+    --br-primary: 10px;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}

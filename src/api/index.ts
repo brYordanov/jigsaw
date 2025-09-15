@@ -1,7 +1,6 @@
 import { Router } from 'express'
+import { taskRouter } from '../modules/tasks/task.router'
 
 export const apiRouter = Router()
 
-apiRouter.get('/', (req, res) => {
-  res.json({ status: 'API is running' })
-})
+apiRouter.use('/tasks', taskRouter)

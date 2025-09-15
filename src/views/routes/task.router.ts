@@ -1,0 +1,91 @@
+import { Router } from 'express'
+import {
+    createTaskSchema,
+    listTasksQuerySchema,
+    updateTaskSchema,
+} from '../../modules/tasks/task.dtos'
+import { TaskService } from '../../modules/tasks/task.service'
+import { HttpStatus } from '../../helpers/statusCodes'
+import { coerseFormValuesMD } from '../../middlewares/coerseFormValues'
+import { groupZodIssues } from '../../helpers/groupZodIssues'
+import { ZodError } from 'zod'
+import { normalizeFormValues } from '../../middlewares/normalizeFormValues'
+import { getPaginationData } from '../../helpers/getPaginationData'
+import { error } from 'console'
+
+export const ViewTaskRouter = Router()
+const service = new TaskService()
+
+ViewTaskRouter.get('/', async (req, res) => {
+    const params = listTasksQuerySchema.parse(req.query)
+    const { items: tasks, total, limit, offset } = await service.paginate(params)
+    const paginateData = getPaginationData({ limit, offset, total, filters: params })
+
+    if (req.get('HX-Request') === 'true') {
+        return res.render('partials/task-list-section', {
+            tasks,
+            filterValues: params,
+            paginateData,
+            layout: false,
+        })
+    }
+
+    res.render('pages/task-list', {
+        tasks,
+        filterValues: params,
+        paginateData,
+    })
+})
+
+ViewTaskRouter.get('/create', (req, res) => {
+    res.render('pages/task-create', { values: {}, errors: {} })
+})
+
+ViewTaskRouter.post('/create', coerseFormValuesMD, async (req, res) => {
+    try {
+        const dto = createTaskSchema.parse(req.body)
+        const task = await service.createTask(dto)
+
+        return res.redirect(`/task`)
+    } catch (err: any) {
+        if (err instanceof ZodError) {
+            const { firstPerField, grouped } = groupZodIssues(err.issues)
+
+            return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
+                values: normalizeFormValues(req.body),
+                errors: firstPerField,
+            })
+        }
+
+        console.error(err)
+        return res.status(HttpStatus.UNEXPECTED_SERVER_ERROR).render('errors/500')
+    }
+})
+
+ViewTaskRouter.get('/edit/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    const task = await service.getByIdOrFail(id)
+    res.render('pages/task-edit', { values: task, errors: {} })
+})
+
+ViewTaskRouter.post('/edit/:id', coerseFormValuesMD, async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+        const dto = updateTaskSchema.parse(req.body)
+        const task = await service.updateTask(id, dto)
+
+        return res.redirect(`/task`)
+    } catch (err) {
+        if (err instanceof ZodError) {
+            const { firstPerField, grouped } = groupZodIssues(err.issues)
+
+            return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-edit', {
+                values: normalizeFormValues(req.body),
+                errors: firstPerField,
+            })
+        }
+
+        console.error(err)
+        return res.status(HttpStatus.UNEXPECTED_SERVER_ERROR).render('errors/500')
+    }
+})
