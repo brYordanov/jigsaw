@@ -1,4 +1,4 @@
-.create-page {
+.task-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -6,14 +6,14 @@
     padding: 50px 0;
 }
 
-.create-page__form {
+.task-form__form {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 60%;
 }
 
-.create-page__btn {
+.task-form__btn {
     align-self: center;
     width: 80%;
     padding: 16px 0;
@@ -26,6 +26,6 @@
     cursor: pointer;
 }
 
-.create-page__btn:hover {
+.task-form__btn:hover {
     filter: grayscale(0.2);
 }

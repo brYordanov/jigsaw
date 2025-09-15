@@ -15,7 +15,9 @@
         <tr>
             <td>
                 <button class="btn btn-primary">🗑</button>
-                <a href="/something" class="btn btn-secondary"> ✏️ </a>
+                <a hx-boost="false" href="/task/edit/<%= task.id %>" class="btn btn-secondary">
+                    ✏️
+                </a>
             </td>
             <td><%= task.id %></td>
             <td><%= task.name %></td>
