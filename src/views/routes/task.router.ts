@@ -89,3 +89,9 @@ ViewTaskRouter.post('/edit/:id', coerseFormValuesMD, async (req, res) => {
         return res.status(HttpStatus.UNEXPECTED_SERVER_ERROR).render('errors/500')
     }
 })
+
+ViewTaskRouter.delete('/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    await service.deleteById(id)
+    return res.status(HttpStatus.OK).send('')
+})

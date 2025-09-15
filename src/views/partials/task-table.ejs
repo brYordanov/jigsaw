@@ -14,7 +14,16 @@
         <% tasks.forEach(function(task) { %>
         <tr>
             <td>
-                <button class="btn btn-primary">🗑</button>
+                <button
+                    class="btn btn-primary"
+                    hx-delete="/task/<%= task.id %>"
+                    hx-confirm="Delete this task?"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML:remove"
+                    hx-push-url="false"
+                >
+                    🗑
+                </button>
                 <a hx-boost="false" href="/task/edit/<%= task.id %>" class="btn btn-secondary">
                     ✏️
                 </a>
