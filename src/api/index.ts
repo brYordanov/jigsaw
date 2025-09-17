@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { taskRouter } from '../modules/tasks/task.router'
+import { taskRouter } from './task.router'
 
 export const apiRouter = Router()
 

@@ -1,7 +1,7 @@
+import { PaginatedResponse } from '../../db/types'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { TaskRow } from './task.entity'
 import { TaskRepository } from './task.repo'
-import { PaginatedResponse } from './task.type'
 
 export class TaskService {
     constructor(private readonly repo = new TaskRepository()) {}
@@ -17,7 +17,7 @@ export class TaskService {
         return task
     }
 
-    async paginate(params: ListTasksQueryDto): Promise<PaginatedResponse> {
+    async paginate(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         return this.repo.listPaginated(params)
     }
 

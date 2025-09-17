@@ -2,8 +2,8 @@ import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { TaskRow } from './task.entity'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
-import { PaginatedResponse } from './task.type'
 import { RepoMethods } from '../../db/queryMethods'
+import { PaginatedResponse } from '../../db/types'
 
 const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
   schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 
@@ -38,7 +38,7 @@ export class TaskRepository {
         return this.repository.update(id, data)
     }
 
-    async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse> {
+    async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         const FILTERS_NAME = {
             schedule_type: 'eq',
             interval_type: 'eq',
