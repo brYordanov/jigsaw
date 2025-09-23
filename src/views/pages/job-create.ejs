@@ -1,0 +1,111 @@
+<div class="form-page">
+    <h1>Create Job</h1>
+    <form action="/job/create" method="POST" class="form-page__form" novalidate>
+        <div class="field-container">
+
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="<%= values.name || '' %>" />
+            </div>
+            <% if (errors.name) { %><p class="error"><%= errors.name %></p><% } %>
+        </div>    
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea
+                    name="description"
+                    id="description"
+                    style="min-width: 233px"
+                    ><%= values.description || '' %></textarea>
+                </div>
+                <% if (errors.description) { %><p class="error"><%= errors.description %></p><% } %>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Enabled</p>
+                    <label class="switch" for="is_enabled">
+                        <input type="checkbox" class="switch__input" name="is_enabled" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="job_type">Job Type</label>
+                    <select name="job_type" id="job_type">
+                        <option value="http" <%= (!values.job_type || values.job_type === 'http') ? 'selected' : '' %>>http</option>
+                        <option value="email" <%= values.job_type === 'email' ? 'selected' : '' %>>email</option>
+                        <option value="shell" <%= values.job_type === 'shell' ? 'selected' : '' %>>shell</option>
+                        <option value="sql" <%= values.job_type === 'sql' ? 'selected' : '' %>>sql</option>
+                        <option value="healthcheck" <%= values.job_type === 'healthcheck' ? 'selected' : '' %>>healthcheck</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="max_retries">Max Retries</label>
+                    <input type="number" name="max_retries" id="max_retries"  value="<%= values.max_retries %>"/>
+                </div>
+                <% if(errors.max_retries) {%> <p class="error"><%= errors.max_retries  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="retry_backoff_seconds">Retry Backoff Seconds</label>
+                    <input type="number" name="retry_backoff_seconds" id="retry_backoff_seconds"  value="<%= values.retry_backoff_seconds %>"/>
+                </div>
+                <% if(errors.retry_backoff_seconds) {%> <p class="error"><%= errors.retry_backoff_seconds  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="max_concurrency">Max Concurrency</label>
+                    <input type="number" name="max_concurrency" id="max_concurrency"  value="<%= values.max_concurrency || 1 %>"/>
+                </div>
+                <% if(errors.max_concurrency) {%> <p class="error"><%= errors.max_concurrency  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+                <div class="field">
+                    <label for="config">Config</label>
+                    <textarea
+                    name="config"
+                    id="config"
+                    class="js_json_field"
+                    style="min-width: 233px; min-height: 200px"
+                    ><%= values.config || '' %></textarea>
+                </div>
+                <p class="error js_json_error"> <%= errors.config || '' %></p>
+            </div>
+        <button type="submit" class="form-page__btn">Create</button>
+    </form>
+</div>
+
+<script>
+    const field = document.querySelector('.js_json_field');
+  const err = document.querySelector('.js_json_error');
+
+  function validateJSON() {
+    try {
+      const obj = JSON.parse(field.value);
+      field.value = JSON.stringify(obj, null, 2);
+      err.textContent = '';
+      field.setCustomValidity('');
+    } catch (e) {
+      err.textContent = 'Invalid JSON: ' + e.message;
+      field.setCustomValidity('Invalid JSON');
+    }
+  }
+
+  field.addEventListener('input', validateJSON);
+</script>

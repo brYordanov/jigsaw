@@ -1,8 +1,10 @@
 import z from 'zod'
+import { qAny, qBool } from '../../commonSchemas'
 
 const urlSchema = z.string().regex(/^https?:\/\/[^\s$.?#].[^\s]*$/i, 'Invalid URL')
 const emailSchema = z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address')
 const JobTypeEnum = z.enum(['http', 'email', 'shell', 'sql', 'healthcheck'])
+export type JobType = z.infer<typeof JobTypeEnum>
 
 const HttpConfigSchema = z.object({
     method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST'),
@@ -60,7 +62,7 @@ const HealthcheckConfigSchema = z.object({
     ]),
 })
 
-const validatorsByType = {
+export const validatorsByType = {
     http: HttpConfigSchema,
     email: EmailConfigSchema,
     shell: ShellConfigSchema,
@@ -81,10 +83,10 @@ const commonJobFields = z.object({
     max_concurrency: z.number().int().min(1).default(1),
 })
 
-export const createJobSchema = z.discriminatedUnion('job_type', [
+export const createJobBodySchema = z.discriminatedUnion('job_type', [
     z
         .object({ job_type: z.literal('http'), config: validatorsByType.http })
-        .extend(commonJobFields),
+        .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('email'), config: validatorsByType.email })
         .extend(commonJobFields),
@@ -97,9 +99,9 @@ export const createJobSchema = z.discriminatedUnion('job_type', [
         .extend(commonJobFields),
 ])
 
-export type CreateJobDto = z.infer<typeof createJobSchema>
+export type CreateJobBodyDto = z.infer<typeof createJobBodySchema>
 
-export const editJobSchema = z
+export const updateJobBodySchema = z
     .object({
         job_type: JobTypeEnum.optional(),
         config: z.unknown().optional(),
@@ -131,4 +133,18 @@ export const editJobSchema = z
         }
     })
 
-export type EditJobDto = z.infer<typeof editJobSchema>
+export type UpdateJobBodyDto = z.infer<typeof updateJobBodySchema>
+
+export const sortOptionsSchema = z.enum(['created_at', 'updated_at', 'name']).default('created_at')
+export type sortOptionsType = z.infer<typeof sortOptionsSchema>
+
+export const listJobsQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(4),
+    offset: z.coerce.number().int().min(0).default(0),
+    sort: sortOptionsSchema,
+    dir: z.enum(['ASC', 'DESC']).default('DESC'),
+    search: z.string().max(200).optional(),
+    job_type: qAny(JobTypeEnum),
+    is_enabled: qBool,
+})
+export type ListJobsQueryDto = z.infer<typeof listJobsQuerySchema>

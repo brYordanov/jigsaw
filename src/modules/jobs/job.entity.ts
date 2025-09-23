@@ -1,8 +1,7 @@
-export type JobType = 'http' | 'email' | 'shell' | 'sql' | 'healthcheck'
+import { JobType } from './job.dtos'
 
-export interface Job {
+export interface JobRow {
     id: number
-
     name: string
     description: string | null
     job_type: JobType
