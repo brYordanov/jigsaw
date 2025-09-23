@@ -1,0 +1,90 @@
+<div class="field-container">
+    <div class="field">
+        <label for="config_command">Command</label>
+        <input
+            type="text"
+            name="config[command]"
+            id="config_command"
+            value="<%= values.config?.command || '' %>"
+            placeholder="bash"
+        />
+    </div>
+    <% if (errors.config?.command) { %>
+    <p class="error"><%= errors.config?.command %></p>
+    <% } %>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_args">Arguments (JSON array)</label>
+        <textarea
+            name="config[args]"
+            id="config_args"
+            class="bigger js_json_field"
+            rows="4"
+            placeholder='["-la", "--color=auto"]'
+        >
+<%= values.config?.args
+          ? (typeof values.config.args === 'string'
+              ? values.config.args
+              : JSON.stringify(values.config.args, null, 2))
+          : '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.args %></p>
+</div>
+
+<div class="field-container">
+    <div class="field">
+        <label for="config_cwd">Working Directory</label>
+        <input
+            type="text"
+            name="config[cwd]"
+            id="config_cwd"
+            value="<%= values.config?.cwd || '' %>"
+            placeholder="/app"
+        />
+    </div>
+    <% if (errors.config?.cwd) { %>
+    <p class="error"><%= errors.config?.cwd %></p>
+    <% } %>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_env">Environment Variables (JSON)</label>
+        <textarea
+            name="config[env]"
+            id="config_env"
+            class="bigger js_json_field"
+            rows="6"
+            placeholder='{"KEY":"value"}'
+        >
+<%= values.config?.env
+          ? (typeof values.config.env === 'string'
+              ? values.config.env
+              : JSON.stringify(values.config.env, null, 2))
+          : '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.env %></p>
+</div>
+
+<div class="field-container">
+    <div class="field">
+        <label for="config_timeoutSeconds">Timeout (seconds)</label>
+        <input
+            type="number"
+            name="config[timeoutSeconds]"
+            id="config_timeoutSeconds"
+            value="<%= values.config?.timeoutSeconds || '' %>"
+            min="1"
+            placeholder="Optional"
+        />
+    </div>
+    <% if (errors.config?.timeoutSeconds) { %>
+    <p class="error"><%= errors.config?.timeoutSeconds %></p>
+    <% } %>
+</div>
+
+<%- include('../scripts/json-field') %>

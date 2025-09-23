@@ -1,0 +1,55 @@
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_checks">Checks (JSON array)</label>
+        <textarea
+            name="config[checks]"
+            id="config_checks"
+            class="bigger js_json_field"
+            rows="8"
+            placeholder='[
+  { "type": "http", "url": "https://api.example.com/health", "expect": "2xx" },
+  { "type": "sql", "statement": "SELECT 1" }
+]'
+        >
+<%= values.config?.checks || '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.checks %></p>
+</div>
+
+<div class="field-container">
+    <div class="field">
+        <label for="config_failThreshold">Fail Threshold (optional)</label>
+        <input
+            type="number"
+            name="config[failThreshold]"
+            id="config_failThreshold"
+            value="<%= values.config?.failThreshold || '' %>"
+            min="1"
+            placeholder="Defaults to 2"
+        />
+    </div>
+    <% if (errors.config?.failThreshold) { %>
+    <p class="error"><%= errors.config?.failThreshold %></p>
+    <% } %>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_onFail">onFail (JSON object)</label>
+        <textarea
+            name="config[onFail]"
+            id="config_onFail"
+            class="bigger js_json_field"
+            rows="6"
+            placeholder='{"type":"email","to":"ops@example.com","template":"hc-failed"}
+-- or --
+{"type":"http","url":"https://hooks.example.com/hc","method":"POST"}'
+        >
+<%= values.config?.onFail || '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.onFail %></p>
+</div>
+
+<%- include('../scripts/json-field') %>

@@ -1,0 +1,51 @@
+<div class="field-container">
+    <div class="field">
+        <label for="config_statement">SQL Statement</label>
+        <textarea
+            name="config[statement]"
+            id="config_statement"
+            class="bigger"
+            rows="5"
+            placeholder="SELECT * FROM users WHERE id = $1;"
+        >
+<%= values.config?.statement || '' %></textarea
+        >
+    </div>
+    <% if (errors.config?.statement) { %>
+    <p class="error"><%= errors.config?.statement %></p>
+    <% } %>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_params">Params (JSON array)</label>
+        <textarea
+            name="config[params]"
+            id="config_params"
+            class="bigger js_json_field"
+            rows="4"
+            placeholder='[1, "active"]'
+        >
+<%= values.config?.params || '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.params %></p>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_assert">Assert (JSON object)</label>
+        <textarea
+            name="config[assert]"
+            id="config_assert"
+            class="bigger js_json_field"
+            rows="4"
+            placeholder='{"minRowCount": 1, "maxRowCount": 100}'
+        >
+<%= values.config?.assert || '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.config?.assert %></p>
+</div>
+
+<%- include('../scripts/json-field') %>

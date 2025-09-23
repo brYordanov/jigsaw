@@ -29,3 +29,14 @@
 .form-page__btn:hover {
     filter: grayscale(0.2);
 }
+
+.form-page__config {
+    grid-column: 1 / 3;
+}
+
+.form-page__dynamic-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+}
