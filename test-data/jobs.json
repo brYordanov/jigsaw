@@ -1,0 +1,112 @@
+{
+  "jobs": [
+    {
+      "job_type": "http",
+      "name": "Push Daily Summary",
+      "description": "Call analytics endpoint with aggregated metrics",
+      "is_enabled": true,
+      "max_retries": 5,
+      "retry_backoff_seconds": 120,
+      "max_concurrency": 2,
+      "config": {
+        "method": "POST",
+        "url": "https://api.example.com/v1/summary",
+        "headers": {
+          "Authorization": "Bearer test-token",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "date": "2024-05-01",
+          "force": false
+        }
+      }
+    },
+    {
+      "job_type": "email",
+      "name": "Incident Alert Email",
+      "description": "Notify support when a critical incident is opened",
+      "is_enabled": true,
+      "max_retries": 3,
+      "retry_backoff_seconds": 300,
+      "max_concurrency": 1,
+      "config": {
+        "to": "support@example.com",
+        "subject": "Incident {{incidentId}} detected",
+        "template": "incident-alert",
+        "variables": {
+          "incidentId": "INC-1234",
+          "severity": "high",
+          "reportedAt": "2024-05-01T08:15:00Z"
+        }
+      }
+    },
+    {
+      "job_type": "shell",
+      "name": "Weekly Cleanup Script",
+      "description": "Prune temporary files older than a week",
+      "is_enabled": false,
+      "max_retries": 2,
+      "retry_backoff_seconds": 180,
+      "max_concurrency": 1,
+      "config": {
+        "command": "/usr/bin/python3",
+        "args": [
+          "scripts/cleanup.py",
+          "--days",
+          "7"
+        ],
+        "cwd": "/opt/app",
+        "env": {
+          "ENVIRONMENT": "staging",
+          "LOG_LEVEL": "info"
+        },
+        "timeoutSeconds": 300
+      }
+    },
+    {
+      "job_type": "sql",
+      "name": "Stale Orders Audit",
+      "description": "Check for unprocessed orders older than 24 hours",
+      "is_enabled": true,
+      "max_retries": 4,
+      "retry_backoff_seconds": 90,
+      "max_concurrency": 1,
+      "config": {
+        "statement": "SELECT id, status FROM orders WHERE processed_at IS NULL AND created_at < NOW() - INTERVAL '24 HOURS'",
+        "params": [],
+        "assert": {
+          "maxRowCount": 50,
+          "minRowCount": 0
+        }
+      }
+    },
+    {
+      "job_type": "healthcheck",
+      "name": "Core Services Healthcheck",
+      "description": "Ensure API and database are healthy",
+      "is_enabled": true,
+      "max_retries": 3,
+      "retry_backoff_seconds": 60,
+      "max_concurrency": 1,
+      "config": {
+        "checks": [
+          {
+            "type": "http",
+            "url": "https://api.example.com/internal/ping",
+            "expect": "2xx"
+          },
+          {
+            "type": "sql",
+            "statement": "SELECT 1"
+          }
+        ],
+        "failThreshold": 3,
+        "onFail": {
+          "type": "email",
+          "to": "oncall@example.com",
+          "template": "healthcheck-alert"
+        }
+      }
+    }
+  ]
+}

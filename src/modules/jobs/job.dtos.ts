@@ -70,8 +70,10 @@ export const validatorsByType = {
     healthcheck: HealthcheckConfigSchema,
 } as const
 
-export function validateJobConfig(job_type: keyof typeof validatorsByType, config: unknown) {
-    return validatorsByType[job_type].parse(config)
+export const validateJobConfig = (job_type: string, config: unknown) => {
+    const validator = (validatorsByType as Record<string, z.ZodTypeAny>)[job_type]
+    if (!validator) throw new Error(`Unknown job_type: ${job_type}`)
+    return validator.parse(config)
 }
 
 const commonJobFields = z.object({
@@ -89,14 +91,16 @@ export const createJobBodySchema = z.discriminatedUnion('job_type', [
         .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('email'), config: validatorsByType.email })
-        .extend(commonJobFields),
+        .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('shell'), config: validatorsByType.shell })
-        .extend(commonJobFields),
-    z.object({ job_type: z.literal('sql'), config: validatorsByType.sql }).extend(commonJobFields),
+        .extend(commonJobFields.shape),
+    z
+        .object({ job_type: z.literal('sql'), config: validatorsByType.sql })
+        .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('healthcheck'), config: validatorsByType.healthcheck })
-        .extend(commonJobFields),
+        .extend(commonJobFields.shape),
 ])
 
 export type CreateJobBodyDto = z.infer<typeof createJobBodySchema>

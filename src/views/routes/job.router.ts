@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { validateJobConfig, validatorsByType } from '../../modules/jobs/job.dtos'
+import { validateJobConfig } from '../../modules/jobs/job.dtos'
 
 export const ViewJobRouter = Router()
 
@@ -13,8 +13,12 @@ ViewJobRouter.get('/create', (req, res) => {
 
 ViewJobRouter.post('/create', (req, res) => {
     const body = req.body
-    // validateJobConfig(validatorsByType[body.job_type], body.config)
+    const some = validateJobConfig(body.job_type, body.config)
     console.log(body)
+    console.log('--------')
+    console.log(some)
+
+    res.send(200)
 })
 
 ViewJobRouter.get('/config-partial', (req, res) => {
