@@ -27,7 +27,7 @@
                 <div class="field">
                     <p>Enabled</p>
                     <label class="switch" for="is_enabled">
-                        <input type="checkbox" class="switch__input" name="is_enabled" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <input type="checkbox" class="switch__input" name="is_enabled/bool" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
                         <span class="switch__slider round"></span>
                     </label>
                 </div>
@@ -60,7 +60,7 @@
 
                 <div class="field">
                     <label for="max_retries">Max Retries</label>
-                    <input type="number" name="max_retries" id="max_retries"  value="<%= values.max_retries %>"/>
+                    <input type="number" name="max_retries/number" id="max_retries"  value="<%= values.max_retries %>"/>
                 </div>
                 <% if(errors.max_retries) {%> <p class="error"><%= errors.max_retries  %></p><% } %>
             </div>
@@ -69,7 +69,7 @@
 
                 <div class="field">
                     <label for="retry_backoff_seconds">Retry Backoff Seconds</label>
-                    <input type="number" name="retry_backoff_seconds" id="retry_backoff_seconds"  value="<%= values.retry_backoff_seconds %>"/>
+                    <input type="number" name="retry_backoff_seconds/number" id="retry_backoff_seconds"  value="<%= values.retry_backoff_seconds %>"/>
                 </div>
                 <% if(errors.retry_backoff_seconds) {%> <p class="error"><%= errors.retry_backoff_seconds  %></p><% } %>
             </div>
@@ -78,7 +78,7 @@
 
                 <div class="field">
                     <label for="max_concurrency">Max Concurrency</label>
-                    <input type="number" name="max_concurrency" id="max_concurrency"  value="<%= values.max_concurrency || 1 %>"/>
+                    <input type="number" name="max_concurrency/number" id="max_concurrency"  value="<%= values.max_concurrency || 1 %>"/>
                 </div>
                 <% if(errors.max_concurrency) {%> <p class="error"><%= errors.max_concurrency  %></p><% } %>
             </div>

@@ -1,5 +1,5 @@
 import { PaginatedResponse } from '../../db/types'
-import { CreateJobBodyDto, ListJobsQueryDto, UpdateJobBodyDto } from './job.dtos'
+import { CreateJobBodyDto, ListJobsQueryDto, UpdateJobBodyDto, validateJobConfig } from './job.dtos'
 import { JobRow } from './job.entity'
 import { JobRepository } from './job.repo'
 
@@ -22,10 +22,16 @@ export class JobService {
     }
 
     async createTask(body: CreateJobBodyDto): Promise<JobRow> {
+        validateJobConfig(body.job_type, body.config)
         return this.repo.createTask(body)
     }
 
     async updateTask(id: number, body: UpdateJobBodyDto) {
+        const job = await this.getByIdOrFail(id)
+        if (body.config) {
+            const jobType = body.job_type ? body.job_type : job.job_type
+            validateJobConfig(jobType, body.config)
+        }
         return this.repo.updateTask(id, body)
     }
 

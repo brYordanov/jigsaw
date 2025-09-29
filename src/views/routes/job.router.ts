@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { parseFormValuesMD } from '../../middlewares/parseFormValues'
 import { validateJobConfig } from '../../modules/jobs/job.dtos'
 
 export const ViewJobRouter = Router()
@@ -11,12 +12,12 @@ ViewJobRouter.get('/create', (req, res) => {
     res.render('pages/job-create', { values: {}, errors: {} })
 })
 
-ViewJobRouter.post('/create', (req, res) => {
+ViewJobRouter.post('/create', parseFormValuesMD, (req, res) => {
     const body = req.body
+    // console.log(body)
     const some = validateJobConfig(body.job_type, body.config)
-    console.log(body)
-    console.log('--------')
-    console.log(some)
+    // console.log('--------')
+    // console.log(some)
 
     res.send(200)
 })

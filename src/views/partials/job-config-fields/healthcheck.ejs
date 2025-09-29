@@ -2,7 +2,7 @@
     <div class="field">
         <label for="config_checks">Checks (JSON array)</label>
         <textarea
-            name="config[checks]"
+            name="config[checks/json]"
             id="config_checks"
             class="bigger js_json_field"
             rows="8"
@@ -22,7 +22,7 @@
         <label for="config_failThreshold">Fail Threshold (optional)</label>
         <input
             type="number"
-            name="config[failThreshold]"
+            name="config[failThreshold/number]"
             id="config_failThreshold"
             value="<%= values.config?.failThreshold || '' %>"
             min="1"
@@ -38,7 +38,7 @@
     <div class="field">
         <label for="config_onFail">onFail (JSON object)</label>
         <textarea
-            name="config[onFail]"
+            name="config[onFail/json]"
             id="config_onFail"
             class="bigger js_json_field"
             rows="6"

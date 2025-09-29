@@ -18,7 +18,7 @@
     <div class="field">
         <label for="config_args">Arguments (JSON array)</label>
         <textarea
-            name="config[args]"
+            name="config[args/json]"
             id="config_args"
             class="bigger js_json_field"
             rows="4"
@@ -54,7 +54,7 @@
     <div class="field">
         <label for="config_env">Environment Variables (JSON)</label>
         <textarea
-            name="config[env]"
+            name="config[env/json]"
             id="config_env"
             class="bigger js_json_field"
             rows="6"
@@ -75,7 +75,7 @@
         <label for="config_timeoutSeconds">Timeout (seconds)</label>
         <input
             type="number"
-            name="config[timeoutSeconds]"
+            name="config[timeoutSeconds/number]"
             id="config_timeoutSeconds"
             value="<%= values.config?.timeoutSeconds || '' %>"
             min="1"
