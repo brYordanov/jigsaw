@@ -7,11 +7,11 @@ import {
 import { TaskService } from '../../modules/tasks/task.service'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { coerseFormValuesMD } from '../../middlewares/coerseFormValues'
-import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { ZodError } from 'zod'
 import { normalizeFormValues } from '../../middlewares/normalizeFormValues'
 import { getPaginationData } from '../../helpers/getPaginationData'
 import { error } from 'console'
+import { groupZodIssues } from '../../helpers/groupZodIssues'
 
 export const ViewTaskRouter = Router()
 const service = new TaskService()
@@ -49,11 +49,11 @@ ViewTaskRouter.post('/create', coerseFormValuesMD, async (req, res) => {
         return res.redirect(`/task`)
     } catch (err: any) {
         if (err instanceof ZodError) {
-            const { firstPerField, grouped } = groupZodIssues(err.issues)
+            const errors = groupZodIssues(err.issues)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: normalizeFormValues(req.body),
-                errors: firstPerField,
+                errors,
             })
         }
 
@@ -77,11 +77,11 @@ ViewTaskRouter.post('/edit/:id', coerseFormValuesMD, async (req, res) => {
         return res.redirect(`/task`)
     } catch (err) {
         if (err instanceof ZodError) {
-            const { firstPerField, grouped } = groupZodIssues(err.issues)
+            const errors = groupZodIssues(err.issues)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-edit', {
                 values: normalizeFormValues(req.body),
-                errors: firstPerField,
+                errors,
             })
         }
 

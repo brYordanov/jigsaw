@@ -8,11 +8,11 @@
             rows="5"
             placeholder="SELECT * FROM users WHERE id = $1;"
         >
-<%= values.config?.statement || '' %></textarea
+<%= values.statement || '' %></textarea
         >
     </div>
-    <% if (errors.config?.statement) { %>
-    <p class="error"><%= errors.config?.statement %></p>
+    <% if (errors.statement) { %>
+    <p class="error"><%= errors.statement %></p>
     <% } %>
 </div>
 
@@ -26,10 +26,10 @@
             rows="4"
             placeholder='[1, "active"]'
         >
-<%= values.config?.params || '' %></textarea
+<%= values.params || '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.params %></p>
+    <p class="error js_json_error"><%= errors.params %></p>
 </div>
 
 <div class="field-container js_json_container">
@@ -42,8 +42,8 @@
             rows="4"
             placeholder='{"minRowCount": 1, "maxRowCount": 100}'
         >
-<%= values.config?.assert || '' %></textarea
+<%= values.assert || '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.assert %></p>
+    <p class="error js_json_error"><%= errors.assert %></p>
 </div>

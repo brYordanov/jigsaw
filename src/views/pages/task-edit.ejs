@@ -1,6 +1,6 @@
-<section class="task-form">
+<section class="form-page">
     <h1>Edit Task</h1>
-    <form method="POST" action="/task/edit/<%= values.id %>" class="task-form__form" novalidate>
+    <form method="POST" action="/task/edit/<%= values.id %>" class="form-page__form" novalidate>
         <span id="saving" class="spinner" hidden>Saving…</span>
         <div class="field-container">
 
@@ -142,6 +142,6 @@
                 </div>
                 <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
             </div>
-        <button type="submit" class="task-form__btn">Save</button>
+        <button type="submit" class="form-page__btn">Save</button>
     </form>
 </section>

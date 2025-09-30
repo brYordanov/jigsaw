@@ -21,8 +21,6 @@ const coercers = {
     number: (v: unknown) => {
         if (typeof v === 'number') return v
         try {
-            console.log(111)
-
             if (typeof v === 'string') return Number(v)
         } catch {
             return v
@@ -71,7 +69,5 @@ export const parseFormValuesMD: RequestHandler = (req, _res, next) => {
         req.body = transform(req.body)
     }
     const body = req.body
-    console.log(body)
-
     next()
 }

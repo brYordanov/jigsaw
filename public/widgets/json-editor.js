@@ -18,8 +18,8 @@ export class JsonEditor {
 
         this.container.dataset.jsonInit = 'true'
 
-        // this.validate();
-        // this.format();
+        // this.validate()
+        this.format()
     }
 
     disconnect() {

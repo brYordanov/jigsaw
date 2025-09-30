@@ -5,12 +5,12 @@
             type="text"
             name="config[command]"
             id="config_command"
-            value="<%= values.config?.command || '' %>"
+            value="<%= values.command || '' %>"
             placeholder="bash"
         />
     </div>
-    <% if (errors.config?.command) { %>
-    <p class="error"><%= errors.config?.command %></p>
+    <% if (errors.command) { %>
+    <p class="error"><%= errors.command %></p>
     <% } %>
 </div>
 
@@ -24,14 +24,14 @@
             rows="4"
             placeholder='["-la", "--color=auto"]'
         >
-<%= values.config?.args
+<%= values.args
           ? (typeof values.config.args === 'string'
               ? values.config.args
               : JSON.stringify(values.config.args, null, 2))
           : '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.args %></p>
+    <p class="error js_json_error"><%= errors.args %></p>
 </div>
 
 <div class="field-container">
@@ -41,12 +41,12 @@
             type="text"
             name="config[cwd]"
             id="config_cwd"
-            value="<%= values.config?.cwd || '' %>"
+            value="<%= values.cwd || '' %>"
             placeholder="/app"
         />
     </div>
-    <% if (errors.config?.cwd) { %>
-    <p class="error"><%= errors.config?.cwd %></p>
+    <% if (errors.cwd) { %>
+    <p class="error"><%= errors.cwd %></p>
     <% } %>
 </div>
 
@@ -60,14 +60,14 @@
             rows="6"
             placeholder='{"KEY":"value"}'
         >
-<%= values.config?.env
+<%= values.env
           ? (typeof values.config.env === 'string'
               ? values.config.env
               : JSON.stringify(values.config.env, null, 2))
           : '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.env %></p>
+    <p class="error js_json_error"><%= errors.env %></p>
 </div>
 
 <div class="field-container">
@@ -77,12 +77,12 @@
             type="number"
             name="config[timeoutSeconds/number]"
             id="config_timeoutSeconds"
-            value="<%= values.config?.timeoutSeconds || '' %>"
+            value="<%= values.timeoutSeconds || '' %>"
             min="1"
             placeholder="Optional"
         />
     </div>
-    <% if (errors.config?.timeoutSeconds) { %>
-    <p class="error"><%= errors.config?.timeoutSeconds %></p>
+    <% if (errors.timeoutSeconds) { %>
+    <p class="error"><%= errors.timeoutSeconds %></p>
     <% } %>
 </div>

@@ -1,18 +1,17 @@
 import { ZodError } from 'zod'
 
-export const groupZodIssues = (issues: ZodError['issues']) => {
-    const grouped: Record<string, string[]> = {}
-
+export function groupZodIssues(issues: ZodError['issues']) {
+    const nested: any = {}
     for (const issue of issues) {
-        const [root, ...rest] = issue.path
-        const field = String(root ?? '_form')
-        const trail = rest.map(p => (typeof p === 'number' ? `[${p}]` : `.${String(p)}`)).join('')
-        const msg = trail ? `${trail} ${issue.message}` : issue.message
-        ;(grouped[field] ??= []).push(msg)
+        const path = issue.path.length ? issue.path : ['_root']
+        let cur = nested
+        for (let i = 0; i < path.length - 1; i++) {
+            const k = String(path[i])
+            cur[k] ??= {}
+            cur = cur[k]
+        }
+        const leaf = String(path[path.length - 1] ?? '_root')
+        if (cur[leaf] == null) cur[leaf] = issue.message
     }
-
-    // If your template expects single strings per field, join them:
-    const firstPerField: Record<string, string> = {}
-    for (const [k, arr] of Object.entries(grouped)) firstPerField[k] = arr.join('; ')
-    return { grouped, firstPerField }
+    return nested
 }

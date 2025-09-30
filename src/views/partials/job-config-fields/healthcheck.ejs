@@ -11,10 +11,10 @@
   { "type": "sql", "statement": "SELECT 1" }
 ]'
         >
-<%= values.config?.checks || '' %></textarea
+<%= values.checks || '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.checks %></p>
+    <p class="error js_json_error"><%= errors.checks %></p>
 </div>
 
 <div class="field-container">
@@ -24,13 +24,13 @@
             type="number"
             name="config[failThreshold/number]"
             id="config_failThreshold"
-            value="<%= values.config?.failThreshold || '' %>"
+            value="<%= values.failThreshold || '' %>"
             min="1"
             placeholder="Defaults to 2"
         />
     </div>
-    <% if (errors.config?.failThreshold) { %>
-    <p class="error"><%= errors.config?.failThreshold %></p>
+    <% if (errors.failThreshold) { %>
+    <p class="error"><%= errors.failThreshold %></p>
     <% } %>
 </div>
 
@@ -46,8 +46,8 @@
 -- or --
 {"type":"http","url":"https://hooks.example.com/hc","method":"POST"}'
         >
-<%= values.config?.onFail || '' %></textarea
+<%= values.onFail || '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.onFail %></p>
+    <p class="error js_json_error"><%= errors.onFail %></p>
 </div>

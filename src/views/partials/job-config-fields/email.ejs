@@ -5,12 +5,12 @@
             type="text"
             name="config[to]"
             id="config_to"
-            value="<%= values.config?.to || '' %>"
+            value="<%= values.to || '' %>"
             placeholder="user@example.com"
         />
     </div>
-    <% if (errors.config?.to) { %>
-    <p class="error"><%= errors.config?.to %></p>
+    <% if (errors.to) { %>
+    <p class="error"><%= errors.to %></p>
     <% } %>
 </div>
 
@@ -21,11 +21,11 @@
             type="text"
             name="config[subject]"
             id="config_subject"
-            value="<%= values.config?.subject || '' %>"
+            value="<%= values.subject || '' %>"
         />
     </div>
-    <% if (errors.config?.subject) { %>
-    <p class="error"><%= errors.config?.subject %></p>
+    <% if (errors.subject) { %>
+    <p class="error"><%= errors.subject %></p>
     <% } %>
 </div>
 
@@ -33,11 +33,11 @@
     <div class="field">
         <label for="config_template">Template</label>
         <textarea name="config[template]" id="config_template" class="bigger" rows="6">
-<%= values.config?.template || '' %></textarea
+<%= values.template || '' %></textarea
         >
     </div>
-    <% if (errors.config?.template) { %>
-    <p class="error"><%= errors.config?.template %></p>
+    <% if (errors.template) { %>
+    <p class="error"><%= errors.template %></p>
     <% } %>
 </div>
 
@@ -51,8 +51,8 @@
             rows="6"
             placeholder='{"firstName":"Ada","age":42}'
         >
-<%= values.config?.variables || '' %></textarea
+<%= values.variables || '' %></textarea
         >
     </div>
-    <p class="error js_json_error"><%= errors.config?.variables %></p>
+    <p class="error js_json_error"><%= errors.variables %></p>
 </div>

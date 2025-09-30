@@ -85,8 +85,11 @@
 
            <div class="form-page__config">
             <h2>Config (JSON)</h2>
-            <div id="config-fields" class="form-page__dynamic-fields"></div>
-            <div id="config-loading" class="htmx-indicator">Loading…</div>
+            <div id="config-fields" class="form-page__dynamic-fields">
+                <% if (configPartialHtml) { %>
+                    <%- configPartialHtml %>
+                <% } %>
+            </div>
            </div>
         <button type="submit" class="form-page__btn">Create</button>
     </form>
