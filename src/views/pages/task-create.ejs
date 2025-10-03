@@ -26,7 +26,7 @@
 
                 <div class="field">
                     <label for="expires_at">Expires At</label>
-                    <input type="date" required name="expires_at" id="expires_at"  value="<%= values.expires_at || '' %>"/>
+                    <input type="date" required name="expires_at/date" id="expires_at"  value="<%= values.expires_at ? values.expires_at.toISOString().slice(0, 10) : ""  %>"/>
                 </div>
                 <% if (errors.expires_at) { %><p class="error"><%= errors.expires_at %></p><% } %>
             </div>
@@ -39,7 +39,7 @@
                         <input
                         type="checkbox"
                         class="switch__input"
-                        name="is_single_time_only"
+                        name="is_single_time_only/bool"
                         id="is_single_time_only"
                         <%= values.is_single_time_only ? 'checked' : '' %>
                         />
@@ -53,7 +53,7 @@
                 <div class="field">
                     <p>Enabled</p>
                     <label class="switch" for="is_enabled">
-                        <input type="checkbox" class="switch__input" name="is_enabled" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <input type="checkbox" class="switch__input" name="is_enabled/bool" id="is_enabled"  <%= values.is_enabled ? "checked" : "" %>/>
                         <span class="switch__slider round"></span>
                     </label>
                 </div>
@@ -87,9 +87,13 @@
 
                 <div class="field">
                     <label for="days_of_month">Days of Month</label>
-                    <input type="text" name="days_of_month" id="days_of_month" value="<%= values.days_of_month %>"/>
+                    <input type="text" name="days_of_month/intArr" id="days_of_month" value="<%= values.days_of_month %>"/>
                 </div>
-                <% if (errors.days_of_month) { %><p class="error"><%= errors.days_of_month %></p><% } %>
+                 <% if (errors.days_of_month) { %>
+                    <% Object.entries(errors.days_of_month).forEach(([key, msg]) => { %>
+                        <p class="error"><%= msg %> on element <%=key%></p>
+                    <% }) %>
+                <% } %>
             </div>
 
 
@@ -103,13 +107,13 @@
                     multiple
                     style="min-height: 135px; padding: 10px"
                     >
-                    <option value="monday" <%= values.days_of_week && values.days_of_week.includes('monday') ? 'selected' : ''  %>>Monday</option>
-                    <option value="tuesday" <%= values.days_of_week && values.days_of_week.includes('tuesday') ? 'selected' : ''  %>>Tuesday</option>
-                    <option value="wednesday" <%= values.days_of_week && values.days_of_week.includes('wednesday') ? 'selected' : ''  %>>Wednesday</option>
-                    <option value="thursday" <%= values.days_of_week && values.days_of_week.includes('thursday') ? 'selected' : ''  %>>Thursday</option>
-                    <option value="friday" <%= values.days_of_week && values.days_of_week.includes('friday') ? 'selected' : ''  %>>Friday</option>
-                    <option value="saturday" <%= values.days_of_week && values.days_of_week.includes('saturday') ? 'selected' : ''  %>>Saturday</option>
-                    <option value="sunday" <%= values.days_of_week && values.days_of_week.includes('sunday') ? 'selected' : ''  %>>Sunday</option>
+                    <option value="Monday" <%= values.days_of_week && values.days_of_week.includes('Monday') ? 'selected' : ''  %>>Monday</option>
+                    <option value="Tuesday" <%= values.days_of_week && values.days_of_week.includes('Tuesday') ? 'selected' : ''  %>>Tuesday</option>
+                    <option value="Wednesday" <%= values.days_of_week && values.days_of_week.includes('Wednesday') ? 'selected' : ''  %>>Wednesday</option>
+                    <option value="Thursday" <%= values.days_of_week && values.days_of_week.includes('Thursday') ? 'selected' : ''  %>>Thursday</option>
+                    <option value="Friday" <%= values.days_of_week && values.days_of_week.includes('Friday') ? 'selected' : ''  %>>Friday</option>
+                    <option value="Saturday" <%= values.days_of_week && values.days_of_week.includes('Saturday') ? 'selected' : ''  %>>Saturday</option>
+                    <option value="Sunday" <%= values.days_of_week && values.days_of_week.includes('Sunday') ? 'selected' : ''  %>>Sunday</option>
                 </select>
             </div>
         </div>
@@ -118,9 +122,13 @@
 
                 <div class="field">
                     <label for="hours">Hours</label>
-                    <input type="text" name="hours" id="hours" value="<%= values.hours %>"/>
+                    <input type="text" name="hours/intArr" id="hours" value="<%= values.hours %>"/>
                 </div>
-                <% if (errors.hours) { %><p class="error"><%= errors.hours %></p><% } %>
+                <% if (errors.hours) { %>
+                    <% Object.entries(errors.hours).forEach(([key, msg]) => { %>
+                        <p class="error"><%= msg %> on element <%=key%></p>
+                    <% }) %>
+                <% } %>
             </div>
 
 
@@ -128,16 +136,20 @@
 
                 <div class="field">
                     <label for="minutes">Minutes</label>
-                    <input type="text" name="minutes" id="minutes" value="<%= values.minutes %>"/>
+                    <input type="text" name="minutes/intArr" id="minutes" value="<%= values.minutes %>"/>
                 </div>
-                <% if (errors.minutes) { %><p class="error"><%= errors.minutes %></p><% } %>
+               <% if (errors.minutes) { %>
+                    <% Object.entries(errors.minutes).forEach(([key, msg]) => { %>
+                        <p class="error"><%= msg %> on element <%=key%></p>
+                    <% }) %>
+                <% } %>
             </div>
 
             <div class="field-container">
 
                 <div class="field">
                     <label for="timeout_seconds">Seconds Timeout</label>
-                    <input type="number" name="timeout_seconds" id="timeout_seconds"  value="<%= values.timeout_seconds %>"/>
+                    <input type="number" name="timeout_seconds/number" id="timeout_seconds"  value="<%= values.timeout_seconds %>"/>
                 </div>
                 <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
             </div>

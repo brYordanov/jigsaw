@@ -6,12 +6,10 @@ import {
 } from '../../modules/tasks/task.dtos'
 import { TaskService } from '../../modules/tasks/task.service'
 import { HttpStatus } from '../../helpers/statusCodes'
-import { coerseFormValuesMD } from '../../middlewares/coerseFormValues'
 import { ZodError } from 'zod'
-import { normalizeFormValues } from '../../middlewares/normalizeFormValues'
 import { getPaginationData } from '../../helpers/getPaginationData'
-import { error } from 'console'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
+import { parseFormValuesMD } from '../../middlewares/parseFormValues'
 
 export const ViewTaskRouter = Router()
 const service = new TaskService()
@@ -41,7 +39,7 @@ ViewTaskRouter.get('/create', (req, res) => {
     res.render('pages/task-create', { values: {}, errors: {} })
 })
 
-ViewTaskRouter.post('/create', coerseFormValuesMD, async (req, res) => {
+ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createTaskSchema.parse(req.body)
         const task = await service.createTask(dto)
@@ -52,7 +50,7 @@ ViewTaskRouter.post('/create', coerseFormValuesMD, async (req, res) => {
             const errors = groupZodIssues(err.issues)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
-                values: normalizeFormValues(req.body),
+                values: req.body,
                 errors,
             })
         }
@@ -68,7 +66,7 @@ ViewTaskRouter.get('/edit/:id', async (req, res) => {
     res.render('pages/task-edit', { values: task, errors: {} })
 })
 
-ViewTaskRouter.post('/edit/:id', coerseFormValuesMD, async (req, res) => {
+ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
         const id = Number(req.params.id)
         const dto = updateTaskSchema.parse(req.body)
@@ -80,7 +78,7 @@ ViewTaskRouter.post('/edit/:id', coerseFormValuesMD, async (req, res) => {
             const errors = groupZodIssues(err.issues)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-edit', {
-                values: normalizeFormValues(req.body),
+                values: req.body,
                 errors,
             })
         }

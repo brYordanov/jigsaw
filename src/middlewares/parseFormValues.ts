@@ -9,21 +9,49 @@ const coercers = {
         return v
     },
     json: (v: unknown) => {
-        if (typeof v !== 'string') return v
+        if (typeof v !== 'string') throw new Error('Cannot coerce non-string to JSON')
         const t = v.trim()
         if (!t) return undefined
         try {
             return JSON.parse(t)
-        } catch {
-            return v
+        } catch (err) {
+            throw new Error('Invalid JSON string' + err)
         }
     },
     number: (v: unknown) => {
+        if (!v) return null
         if (typeof v === 'number') return v
+        if (typeof v === 'string') return Number(v)
+    },
+    intArr: (v: unknown) => {
+        if (typeof v === 'string') {
+            if (!v) return null
+            const arr = v.split(',').map(strV => Number(strV))
+
+            return arr.length !== 0 ? arr : null
+        }
+        throw new Error(`Cannot coerce to intArr. value: ${v} type: ${typeof v}`)
+    },
+    date: (v: unknown) => {
         try {
-            if (typeof v === 'string') return Number(v)
-        } catch {
-            return v
+            if (!v) return null
+
+            const d = new Date(v as any)
+            if (isNaN(d.getTime())) {
+                throw new Error(`Cannot coerce to date. value: ${v} type: ${typeof v}`)
+            }
+            return d
+        } catch (err) {
+            throw new Error(`Cannot coerce to date. value: ${v} type: ${typeof v}`)
+        }
+    },
+    count: (v: unknown) => {
+        try {
+            const num = Number(v)
+            if (isNaN(num) || num < 0 || !num) return null
+            return num
+        } catch (err) {
+            throw new Error(`Cannot coerce to count. value: ${v} type: ${typeof v}`)
         }
     },
 } as const
@@ -36,9 +64,10 @@ const coerceKey = (key: string, value: any, out: any): void => {
     }
 
     const base = key.slice(0, i)
-    const type = key.slice(i + 1).toLowerCase()
+    const type = key.slice(i + 1)
 
     const coerce = (coercers as any)[type]
+
     if (!coerce) {
         out[key] = transform(value)
         return
@@ -54,6 +83,9 @@ const transform = (node: any): any => {
     if (Array.isArray(node)) {
         return node.map(transform)
     }
+    if (node instanceof Date) {
+        return node
+    }
     if (node && typeof node === 'object') {
         const out: any = {}
         for (const [k, v] of Object.entries(node)) {
@@ -65,9 +97,12 @@ const transform = (node: any): any => {
 }
 
 export const parseFormValuesMD: RequestHandler = (req, _res, next) => {
+    console.log(req.body)
+
     if (req.body && typeof req.body === 'object') {
         req.body = transform(req.body)
     }
-    const body = req.body
+    console.log(req.body)
+
     next()
 }

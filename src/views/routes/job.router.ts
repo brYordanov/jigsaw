@@ -20,14 +20,13 @@ ViewJobRouter.get('/create', (req, res) => {
 ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createJobBodySchema.parse(req.body)
-        await service.createTask(dto)
+        const job = await service.createJob(dto)
         return res.redirect('/job')
     } catch (err: any) {
         if (err instanceof ZodError) {
             const errors = groupZodIssues(err.issues)
             const jobType = String(req.body.job_type ?? '')
             let configPartialHtml = ''
-            console.log(errors)
 
             if (jobType) {
                 configPartialHtml = await renderConfigPartial(

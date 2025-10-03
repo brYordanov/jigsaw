@@ -21,12 +21,12 @@ export class JobService {
         return this.repo.listPaginated(params)
     }
 
-    async createTask(body: CreateJobBodyDto): Promise<JobRow> {
+    async createJob(body: CreateJobBodyDto): Promise<JobRow> {
         validateJobConfig(body.job_type, body.config)
         return this.repo.createTask(body)
     }
 
-    async updateTask(id: number, body: UpdateJobBodyDto) {
+    async updateJob(id: number, body: UpdateJobBodyDto) {
         const job = await this.getByIdOrFail(id)
         if (body.config) {
             const jobType = body.job_type ? body.job_type : job.job_type
