@@ -63,13 +63,18 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
 ViewTaskRouter.get('/edit/:id', async (req, res) => {
     const id = Number(req.params.id)
     const task = await service.getByIdOrFail(id)
+
     res.render('pages/task-edit', { values: task, errors: {} })
 })
 
 ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
         const id = Number(req.params.id)
-        const dto = updateTaskSchema.parse(req.body)
+
+        const currentTask = await service.getByIdOrFail(id)
+        const candidate = { ...currentTask, ...req.body }
+        const dto = createTaskSchema.parse(candidate)
+
         const task = await service.updateTask(id, dto)
 
         return res.redirect(`/task`)
