@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { TaskService } from './task.service'
-import { listTasksQuerySchema } from './task.dtos'
+import { TaskService } from '../modules/tasks/task.service'
+import { listTasksQuerySchema } from '../modules/tasks/task.dtos'
 
 export const taskRouter = Router()
 const service = new TaskService()

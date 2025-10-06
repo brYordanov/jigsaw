@@ -1,0 +1,96 @@
+<div class="form-page">
+    <h1>Edit Job</h1>
+    <form action="/job/edit/<%= values.id %>" method="POST" class="form-page__form" novalidate>
+        <div class="field-container">
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="<%= values.name || '' %>" />
+            </div>
+            <% if (errors.name) { %><p class="error"><%= errors.name %></p><% } %>
+        </div>    
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea
+                    name="description"
+                    id="description"
+                    ><%= values.description || '' %></textarea>
+                </div>
+                <% if (errors.description) { %><p class="error"><%= errors.description %></p><% } %>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <p>Enabled</p>
+                    <label class="switch" for="is_enabled">
+                        <input type="checkbox" class="switch__input" name="is_enabled/bool" id="is_enabled"  <%= values.is_enabled ?? true ? 'checked' : '' %>/>
+                        <span class="switch__slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="job_type">Job Type</label>
+                    <select 
+                        name="job_type" 
+                        id="job_type" 
+                        hx-get="/job/config-partial"  
+                        hx-trigger="change"
+                        hx-target="#config-fields"
+                        hx-swap="innerHTML">
+                        <option value="" <%= !values.job_type ? 'selected' : '' %> disabled hidden>
+                            -- Select job type --
+                        </option>
+                        <option value="http" <%= values.job_type === 'http' ? 'selected' : '' %>>http</option>
+                        <option value="email" <%= values.job_type === 'email' ? 'selected' : '' %>>email</option>
+                        <option value="shell" <%= values.job_type === 'shell' ? 'selected' : '' %>>shell</option>
+                        <option value="sql" <%= values.job_type === 'sql' ? 'selected' : '' %>>sql</option>
+                        <option value="healthcheck" <%= values.job_type === 'healthcheck' ? 'selected' : '' %>>healthcheck</option>
+                    </select>
+                </div>
+                <% if(errors.job_type) {%> <p class="error"><%= errors.job_type  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="max_retries">Max Retries</label>
+                    <input type="number" name="max_retries/number" id="max_retries"  value="<%= values.max_retries %>"/>
+                </div>
+                <% if(errors.max_retries) {%> <p class="error"><%= errors.max_retries  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="retry_backoff_seconds">Retry Backoff Seconds</label>
+                    <input type="number" name="retry_backoff_seconds/number" id="retry_backoff_seconds"  value="<%= values.retry_backoff_seconds %>"/>
+                </div>
+                <% if(errors.retry_backoff_seconds) {%> <p class="error"><%= errors.retry_backoff_seconds  %></p><% } %>
+            </div>
+
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="max_concurrency">Max Concurrency</label>
+                    <input type="number" name="max_concurrency/number" id="max_concurrency"  value="<%= values.max_concurrency || 1 %>"/>
+                </div>
+                <% if(errors.max_concurrency) {%> <p class="error"><%= errors.max_concurrency  %></p><% } %>
+            </div>
+
+           <div class="form-page__config">
+            <h2>Config (JSON)</h2>
+            <div id="config-fields" class="form-page__dynamic-fields">
+                <% if (configPartialHtml) { %>
+                    <%- configPartialHtml %>
+                <% } %>
+            </div>
+           </div>
+        <button type="submit" class="form-page__btn">Edit</button>
+    </form>
+</div>

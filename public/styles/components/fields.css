@@ -16,6 +16,14 @@
         border-radius: var(--br-primary);
         border: 0;
     }
+
+    textarea {
+        min-width: 233px;
+    }
+
+    .bigger {
+        min-height: 190px;
+    }
 }
 
 .error {

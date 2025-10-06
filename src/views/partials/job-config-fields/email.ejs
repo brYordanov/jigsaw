@@ -1,0 +1,58 @@
+<div class="field-container">
+    <div class="field">
+        <label for="config_to">To</label>
+        <input
+            type="text"
+            name="config[to]"
+            id="config_to"
+            value="<%= values.to || '' %>"
+            placeholder="user@example.com"
+        />
+    </div>
+    <% if (errors.to) { %>
+    <p class="error"><%= errors.to %></p>
+    <% } %>
+</div>
+
+<div class="field-container">
+    <div class="field">
+        <label for="config_subject">Subject</label>
+        <input
+            type="text"
+            name="config[subject]"
+            id="config_subject"
+            value="<%= values.subject || '' %>"
+        />
+    </div>
+    <% if (errors.subject) { %>
+    <p class="error"><%= errors.subject %></p>
+    <% } %>
+</div>
+
+<div class="field-container">
+    <div class="field">
+        <label for="config_template">Template</label>
+        <textarea name="config[template]" id="config_template" class="bigger" rows="6">
+<%= values.template || '' %></textarea
+        >
+    </div>
+    <% if (errors.template) { %>
+    <p class="error"><%= errors.template %></p>
+    <% } %>
+</div>
+
+<div class="field-container js_json_container">
+    <div class="field">
+        <label for="config_variables">Variables (JSON)</label>
+        <textarea
+            name="config[variables/json]"
+            id="config_variables"
+            class="bigger js_json_field"
+            rows="6"
+            placeholder='{"firstName":"Ada","age":42}'
+        >
+<%= values.variables || '' %></textarea
+        >
+    </div>
+    <p class="error js_json_error"><%= errors.variables %></p>
+</div>

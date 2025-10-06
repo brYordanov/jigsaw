@@ -1,18 +1,17 @@
 import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
-import { TaskRow } from './task.entity'
-import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { RepoMethods } from '../../db/queryMethods'
 import { PaginatedResponse } from '../../db/types'
+import { JobRow } from './job.entity'
+import { CreateJobBodyDto, ListJobsQueryDto } from './job.dtos'
+import { UpdateTaskBodyDto } from '../tasks/task.dtos'
 
-const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
-  schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 
-  timeout_seconds, last_ping_at, expires_at,
-  created_at, updated_at` as const
+const RETURN_COLS_DEFAULT =
+    `id, name, description, config, job_type, is_enabled, max_retries, retry_backoff_seconds, max_concurrency, created_at, updated_at` as const
 
-const TABLE_NAME_DEFAULT = 'tasks' as const
+const TABLE_NAME_DEFAULT = 'jobs' as const
 
-export class TaskRepository {
+export class JobRepository {
     private readonly repository: RepoMethods
     constructor(
         private readonly pool: Pool = defaultPool,
@@ -22,15 +21,15 @@ export class TaskRepository {
         this.repository = new RepoMethods(this.pool, this.TABLE_NAME, this.RETURN_COLS)
     }
 
-    async getAll(): Promise<TaskRow[]> {
+    async getAll(): Promise<JobRow[]> {
         return this.repository.getAll()
     }
 
-    async getById(id: number): Promise<TaskRow> {
+    async getById(id: number): Promise<JobRow> {
         return this.repository.getById(id)
     }
 
-    async createTask(data: CreateTaskBodyDto): Promise<any> {
+    async createTask(data: CreateJobBodyDto): Promise<any> {
         return this.repository.create(data)
     }
 
@@ -38,20 +37,18 @@ export class TaskRepository {
         return this.repository.update(id, data)
     }
 
-    async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
+    async listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
         const FILTERS_NAME = {
-            schedule_type: 'eq',
-            interval_type: 'eq',
+            job_type: 'eq',
             is_enabled: 'eq',
             name: { op: 'ilike' },
         } as const
 
-        const ALLOWED_SORT = ['created_at', 'updated_at', 'name', 'next_run_at'] as const
+        const ALLOWED_SORT = ['created_at', 'updated_at', 'name'] as const
 
-        return this.repository.paginate<TaskRow, any>({
+        return this.repository.paginate<JobRow, any>({
             filters: {
-                schedule_type: params.schedule_type,
-                interval_type: params.interval_type,
+                job_type: params.job_type,
                 is_enabled: params.is_enabled,
                 name: params.search,
             },

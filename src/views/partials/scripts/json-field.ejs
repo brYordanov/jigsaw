@@ -1,0 +1,37 @@
+<script>
+    const validateJsonCreator = (field, err) => () => validateJSON(field, err)
+    const validateJSON = (field, err) => {
+        try {
+            const obj = JSON.parse(field.value)
+            err.textContent = ''
+            field.setCustomValidity('')
+        } catch (e) {
+            err.textContent = 'Invalid JSON: ' + e.message
+            field.setCustomValidity('Invalid JSON')
+        }
+    }
+
+    const formatJsonCreator = (field, err) => () => formatJson(field, err)
+    const formatJson = field => {
+        try {
+            const obj = JSON.parse(field.value)
+            field.value = JSON.stringify(obj, null, 2)
+        } catch (e) {
+            // do nothing, validation will catch it
+        }
+    }
+
+    const fieldContainers = document.querySelectorAll('.js_json_container')
+    fieldContainers.forEach(container => {
+        const error = container.querySelector('.js_json_error')
+        const field = container.querySelector('.js_json_field')
+        if (field && error) {
+            const validator = validateJsonCreator(field, error)
+            const formater = formatJsonCreator(field)
+            field.addEventListener('input', validator)
+            field.addEventListener('blur', formater)
+            return
+        }
+        console.error('Missing field or error element in JSON container')
+    })
+</script>

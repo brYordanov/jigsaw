@@ -1,0 +1,46 @@
+<div class="field-container">    
+    <div class="field">
+        <label for="config_method">Method</label>
+        <select name="config[method]" id="config_method" >
+            <option value="GET"     <%= values.method === 'GET' ? 'selected' : '' %>>GET</option>
+            <option value="POST"    <%= values.method === 'POST' ? 'selected' : '' %>>POST</option>
+            <option value="PUT"     <%= values.method === 'PUT' ? 'selected' : '' %>>PUT</option>
+            <option value="PATCH"   <%= values.method === 'PATCH' ? 'selected' : '' %>>PATCH</option>
+            <option value="DELETE"  <%= values.method === 'DELETE' ? 'selected' : '' %>>DELETE</option>
+        </select>
+    </div>
+</div>
+<div class="field-container">
+  <div class="field">
+    <label for="config_url">Url</label>
+    <input type="text" name="config[url]" id="config_url" value="<%= values.url || '' %>" />
+  </div>
+  <% if (errors.url) { %><p class="error"><%= errors.url %></p><% } %>
+</div> 
+
+<div class="field-container js_json_container">        
+  <div class="field">
+    <label for="config_headers">Headers (JSON)</label>
+    <textarea
+    name="config[headers/json]"
+    id="config_headers"
+    class="bigger js_json_field"
+    placeholder='{"x-powered-by":"Express"}' 
+    ><%= JSON.stringify(values.headers) || '' %></textarea>
+  </div>
+  <p class="error js_json_error"><%= errors.headers %></p>
+</div>
+
+<div class="field-container js_json_container">        
+  <div class="field">
+    <label for="config_body">Body (JSON)</label>
+    <textarea
+    name="config[body/json]"
+    id="config_body"
+    class="bigger js_json_field"
+    placeholder='{"data":"items","total":15}'
+    ><%= values.body || '' %></textarea>
+  </div>
+  <p class="error js_json_error"><%= errors.body %></p>
+</div>
+

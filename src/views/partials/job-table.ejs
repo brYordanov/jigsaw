@@ -1,0 +1,42 @@
+<table class="list-table">
+    <thead>
+        <tr>
+            <th><a href="/job/create" class="btn btn-primary">➕</a></th>
+            <th>id</th>
+            <th>name</th>
+            <th>enabled</th>
+            <th>type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% if (jobs && jobs.length) { %>
+        <% jobs.forEach(function(job) { %>
+        <tr>
+            <td>
+                <button
+                    class="btn btn-primary"
+                    hx-delete="/job/<%= job.id %>"
+                    hx-confirm="Delete this task?"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML:remove"
+                    hx-push-url="false"
+                >
+                    🗑
+                </button>
+                <a hx-boost="false" href="/job/edit/<%= job.id %>" class="btn btn-secondary">
+                    ✏️
+                </a>
+            </td>
+            <td><%= job.id %></td>
+            <td><%= job.name %></td>
+            <td><%= job.is_enabled ? 'true' : 'false' %></td>
+            <td><%= job.job_type %></td>
+        </tr>
+        <% }) %>
+        <% } else { %>
+        <tr>
+            <td colspan="5">No jobs found.</td>
+        </tr>
+        <% } %>
+    </tbody>
+</table>
