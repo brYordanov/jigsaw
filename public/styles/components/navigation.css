@@ -1,5 +1,9 @@
 .navigation {
     display: flex;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    background-color: var(--color-secondary);
+    font-size: 22px;
 
     a {
         padding-right: 15px;
