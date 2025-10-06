@@ -1,0 +1,54 @@
+<form 
+  method="GET" 
+  action="/job" 
+  class="filters" 
+  hx-get="/job" 
+  hx-target="#results" 
+  hx-swap="outerHTML" 
+  hx-include=".filters" 
+  hx-trigger="submit, change delay:300ms from:input, change from:select">
+  <div class="field">
+    <label for="search">Search</label>
+    <input type="text" name="search" id="search" value="<%= filterValues.search %>" />
+  </div>
+
+  <div class="field">
+    <label for="job_type">Job Type</label>
+    <select name="job_type" id="job_type">
+      <option value="" <%= !filterValues.job_type ? 'selected' : '' %>>any</option>
+      <option value="http" <%= filterValues.job_type === 'http'? 'selected' : '' %>>http</option>
+      <option value="email" <%= filterValues.job_type === 'email' ? 'selected' : '' %>>email</option>
+      <option value="shell" <%= filterValues.job_type === 'shell' ? 'selected' : '' %>>shell</option>
+      <option value="sql" <%= filterValues.job_type === 'sql' ? 'selected' : '' %>>sql</option>
+      <option value="healthcheck" <%= filterValues.job_type === 'healthcheck' ? 'selected' : '' %>>healthcheck</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="is_enabled">Enabled</label>
+    <select name="is_enabled" id="is_enabled">
+      <option value="" <%= filterValues.is_enabled == null ? 'selected' : '' %>>any</option>
+      <option value="true"  <%= filterValues.is_enabled === true ? 'selected' : '' %>>enabled</option>
+      <option value="false" <%= filterValues.is_enabled === false ? 'selected' : '' %>>disabled</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="sort">Sort</label>
+    <select name="sort" id="sort">
+      <option value="created_at" <%= (!filterValues.sort || filterValues.sort === 'created_at') ? 'selected' : '' %>>created_at</option>
+      <option value="updated_at" <%= filterValues.sort === 'updated_at' ? 'selected' : '' %>>updated_at</option>
+      <option value="name" <%= filterValues.sort === 'name' ? 'selected' : '' %>>name</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="dir">Direction</label>
+    <select name="dir" id="dir">
+      <option value="ASC" <%= filterValues.dir === 'ASC' ? 'selected' : '' %>>ASC</option>
+      <option value="DESC" <%= (!filterValues.dir || filterValues.dir === 'DESC') ? 'selected' : ''  %> >DESC</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">🔎</button>
+</form>

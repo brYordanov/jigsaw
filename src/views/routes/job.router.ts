@@ -1,16 +1,38 @@
 import { Response, Router } from 'express'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
-import { createJobBodySchema } from '../../modules/jobs/job.dtos'
+import {
+    createJobBodySchema,
+    listJobsQuerySchema,
+    updateJobBodySchema,
+} from '../../modules/jobs/job.dtos'
 import { JobService } from '../../modules/jobs/job.service'
 import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
+import { getPaginationData } from '../../helpers/getPaginationData'
 
 export const ViewJobRouter = Router()
 const service = new JobService()
 
-ViewJobRouter.get('/', (req, res) => {
-    res.render('pages/job-list')
+ViewJobRouter.get('/', async (req, res) => {
+    const params = listJobsQuerySchema.parse(req.query)
+    const { items: jobs, total, limit, offset } = await service.paginate(params)
+    const paginateData = getPaginationData({ limit, offset, total, filters: params })
+
+    if (req.get('HX-Request') === 'true') {
+        return res.render('partials/job-list-section', {
+            jobs,
+            filterValues: params,
+            paginateData,
+            layout: false,
+        })
+    }
+
+    res.render('pages/job-list', {
+        jobs,
+        filterValues: params,
+        paginateData,
+    })
 })
 
 ViewJobRouter.get('/create', (req, res) => {
@@ -47,6 +69,46 @@ ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
         console.error(err)
         return res.status(HttpStatus.UNEXPECTED_SERVER_ERROR).render('errors/500')
     }
+})
+
+ViewJobRouter.get('/edit/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    const job = await service.getByIdOrFail(id)
+    let configPartialHtml = ''
+
+    if (job.job_type) {
+        configPartialHtml = await renderConfigPartial(res, job.job_type, job.config)
+    }
+
+    res.render('pages/job-edit', { values: job, errors: {}, configPartialHtml })
+})
+
+ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+        const dto = updateJobBodySchema.parse(req.body)
+        const job = await service.updateJob(id, dto)
+
+        return res.redirect(`/job`)
+    } catch (err) {
+        if (err instanceof ZodError) {
+            const errors = groupZodIssues(err.issues)
+
+            return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/job-edit', {
+                values: req.body,
+                errors,
+            })
+        }
+
+        console.error(err)
+        return res.status(HttpStatus.UNEXPECTED_SERVER_ERROR).render('errors/500')
+    }
+})
+
+ViewJobRouter.delete('/:id', async (req, res) => {
+    const id = Number(req.params.id)
+    await service.deleteById(id)
+    return res.status(HttpStatus.OK).send('')
 })
 
 ViewJobRouter.get('/config-partial', (req, res) => {

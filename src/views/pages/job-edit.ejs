@@ -1,8 +1,7 @@
 <div class="form-page">
-    <h1>Create Job</h1>
-    <form action="/job/create" method="POST" class="form-page__form" novalidate>
+    <h1>Edit Job</h1>
+    <form action="/job/edit/<%= values.id %>" method="POST" class="form-page__form" novalidate>
         <div class="field-container">
-
             <div class="field">
                 <label for="name">Name</label>
                 <input type="text" name="name" id="name" value="<%= values.name || '' %>" />
@@ -92,6 +91,6 @@
                 <% } %>
             </div>
            </div>
-        <button type="submit" class="form-page__btn">Create</button>
+        <button type="submit" class="form-page__btn">Edit</button>
     </form>
 </div>

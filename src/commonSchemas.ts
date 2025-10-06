@@ -1,6 +1,8 @@
-import z from "zod"
+import z from 'zod'
 
 export const isoDate = z.coerce.date().transform(d => d.toISOString())
+export const urlSchema = z.string().regex(/^https?:\/\/[^\s$.?#].[^\s]*$/i, 'Invalid URL')
+export const emailSchema = z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address')
 
 export const futureDate = isoDate.refine(
     date => {

@@ -1,9 +1,5 @@
 import { Router } from 'express'
-import {
-    createTaskSchema,
-    listTasksQuerySchema,
-    updateTaskSchema,
-} from '../../modules/tasks/task.dtos'
+import { createTaskSchema, listTasksQuerySchema } from '../../modules/tasks/task.dtos'
 import { TaskService } from '../../modules/tasks/task.service'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { ZodError } from 'zod'

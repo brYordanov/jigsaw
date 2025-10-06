@@ -24,12 +24,12 @@ jobRouter.get('/:id', async (req, res) => {
 })
 
 jobRouter.post('/', async (req, res) => {
-    res.send(await service.createTask(req.body))
+    res.send(await service.createJob(req.body))
 })
 
 jobRouter.patch('/:id', async (req, res) => {
     const { id } = req.params
-    res.send(await service.updateTask(Number(id), req.body))
+    res.send(await service.updateJob(Number(id), req.body))
 })
 
 jobRouter.delete('/:id', async (req, res) => {

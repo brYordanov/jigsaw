@@ -1,8 +1,6 @@
 import z from 'zod'
-import { qAny, qBool } from '../../commonSchemas'
+import { emailSchema, qAny, qBool, urlSchema } from '../../commonSchemas'
 
-const urlSchema = z.string().regex(/^https?:\/\/[^\s$.?#].[^\s]*$/i, 'Invalid URL')
-const emailSchema = z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address')
 const JobTypeEnum = z.enum(['http', 'email', 'shell', 'sql', 'healthcheck'])
 export type JobType = z.infer<typeof JobTypeEnum>
 
