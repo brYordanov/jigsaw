@@ -6,6 +6,8 @@
 @import './components/filters.css';
 @import './components/pagination.css';
 @import './components/navigation.css';
+@import './components/item-select.css';
+@import './components/table.css';
 
 * {
     box-sizing: border-box;

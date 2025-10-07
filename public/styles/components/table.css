@@ -1,0 +1,26 @@
+.table {
+    width: 80%;
+    border: 1px solid;
+    border-radius: var(--br-primary);
+
+    th,
+    td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    thead th {
+        border-bottom: 1px solid;
+    }
+
+    thead th:not(:last-child),
+    tbody td:not(:last-child) {
+        border-right: 1px solid;
+    }
+}
+
+.table--interactive {
+    tbody tr {
+        cursor: pointer;
+    }
+}
