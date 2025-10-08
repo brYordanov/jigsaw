@@ -14,12 +14,16 @@ export class ItemSelect {
         this.container
             .querySelectorAll('[data-func="row"]')
             .forEach(row => row.classList.remove('selected'))
-        row.classList.add('selected')
-        this.selectedRow = row
+        this.selectRow(row)
         this.manageControlsState()
     }
 
-    manageControlsState() {
+    selectRow = row => {
+        row.classList.add('selected')
+        this.selectedRow = row
+    }
+
+    manageControlsState = () => {
         if (!this.selectedRow) throw new Error('no selected row found')
         const currTable = this.selectedRow.closest('[data-func="table"]')
         if (!currTable) throw new Error('table not found')
@@ -50,8 +54,70 @@ export class ItemSelect {
         if (!isFirst) setDisabled(up, false)
     }
 
+    moveSelectedRowBetweenTables = destinationTableRole => {
+        if (!this.selectedRow) throw new Error('no selected row found')
+        const sourceTable = this.selectedRow.closest('[data-func="table"]')
+        const destinationTable = getTableByRole(this.container, destinationTableRole)
+        const destinationTableBody = destinationTable.querySelector('tbody')
+
+        if (!sourceTable || !destinationTable) throw new Error('tables not found')
+
+        const clone = this.createClone(this.selectedRow)
+        const tranformedRow = this.transformRow(clone, destinationTableBody, destinationTableRole)
+        destinationTableBody.appendChild(tranformedRow)
+        this.selectedRow.remove()
+        this.selectRow(tranformedRow)
+        this.manageControlsState()
+        this.updatePositions()
+    }
+
+    createClone = row => {
+        const clone = row.cloneNode(true)
+        clone.classList.remove('selected')
+        return clone
+    }
+
+    transformRow = (row, destinationTableBody, destinationTableRole) => {
+        if (destinationTableRole === 'selected') {
+            const positionEl = document.createElement('td')
+            positionEl.dataset.func = 'position'
+            positionEl.textContent = destinationTableBody.children.length + 1
+            row.prepend(positionEl)
+            return row
+        }
+
+        const positionEl = row.querySelector('[data-func="position"]')
+        positionEl.remove()
+        return row
+    }
+
+    updatePositions = () => {
+        const selectedTableBody = this.container.querySelector('[data-func="selected-body"]')
+        if (!selectedTableBody) throw new Error('tbody not found')
+
+        const allSelectedRows = selectedTableBody.querySelectorAll('[data-func="position"]')
+        allSelectedRows.forEach((row, index) => {
+            row.textContent = index + 1
+        })
+    }
+
+    moveSelectedRowVertically = moveIndex => {
+        if (!this.selectedRow) return
+        const table = this.selectedRow.closest('[data-func="table"]')
+        if (!table || table.dataset.role !== 'selected') return
+    }
+
     initEvents = () => {
         this.tables.forEach(table => table.addEventListener('click', this.targetRow))
+        //to do event delegation
+        this.controls.left.addEventListener('click', () =>
+            this.moveSelectedRowBetweenTables('selected')
+        )
+        this.controls.right.addEventListener('click', () =>
+            this.moveSelectedRowBetweenTables('available')
+        )
+        this.controls.up.addEventListener('click', () => this.moveSelectedRowVertically(1))
+        this.controls.down.addEventListener('click', () => this.moveSelectedRowVertically(-1))
     }
 
     init = () => {
@@ -64,3 +130,6 @@ const getControlsByRole = root =>
     Object.fromEntries([...root.querySelectorAll('[data-role]')].map(el => [el.dataset.role, el]))
 
 const setDisabled = (el, disabled = true) => el && el.classList.toggle('disabled', disabled)
+
+const getTableByRole = (root, role) =>
+    root.querySelector(`[data-func="table"][data-role="${role}"]`)

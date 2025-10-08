@@ -1,5 +1,5 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
-    <div>
+    <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="selected">
             <thead>
                 <tr>
@@ -9,24 +9,24 @@
                     <th>Enabled</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-func="selected-body">
                 <tr data-func="row">
-                    <td>1</td>
+                    <td data-func="position">1</td>
                     <td>26</td>
                     <td>master</td>
-                    <td>✅ ❌</td>
+                    <td>✅</td>
                 </tr>
                 <tr data-func="row">
-                    <td>1</td>
+                    <td data-func="position">1</td>
                     <td>26</td>
                     <td>master</td>
-                    <td>✅ ❌</td>
+                    <td>❌</td>
                 </tr>
                 <tr data-func="row">
-                    <td>1</td>
+                    <td data-func="position">1</td>
                     <td>26</td>
                     <td>master</td>
-                    <td>✅ ❌</td>
+                    <td>✅</td>
                 </tr>
             </tbody>
         </table>
@@ -41,7 +41,7 @@
         </button>
         <button type="button" class="down disabled" data-func="control" data-role="down">⬇️</button>
     </div>
-    <div>
+    <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="available">
             <thead>
                 <tr>
@@ -50,7 +50,7 @@
                     <th>Enabled</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-func="available-body">
                 <tr data-func="row">
                     <td>88</td>
                     <td>dev</td>

@@ -28,3 +28,8 @@
         background-color: #e5e5e5;
     }
 }
+
+.table-container {
+    max-height: 350px;
+    overflow: auto;
+}
