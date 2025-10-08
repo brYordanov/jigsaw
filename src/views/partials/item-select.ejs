@@ -1,6 +1,6 @@
-<div class="item-select form-page__item-select <%= modifier %>">
-    <div class="item-select__selected item-select__tab">
-        <table class="table table--interactive">
+<div class="item-select form-page__item-select js_item_select <%= modifier %>">
+    <div>
+        <table class="table table--interactive" data-func="table" data-role="selected">
             <thead>
                 <tr>
                     <th>Position</th>
@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr data-func="row">
                     <td>1</td>
                     <td>26</td>
                     <td>master</td>
@@ -20,13 +20,13 @@
         </table>
     </div>
     <div class="item-select__controlls">
-        <button class="js_item_control to-left disabled">⬅️</button>
-        <button class="js_item_control up disabled">⬆️</button>
-        <button class="js_item_control to-right disabled">➡️</button>
-        <button class="js_item_control down disabled">⬇️</button>
+        <button class="to-left disabled" data-func="control" data-role="left">⬅️</button>
+        <button class="up disabled" data-func="control" data-role="up">⬆️</button>
+        <button class="to-right disabled" data-func="control" data-role="right">➡️</button>
+        <button class="down disabled" data-func="control" data-role="down">⬇️</button>
     </div>
-    <div class="item-select__availiable">
-        <table class="table table--interactive">
+    <div>
+        <table class="table table--interactive" data-func="table" data-role="availiable">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -35,12 +35,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr data-func="row">
                     <td>88</td>
                     <td>dev</td>
                     <td>✅</td>
                 </tr>
-                <tr>
+                <tr data-func="row">
                     <td>55</td>
                     <td>beta</td>
                     <td>❌</td>

@@ -1,5 +1,5 @@
-function initJsonEditors(root = document) {
-    const containers = root.querySelectorAll('.js_json_container:not([data-json-init])')
+function initJsonEditors() {
+    const containers = document.querySelectorAll('.js_json_container:not([data-init])')
 
     if (!containers.length) return
 
@@ -9,6 +9,20 @@ function initJsonEditors(root = document) {
         })
     })
 }
+function initItemSelect() {
+    const containers = document.querySelectorAll('.js_item_select:not([data-init])')
 
-document.addEventListener('DOMContentLoaded', () => initJsonEditors(document))
+    if (!containers.length) return
+
+    import('./item-select.js').then(({ ItemSelect }) => {
+        containers.forEach(container => {
+            new ItemSelect(container)
+        })
+    })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initJsonEditors()
+    initItemSelect()
+})
 document.addEventListener('htmx:afterSwap', e => initJsonEditors(e.target))

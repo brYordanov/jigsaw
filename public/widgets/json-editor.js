@@ -16,7 +16,7 @@ export class JsonEditor {
         this.field.addEventListener('input', () => this.validate(), { signal })
         this.field.addEventListener('blur', () => this.format(), { signal })
 
-        this.container.dataset.jsonInit = 'true'
+        this.container.dataset.init = 'true'
 
         // this.validate()
         this.format()
