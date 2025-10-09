@@ -1,4 +1,5 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
+    <input type="text" name="jobs-ids/intArr" hidden data-func="id-store" />
     <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="selected">
             <thead>
@@ -9,22 +10,22 @@
                     <th>Enabled</th>
                 </tr>
             </thead>
-            <tbody data-func="selected-body">
+            <tbody data-func="tbody" data-role="selected-body">
                 <tr data-func="row">
                     <td data-func="position">1</td>
-                    <td>26</td>
+                    <td data-func="id">26</td>
                     <td>master</td>
                     <td>✅</td>
                 </tr>
                 <tr data-func="row">
                     <td data-func="position">1</td>
-                    <td>26</td>
+                    <td data-func="id">26</td>
                     <td>master</td>
                     <td>❌</td>
                 </tr>
                 <tr data-func="row">
                     <td data-func="position">1</td>
-                    <td>26</td>
+                    <td data-func="id">26</td>
                     <td>master</td>
                     <td>✅</td>
                 </tr>
@@ -50,14 +51,14 @@
                     <th>Enabled</th>
                 </tr>
             </thead>
-            <tbody data-func="available-body">
+            <tbody data-func="tbody">
                 <tr data-func="row">
-                    <td>88</td>
+                    <td data-func="id">88</td>
                     <td>dev</td>
                     <td>✅</td>
                 </tr>
                 <tr data-func="row">
-                    <td>55</td>
+                    <td data-func="id">55</td>
                     <td>beta</td>
                     <td>❌</td>
                 </tr>

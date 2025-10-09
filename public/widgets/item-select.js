@@ -5,7 +5,14 @@ export class ItemSelect {
         this.controlsContainer = this.container.querySelector('[data-func="control-container"]')
         this.controls = getControlsByRole(this.controlsContainer)
         this.selectedRow = this.container.querySelector('.selected[data-func="row"]')
+        this.selectedTableBody = this.container.querySelector('[data-role="selected-body"]')
+        this.idStore = this.container.querySelector('[data-func="id-store"]')?.value
         this.init()
+    }
+
+    updateIdStore = () => {
+        const idElements = [...this.selectedTableBody.querySelectorAll('[data-func="id"]')]
+        this.idStore = idElements.map(el => el.textContent.trim()).join(',')
     }
 
     targetRow = e => {
@@ -54,7 +61,7 @@ export class ItemSelect {
         if (!isFirst) setDisabled(up, false)
     }
 
-    moveSelectedRowBetweenTables = destinationTableRole => {
+    moveSelectedRowToTable = destinationTableRole => {
         if (!this.selectedRow) throw new Error('no selected row found')
         const sourceTable = this.selectedRow.closest('[data-func="table"]')
         const destinationTable = getTableByRole(this.container, destinationTableRole)
@@ -92,10 +99,9 @@ export class ItemSelect {
     }
 
     updatePositions = () => {
-        const selectedTableBody = this.container.querySelector('[data-func="selected-body"]')
-        if (!selectedTableBody) throw new Error('tbody not found')
+        if (!this.selectedTableBody) throw new Error('tbody not found')
 
-        const allSelectedRows = selectedTableBody.querySelectorAll('[data-func="position"]')
+        const allSelectedRows = this.selectedTableBody.querySelectorAll('[data-func="position"]')
         allSelectedRows.forEach((row, index) => {
             row.textContent = index + 1
         })
@@ -105,19 +111,53 @@ export class ItemSelect {
         if (!this.selectedRow) return
         const table = this.selectedRow.closest('[data-func="table"]')
         if (!table || table.dataset.role !== 'selected') return
+
+        const tBody = table.querySelector('[data-func="tbody"]')
+        const rows = [...tBody.querySelectorAll('[data-func="row"]')]
+        const currIdx = rows.indexOf(this.selectedRow)
+        if (currIdx === -1) return
+
+        const targetIdx = currIdx + moveIndex
+        if (targetIdx < 0 || targetIdx >= rows.length) return
+
+        if (moveIndex < 0) {
+            tBody.insertBefore(this.selectedRow, rows[currIdx - 1])
+        } else {
+            const after = rows[currIdx + 1].nextElementSibling
+            tBody.insertBefore(this.selectedRow, after)
+        }
+
+        this.selectRow(this.selectedRow)
+        this.updatePositions()
+        this.manageControlsState()
+    }
+
+    delegateControlsClick = e => {
+        const btn = e.target.closest('button[data-role]')
+
+        if (!btn) return
+        switch (btn.dataset.role) {
+            case 'left':
+                this.moveSelectedRowToTable('selected')
+                break
+            case 'right':
+                this.moveSelectedRowToTable('available')
+                break
+            case 'up':
+                this.moveSelectedRowVertically(-1)
+                break
+            case 'down':
+                this.moveSelectedRowVertically(1)
+                break
+            default:
+                console.err('invalid control')
+        }
+        this.updateIdStore()
     }
 
     initEvents = () => {
         this.tables.forEach(table => table.addEventListener('click', this.targetRow))
-        //to do event delegation
-        this.controls.left.addEventListener('click', () =>
-            this.moveSelectedRowBetweenTables('selected')
-        )
-        this.controls.right.addEventListener('click', () =>
-            this.moveSelectedRowBetweenTables('available')
-        )
-        this.controls.up.addEventListener('click', () => this.moveSelectedRowVertically(1))
-        this.controls.down.addEventListener('click', () => this.moveSelectedRowVertically(-1))
+        this.controlsContainer.addEventListener('click', this.delegateControlsClick)
     }
 
     init = () => {
