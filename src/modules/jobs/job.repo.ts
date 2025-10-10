@@ -2,14 +2,9 @@ import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { RepoMethods } from '../../db/queryMethods'
 import { PaginatedResponse } from '../../db/types'
-import { JobRow } from './job.entity'
+import { JobRow, RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT } from './job.entity'
 import { CreateJobBodyDto, ListJobsQueryDto } from './job.dtos'
 import { UpdateTaskBodyDto } from '../tasks/task.dtos'
-
-const RETURN_COLS_DEFAULT =
-    `id, name, description, config, job_type, is_enabled, max_retries, retry_backoff_seconds, max_concurrency, created_at, updated_at` as const
-
-const TABLE_NAME_DEFAULT = 'jobs' as const
 
 export class JobRepository {
     private readonly repository: RepoMethods

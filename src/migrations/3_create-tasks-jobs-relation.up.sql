@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS tasks_jobs (
     task_id BIGINT NOT NULL,
     job_id BIGINT NOT NULL,
     position INTEGER NOT NULL DEFAULT 1 CHECK (position > 0),
-    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

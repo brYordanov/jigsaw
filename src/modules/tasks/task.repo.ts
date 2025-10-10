@@ -1,16 +1,9 @@
 import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
-import { TaskRow } from './task.entity'
+import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { RepoMethods } from '../../db/queryMethods'
 import { PaginatedResponse } from '../../db/types'
-
-const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
-  schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 
-  timeout_seconds, last_ping_at, expires_at,
-  created_at, updated_at` as const
-
-const TABLE_NAME_DEFAULT = 'tasks' as const
 
 export class TaskRepository {
     private readonly repository: RepoMethods
