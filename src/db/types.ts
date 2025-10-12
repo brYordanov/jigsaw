@@ -30,3 +30,10 @@ export interface PaginatedResponse<T> {
     limit: number
     offset: number
 }
+
+export type RelationSpec = {
+    /** SQL to JOIN an aggregated subquery returning one row per base id */
+    join: string
+    /** Columns the relation adds to SELECT (e.g., r_jobs.jobs AS "jobs") */
+    select: string
+}

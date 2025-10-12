@@ -10,11 +10,15 @@ export class TaskService {
         return this.repo.getAll()
     }
 
-    async getByIdOrFail(id: number): Promise<TaskRow> {
-        const task = this.repo.getById(id)
+    async getByIdOrFail(id: number, include?: string[]): Promise<TaskRow> {
+        const task = this.repo.getById(id, include)
         if (!task) throw new Error('Task not found')
 
         return task
+    }
+
+    async getTaskWithJobs(taskId: number): Promise<TaskRow> {
+        return this.getByIdOrFail(taskId, ['jobs'])
     }
 
     async paginate(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {

@@ -6,13 +6,13 @@ export class ItemSelect {
         this.controls = getControlsByRole(this.controlsContainer)
         this.selectedRow = this.container.querySelector('.selected[data-func="row"]')
         this.selectedTableBody = this.container.querySelector('[data-role="selected-body"]')
-        this.idStore = this.container.querySelector('[data-func="id-store"]')?.value
+        this.idStoreElement = this.container.querySelector('[data-func="id-store"]')
         this.init()
     }
 
     updateIdStore = () => {
         const idElements = [...this.selectedTableBody.querySelectorAll('[data-func="id"]')]
-        this.idStore = idElements.map(el => el.textContent.trim()).join(',')
+        this.idStoreElement.value = idElements.map(el => el.textContent.trim()).join(',')
     }
 
     targetRow = e => {

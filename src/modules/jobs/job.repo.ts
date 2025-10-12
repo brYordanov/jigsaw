@@ -21,7 +21,8 @@ export class JobRepository {
     }
 
     async getById(id: number): Promise<JobRow> {
-        return this.repository.getById(id)
+        const job = this.repository.getOne({ where: { id: id } })
+        return job
     }
 
     async createTask(data: CreateJobBodyDto): Promise<any> {

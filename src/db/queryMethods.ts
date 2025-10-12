@@ -1,19 +1,47 @@
 import { Pool, QueryConfig, QueryResultRow } from 'pg'
-import { PaginateConfig } from './types'
+import { PaginateConfig, RelationSpec } from './types'
 
 export class RepoMethods {
     constructor(
         private readonly pool: Pool,
         private readonly tableName: string,
-        private returningCols: string
+        private readonly returningCols: string,
+        private readonly relations: Record<string, RelationSpec> = {}
     ) {}
 
-    async getById(id: number): Promise<any> {
-        const { rows } = await this.pool.query(
-            `SELECT ${this.returningCols} FROM ${this.tableName} WHERE id=$1`,
-            [id]
-        )
-        return rows[0]
+    async get<T extends QueryResultRow = any>(
+        config: {
+            where?: Record<string, any>
+            orderBy?: string
+            dir?: 'ASC' | 'DESC'
+            include?: string[]
+            limit?: number
+        } = {}
+    ): Promise<T[]> {
+        const { where, orderBy, dir, include, limit } = config
+        const { whereParts, values } = this.getWhereElements(where)
+
+        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+        const orderSql = orderBy
+            ? `ORDER BY baseTable.${orderBy} ${(dir || 'ASC').toUpperCase()}`
+            : ''
+        const limitSql = limit ? `LIMIT ${Number(limit)}` : ''
+
+        const useIncludes = Boolean(include?.length)
+        const sql = useIncludes
+            ? this.createIncludeSql(include!, whereSql, orderSql, limitSql)
+            : `SELECT ${this.returningCols} FROM ${this.tableName} AS baseTable ${whereSql} ${orderSql} ${limitSql}`
+
+        const { rows } = await this.pool.query<T>(sql, values)
+
+        return rows
+    }
+
+    async getOne<T extends QueryResultRow = any>(
+        config: Omit<Parameters<this['get']>[0], 'limit'>
+    ): Promise<T | null> {
+        const rows = await this.get<T>({ ...config, limit: 1 })
+        return rows[0] ?? null
     }
 
     async getAll(): Promise<any> {
@@ -146,6 +174,66 @@ export class RepoMethods {
     }
 
     async deleteById(id: number): Promise<void> {
-        await this.pool.query(`DELETE FROM ${this.tableName} WHERE id=${id}`)
+        await this.pool.query('DELETE FROM ${this.tableName} WHERE id=$1', [id])
+    }
+
+    private getWhereElements(whereConfig?: Record<string, any>) {
+        const whereParts: string[] = []
+        const values: any[] = []
+        let i = 1
+        if (whereConfig) {
+            for (const [key, val] of Object.entries(whereConfig)) {
+                const col = `baseTable.${key}`
+                if (Array.isArray(val)) {
+                    whereParts.push(`${col} = ANY($${i++})`)
+                    values.push(val)
+                } else if (val === null) {
+                    whereParts.push(`${col} IS NULL`)
+                } else {
+                    whereParts.push(`${col} = $${i++}`)
+                    values.push(val)
+                }
+            }
+        }
+
+        return { whereParts, values }
+    }
+
+    private createIncludeSql(
+        include: string[],
+        whereSql: string,
+        orderSql: string,
+        limitSql: string
+    ) {
+        const unique = Array.from(new Set(include))
+        const specs = unique.map(key => {
+            const spec = this.relations[key]
+            if (!spec) throw new Error(`Unknown include: ${key}`)
+            return spec
+        })
+
+        const relationSelects = specs
+            .map(s => s.select?.trim())
+            .filter(Boolean)
+            .join(', ')
+        const selectCols = relationSelects
+            ? `${this.returningCols}, ${relationSelects}`
+            : this.returningCols
+
+        const relationJoins = specs
+            .map(s => s.join?.trim())
+            .filter(Boolean)
+            .join('\n')
+
+        return [
+            `SELECT ${selectCols}`,
+            `FROM ${this.tableName} AS baseTable`,
+            relationJoins,
+            whereSql,
+            orderSql,
+            limitSql,
+        ]
+            .filter(Boolean)
+            .join('\n')
     }
 }

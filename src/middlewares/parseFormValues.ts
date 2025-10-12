@@ -97,6 +97,8 @@ const transform = (node: any): any => {
 }
 
 export const parseFormValuesMD: RequestHandler = (req, _res, next) => {
+    console.log(req.body)
+
     if (req.body && typeof req.body === 'object') {
         req.body = transform(req.body)
     }

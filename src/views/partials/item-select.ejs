@@ -1,5 +1,5 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
-    <input type="text" name="jobs-ids/intArr" hidden data-func="id-store" />
+    <input type="text" name="jobs_ids/intArr" hidden data-func="id-store" />
     <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="selected">
             <thead>
@@ -11,24 +11,14 @@
                 </tr>
             </thead>
             <tbody data-func="tbody" data-role="selected-body">
+                <% currentTaskJobs.forEach(function(taskJob) {%>
                 <tr data-func="row">
-                    <td data-func="position">1</td>
-                    <td data-func="id">26</td>
-                    <td>master</td>
+                    <td data-func="position"><%= taskJob.position %></td>
+                    <td data-func="id"><%= taskJob.jobId %></td>
+                    <td></td>
                     <td>✅</td>
                 </tr>
-                <tr data-func="row">
-                    <td data-func="position">1</td>
-                    <td data-func="id">26</td>
-                    <td>master</td>
-                    <td>❌</td>
-                </tr>
-                <tr data-func="row">
-                    <td data-func="position">1</td>
-                    <td data-func="id">26</td>
-                    <td>master</td>
-                    <td>✅</td>
-                </tr>
+                <% }) %>
             </tbody>
         </table>
     </div>
@@ -52,16 +42,13 @@
                 </tr>
             </thead>
             <tbody data-func="tbody">
+                <% allJobs.forEach(function(job) {%>
                 <tr data-func="row">
-                    <td data-func="id">88</td>
-                    <td>dev</td>
-                    <td>✅</td>
+                    <td data-func="id"><%= job.id %></td>
+                    <td><%= job.name %></td>
+                    <td><%= job.is_enabled ? "✅" : "❌"%></td>
                 </tr>
-                <tr data-func="row">
-                    <td data-func="id">55</td>
-                    <td>beta</td>
-                    <td>❌</td>
-                </tr>
+                <% }) %>
             </tbody>
         </table>
     </div>

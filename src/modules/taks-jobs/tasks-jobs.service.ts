@@ -1,12 +1,8 @@
-import { TaskRow } from '../tasks/task.entity'
-import { TaskJobRow } from './tasks-jobs.entity'
+import { JobRow } from '../jobs/job.entity'
+import { TasksJobsRepository } from './tasks-jobs.repo'
 
 export class TasksJobsService {
-    constructor(private readonly repo = ) {}
+    constructor(private readonly repo = new TasksJobsRepository()) {}
 
-    async getJobsPerTask(taskId: number): Promise<TaskJobRow> {
-        return this.repository.getJobsPerTask(taskId)
-    }
-
-    async assignJobsToTask(taskId: number, jobIds: number[]): Promise<TaskRow> {}
+    // async assignJobsToTask(taskId: number, jobIds: number[]): Promise<TaskRow> {}
 }

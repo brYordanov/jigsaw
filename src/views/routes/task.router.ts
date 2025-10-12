@@ -6,9 +6,11 @@ import { ZodError } from 'zod'
 import { getPaginationData } from '../../helpers/getPaginationData'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
+import { JobService } from '../../modules/jobs/job.service'
 
 export const ViewTaskRouter = Router()
 const service = new TaskService()
+const jobService = new JobService()
 
 ViewTaskRouter.get('/', async (req, res) => {
     const params = listTasksQuerySchema.parse(req.query)
@@ -31,23 +33,29 @@ ViewTaskRouter.get('/', async (req, res) => {
     })
 })
 
-ViewTaskRouter.get('/create', (req, res) => {
-    res.render('pages/task-create', { values: {}, errors: {} })
+ViewTaskRouter.get('/create', async (req, res) => {
+    const allJobs = await jobService.getAll()
+    res.render('pages/task-create', { values: {}, errors: {}, allJobs, currentTaskJobs: [] })
 })
 
 ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
+        console.log(req.body)
+
         const dto = createTaskSchema.parse(req.body)
-        const task = await service.createTask(dto)
+        // const task = await service.createTask(dto)
 
         return res.redirect(`/task`)
     } catch (err: any) {
         if (err instanceof ZodError) {
             const errors = groupZodIssues(err.issues)
+            const allJobs = await jobService.getAll()
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: req.body,
                 errors,
+                allJobs,
+                currentTaskJobs: [],
             })
         }
 

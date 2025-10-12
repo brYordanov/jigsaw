@@ -154,7 +154,7 @@
                 <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
             </div>
 
-            <%- include("../partials/item-select", {modifier: 'form-page__item-select'}) %>
+            <%- include("../partials/item-select", {modifier: 'form-page__item-select', allJobs, currentTaskJobs}) %>
         <button type="submit" class="form-page__btn">Create</button>
     </form>
 </div>
