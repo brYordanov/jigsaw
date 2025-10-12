@@ -4,6 +4,7 @@ import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { RepoMethods } from '../../db/queryMethods'
 import { PaginatedResponse, RelationSpec } from '../../db/types'
+import { TasksJobsRepository } from '../taks-jobs/tasks-jobs.repo'
 
 const JOBS_RELATION: RelationSpec = {
     join: `
@@ -36,7 +37,8 @@ export class TaskRepository {
         private readonly pool: Pool = defaultPool,
         private readonly RETURN_COLS: string = RETURN_COLS_DEFAULT,
         private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT,
-        private readonly relations = { jobs: JOBS_RELATION }
+        private readonly relations = { jobs: JOBS_RELATION },
+        private taskJobsRepo = new TasksJobsRepository(pool)
     ) {
         this.repository = new RepoMethods(
             this.pool,
@@ -56,7 +58,24 @@ export class TaskRepository {
     }
 
     async createTask(data: CreateTaskBodyDto): Promise<any> {
-        return this.repository.create(data)
+        const { jobs_ids, ...taskData } = data
+        const jobIds = this.dedupe(jobs_ids)
+
+        const client = await this.pool.connect()
+
+        try {
+            const task = await this.repository.create(taskData, client)
+            const taskId = task.id
+            await this.taskJobsRepo.replaceForTaskTx(taskId, jobIds, client)
+
+            await client.query('COMMIT')
+            return { ...task, jobIds }
+        } catch (err) {
+            await client.query('ROLLBACK')
+            throw err
+        } finally {
+            client.release()
+        }
     }
 
     async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
@@ -91,5 +110,11 @@ export class TaskRepository {
 
     async deleteById(id: number): Promise<void> {
         this.repository.deleteById(id)
+    }
+
+    private dedupe(ids: number[]) {
+        const set = new Set(ids)
+        if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
+        return ids
     }
 }

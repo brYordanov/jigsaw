@@ -12,4 +12,23 @@ export class TasksJobsRepository {
     ) {
         this.repository = new RepoMethods(this.pool, this.TABLE_NAME, this.RETURN_COLS)
     }
+
+    async replaceForTaskTx(
+        taskId: number,
+        jobIds: number[],
+        client?: import('pg').PoolClient
+    ): Promise<void> {
+        await this.pool.query(`DELETE FROM ${this.TABLE_NAME} WHERE task_id = $1`, [taskId])
+        if (jobIds.length === 0) return
+
+        const runner = client ?? this.pool
+        await runner.query(
+            `
+            INSERT INTO tasks_jobs (task_id, job_id, position)
+            SELECT $1, j.job_id, j.pos
+            FROM UNNEST($2::bigint[]) WITH ORDINALITY AS j(job_id, pos)
+            `,
+            [taskId, jobIds]
+        )
+    }
 }

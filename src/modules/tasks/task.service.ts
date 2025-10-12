@@ -1,10 +1,14 @@
 import { PaginatedResponse } from '../../db/types'
+import { JobService } from '../jobs/job.service'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { TaskRow } from './task.entity'
 import { TaskRepository } from './task.repo'
 
 export class TaskService {
-    constructor(private readonly repo = new TaskRepository()) {}
+    constructor(
+        private readonly repo = new TaskRepository(),
+        private readonly jobService = new JobService()
+    ) {}
 
     async getAll(): Promise<TaskRow[]> {
         return this.repo.getAll()
@@ -26,6 +30,9 @@ export class TaskService {
     }
 
     async createTask(body: CreateTaskBodyDto): Promise<TaskRow> {
+        const { jobs_ids } = body
+        const jobIds = this.dedupe(jobs_ids)
+        //TODO check if jobs exist
         return this.repo.createTask(body)
     }
 
@@ -35,5 +42,11 @@ export class TaskService {
 
     async deleteById(id: number): Promise<void> {
         await this.repo.deleteById(id)
+    }
+
+    private dedupe(ids: number[]) {
+        const set = new Set(ids)
+        if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
+        return ids
     }
 }

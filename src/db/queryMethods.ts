@@ -49,7 +49,7 @@ export class RepoMethods {
         return rows
     }
 
-    async create(data: Record<string, any>): Promise<any> {
+    async create(data: Record<string, any>, client?: import('pg').PoolClient): Promise<any> {
         const cols = Object.keys(data)
         if (!cols.length) throw new Error('insertRow: no data')
 
@@ -67,11 +67,12 @@ export class RepoMethods {
             values,
         }
 
-        const { rows } = await this.pool.query(q)
+        const runner = client ?? this.pool
+        const { rows } = await runner.query(q)
         return rows[0]
     }
 
-    async update(id: number, data: Record<string, any>) {
+    async update(id: number, data: Record<string, any>, client?: import('pg').PoolClient) {
         const entries = Object.entries(data).filter(([_, v]) => v !== undefined)
         if (!entries.length) {
             const { rows } = await this.pool.query(
@@ -85,7 +86,8 @@ export class RepoMethods {
         const values = entries.map(([_, v]) => v)
         values.push(id)
 
-        const { rows } = await this.pool.query({
+        const runner = client ?? this.pool
+        const { rows } = await runner.query({
             text: `UPDATE ${this.tableName} SET ${sets} WHERE id=$${values.length} RETURNING ${this.returningCols}`,
             values,
         })
