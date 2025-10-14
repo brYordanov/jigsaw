@@ -71,16 +71,4 @@ export class TaskService {
         if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
         return ids
     }
-
-    private async loadExistingJobsOrdered(jobIds: number[]): Promise<JobRow[]> {
-        if (!jobIds.length) return []
-        const { rows } = await this.pool.query<JobRow>(
-            'SELECT j.* FROM jobs j WHERE id = ANY($1) ORDER BY array_position($1::bigint[], j.id)',
-            [jobIds]
-        )
-        if (rows.length !== jobIds.length) {
-            throw new Error('One or more jobs_ids do not exist or are not accessible')
-        }
-        return rows
-    }
 }
