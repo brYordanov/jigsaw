@@ -11,24 +11,7 @@ export class JobRepository extends BaseRepository {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT)
     }
 
-    async getAll(): Promise<JobRow[]> {
-        return this.get()
-    }
-
-    async getById(id: number): Promise<JobRow> {
-        const job = this.getOne({ where: { id: id } })
-        return job
-    }
-
-    async createTask(data: CreateJobBodyDto): Promise<any> {
-        return this.create(data)
-    }
-
-    async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
-        return this.update(id, data)
-    }
-
-    async listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
+    listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
         const FILTERS_NAME = {
             job_type: 'eq',
             is_enabled: 'eq',
@@ -50,9 +33,5 @@ export class JobRepository extends BaseRepository {
             limit: params.limit,
             offset: params.offset,
         })
-    }
-
-    async deleteById(id: number): Promise<void> {
-        this.deleteById(id)
     }
 }

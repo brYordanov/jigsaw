@@ -26,9 +26,9 @@ export interface TaskRow {
 
     created_at: string
     updated_at: string
-}
 
-export type TaskWithJobs = TaskRow & { jobs: JobRow[] }
+    jobs?: JobRow[]
+}
 
 export const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
   schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 

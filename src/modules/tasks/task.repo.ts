@@ -35,23 +35,6 @@ export class TaskRepository extends BaseRepository {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT, { jobs: JOBS_RELATION })
     }
 
-    async getAll(): Promise<TaskRow[]> {
-        return this.get()
-    }
-
-    async getById(id: number, include?: string[]): Promise<TaskRow> {
-        const task = await this.getOne({ where: { id: id }, include })
-        return task
-    }
-
-    async createTask(data: CreateTaskDto, client?: PoolClient): Promise<TaskRow> {
-        return this.create(data, client)
-    }
-
-    async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
-        return this.update(id, data)
-    }
-
     async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         const FILTERS_NAME = {
             schedule_type: 'eq',
@@ -76,9 +59,5 @@ export class TaskRepository extends BaseRepository {
             limit: params.limit,
             offset: params.offset,
         })
-    }
-
-    async deleteById(id: number): Promise<void> {
-        this.deleteById(id)
     }
 }

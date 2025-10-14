@@ -48,7 +48,8 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
         if (err instanceof ZodError) {
             const errors = groupZodIssues(err.issues)
             const allJobs = await jobService.getAll()
-            // const selectedJobs =
+            //todo error logic
+            const selectedJobs = await jobService.getManyJobsByid(req.body)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: req.body,

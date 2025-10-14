@@ -2,7 +2,7 @@ import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { PaginatedResponse } from '../../db/types'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
-import { TaskRow, TaskWithJobs } from './task.entity'
+import { TaskRow } from './task.entity'
 import { TaskRepository } from './task.repo'
 import { TasksJobsService } from '../taks-jobs/tasks-jobs.service'
 import { JobRow } from '../jobs/job.entity'
@@ -13,15 +13,15 @@ export class TaskService {
         private readonly pool: Pool = defaultPool,
         private readonly repo = new TaskRepository(),
         private readonly jobRepository = new JobRepository(),
-        private readonly tasksJobsRepository = new TasksJobsService()
+        private readonly tasksJobsService = new TasksJobsService()
     ) {}
 
     async getAll(): Promise<TaskRow[]> {
-        return this.repo.getAll()
+        return this.repo.get()
     }
 
     async getByIdOrFail(id: number, include?: string[]): Promise<TaskRow> {
-        const task = this.repo.getById(id, include)
+        const task = await this.repo.getOne({ where: { id: id }, include })
         if (!task) throw new Error('Task not found')
 
         return task
@@ -35,7 +35,7 @@ export class TaskService {
         return this.repo.listPaginated(params)
     }
 
-    async createTask(body: CreateTaskBodyDto): Promise<TaskWithJobs> {
+    async createTask(body: CreateTaskBodyDto): Promise<TaskRow> {
         const jobIds = this.dedupe(body.jobs_ids)
         const jobs = await this.jobRepository.get({ where: { id: [jobIds] } })
         const client = await this.pool.connect()
@@ -43,9 +43,9 @@ export class TaskService {
             await client.query('BEGIN')
 
             const { jobs_ids, ...taskData } = body
-            const task = await this.repo.createTask(taskData, client)
+            const task = await this.repo.create(taskData, client)
 
-            await this.tasksJobsRepository.assignJobsToTask(task.id, jobIds, client)
+            await this.tasksJobsService.assignJobsToTask(task.id, jobIds, client)
 
             await client.query('COMMIT')
 
@@ -59,7 +59,7 @@ export class TaskService {
     }
 
     async updateTask(id: number, body: UpdateTaskBodyDto) {
-        return this.repo.updateTask(id, body)
+        return this.repo.update(id, body)
     }
 
     async deleteById(id: number): Promise<void> {

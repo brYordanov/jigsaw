@@ -51,7 +51,10 @@ export class BaseRepository {
         return rows[0] ?? null
     }
 
-    async create(data: Record<string, any>, client?: PoolClient | Pool): Promise<any> {
+    async create<T extends QueryResultRow = any>(
+        data: Record<string, any>,
+        client?: PoolClient | Pool
+    ): Promise<T> {
         const cols = Object.keys(data)
         if (!cols.length) throw new Error('insertRow: no data')
 
@@ -74,14 +77,18 @@ export class BaseRepository {
         return rows[0]
     }
 
-    async update(id: number, data: Record<string, any>, client?: PoolClient | Pool) {
+    async update<T extends QueryResultRow = any>(
+        id: number,
+        data: Record<string, any>,
+        client?: PoolClient | Pool
+    ): Promise<T> {
         const entries = Object.entries(data).filter(([_, v]) => v !== undefined)
         if (!entries.length) {
             const { rows } = await this.pool.query(
                 `SELECT ${this.returningCols} FROM ${this.tableName} WHERE id=$1`,
                 [id]
             )
-            return rows
+            return rows[0]
         }
 
         const sets = entries.map(([k], i) => `${k} = $${i + 1}`).join(', ')

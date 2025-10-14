@@ -6,24 +6,24 @@ import { JobRepository } from './job.repo'
 export class JobService {
     constructor(private readonly repo = new JobRepository()) {}
 
-    async getAll(): Promise<JobRow[]> {
-        return this.repo.getAll()
+    getAll(): Promise<JobRow[]> {
+        return this.repo.get()
     }
 
     async getByIdOrFail(id: number): Promise<JobRow> {
-        const task = this.repo.getById(id)
+        const task = await this.repo.getOne<JobRow>({ where: { id: id } })
         if (!task) throw new Error('Task not found')
 
         return task
     }
 
-    async paginate(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
+    paginate(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
         return this.repo.listPaginated(params)
     }
 
-    async createJob(body: CreateJobBodyDto): Promise<JobRow> {
+    createJob(body: CreateJobBodyDto): Promise<JobRow> {
         validateJobConfig(body.job_type, body.config)
-        return this.repo.createTask(body)
+        return this.repo.create<JobRow>(body)
     }
 
     async updateJob(id: number, body: UpdateJobBodyDto) {
@@ -32,10 +32,14 @@ export class JobService {
             const jobType = body.job_type ? body.job_type : job.job_type
             validateJobConfig(jobType, body.config)
         }
-        return this.repo.updateTask(id, body)
+        return this.repo.update<JobRow>(id, body)
     }
 
     async deleteById(id: number): Promise<void> {
         await this.repo.deleteById(id)
+    }
+
+    getManyJobsByid(ids: number[]): Promise<JobRow[]> {
+        return this.repo.get<JobRow>({ where: { id: ids } })
     }
 }
