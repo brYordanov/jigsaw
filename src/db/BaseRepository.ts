@@ -1,13 +1,17 @@
-import { Pool, QueryConfig, QueryResultRow } from 'pg'
+import { Pool, PoolClient, QueryConfig, QueryResultRow } from 'pg'
 import { PaginateConfig, RelationSpec } from './types'
 
-export class RepoMethods {
+export class BaseRepository {
     constructor(
-        private readonly pool: Pool,
-        private readonly tableName: string,
-        private readonly returningCols: string,
-        private readonly relations: Record<string, RelationSpec> = {}
+        protected readonly pool: Pool,
+        protected readonly tableName: string,
+        protected readonly returningCols: string,
+        protected readonly relations: Record<string, RelationSpec> = {}
     ) {}
+
+    protected runner(client?: PoolClient | Pool) {
+        return (client as PoolClient | undefined) ?? this.pool
+    }
 
     async get<T extends QueryResultRow = any>(
         config: {
@@ -37,19 +41,17 @@ export class RepoMethods {
         return rows
     }
 
-    async getOne<T extends QueryResultRow = any>(
-        config: Omit<Parameters<this['get']>[0], 'limit'>
-    ): Promise<T | null> {
+    async getOne<T extends QueryResultRow = any>(config: {
+        where?: Record<string, any>
+        orderBy?: string
+        dir?: 'ASC' | 'DESC'
+        include?: string[]
+    }): Promise<T | null> {
         const rows = await this.get<T>({ ...config, limit: 1 })
         return rows[0] ?? null
     }
 
-    async getAll(): Promise<any> {
-        const { rows } = await this.pool.query(`SELECT * FROM ${this.tableName}`)
-        return rows
-    }
-
-    async create(data: Record<string, any>, client?: import('pg').PoolClient): Promise<any> {
+    async create(data: Record<string, any>, client?: PoolClient | Pool): Promise<any> {
         const cols = Object.keys(data)
         if (!cols.length) throw new Error('insertRow: no data')
 
@@ -67,12 +69,12 @@ export class RepoMethods {
             values,
         }
 
-        const runner = client ?? this.pool
-        const { rows } = await runner.query(q)
+        const db = this.runner(client)
+        const { rows } = await db.query(q)
         return rows[0]
     }
 
-    async update(id: number, data: Record<string, any>, client?: import('pg').PoolClient) {
+    async update(id: number, data: Record<string, any>, client?: PoolClient | Pool) {
         const entries = Object.entries(data).filter(([_, v]) => v !== undefined)
         if (!entries.length) {
             const { rows } = await this.pool.query(
@@ -86,8 +88,8 @@ export class RepoMethods {
         const values = entries.map(([_, v]) => v)
         values.push(id)
 
-        const runner = client ?? this.pool
-        const { rows } = await runner.query({
+        const db = this.runner(client)
+        const { rows } = await db.query({
             text: `UPDATE ${this.tableName} SET ${sets} WHERE id=$${values.length} RETURNING ${this.returningCols}`,
             values,
         })

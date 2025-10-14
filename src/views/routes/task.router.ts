@@ -40,16 +40,15 @@ ViewTaskRouter.get('/create', async (req, res) => {
 
 ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
-        console.log(req.body)
-
         const dto = createTaskSchema.parse(req.body)
-        // const task = await service.createTask(dto)
+        await service.createTask(dto)
 
         return res.redirect(`/task`)
     } catch (err: any) {
         if (err instanceof ZodError) {
             const errors = groupZodIssues(err.issues)
             const allJobs = await jobService.getAll()
+            // const selectedJobs =
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: req.body,
@@ -79,7 +78,7 @@ ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
         const candidate = { ...currentTask, ...req.body }
         const dto = createTaskSchema.parse(candidate)
 
-        const task = await service.updateTask(id, dto)
+        await service.updateTask(id, dto)
 
         return res.redirect(`/task`)
     } catch (err) {

@@ -1,10 +1,11 @@
+import { Pool, PoolClient } from 'pg'
 import { JobRow } from '../jobs/job.entity'
 import { TasksJobsRepository } from './tasks-jobs.repo'
 
 export class TasksJobsService {
     constructor(private readonly repo = new TasksJobsRepository()) {}
 
-    async assignJobsToTask(taskId: number, jobIds: number[]): Promise<void> {
-        return this.repo.replaceForTaskTx(taskId, jobIds)
+    async assignJobsToTask(taskId: number, jobIds: number[], client?: PoolClient): Promise<void> {
+        return this.repo.replaceForTaskTx(taskId, jobIds, client)
     }
 }

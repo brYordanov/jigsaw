@@ -42,7 +42,7 @@ ViewJobRouter.get('/create', (req, res) => {
 ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createJobBodySchema.parse(req.body)
-        const job = await service.createJob(dto)
+        await service.createJob(dto)
         return res.redirect('/job')
     } catch (err: any) {
         if (err instanceof ZodError) {
@@ -87,7 +87,7 @@ ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
         const id = Number(req.params.id)
         const dto = updateJobBodySchema.parse(req.body)
-        const job = await service.updateJob(id, dto)
+        await service.updateJob(id, dto)
 
         return res.redirect(`/job`)
     } catch (err) {

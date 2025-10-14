@@ -66,6 +66,7 @@ export const createTaskSchema = z.discriminatedUnion('schedule_type', [
     }),
 ])
 export type CreateTaskBodyDto = z.infer<typeof createTaskSchema>
+export type CreateTaskDto = Omit<CreateTaskBodyDto, 'jobs_ids'>
 
 export const updateTaskSchema = z.object({
     name: z.string().min(1).max(200).optional(),

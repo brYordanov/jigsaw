@@ -1,10 +1,9 @@
-import { Pool } from 'pg'
+import { Pool, PoolClient } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
-import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
-import { RepoMethods } from '../../db/queryMethods'
+import { CreateTaskDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
+import { BaseRepository } from '../../db/BaseRepository'
 import { PaginatedResponse, RelationSpec } from '../../db/types'
-import { TasksJobsRepository } from '../taks-jobs/tasks-jobs.repo'
 
 const JOBS_RELATION: RelationSpec = {
     join: `
@@ -31,55 +30,26 @@ const JOBS_RELATION: RelationSpec = {
     select: `rJobs."jobs" AS "jobs"`,
 } as const
 
-export class TaskRepository {
-    private readonly repository: RepoMethods
-    constructor(
-        private readonly pool: Pool = defaultPool,
-        private readonly RETURN_COLS: string = RETURN_COLS_DEFAULT,
-        private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT,
-        private readonly relations = { jobs: JOBS_RELATION },
-        private taskJobsRepo = new TasksJobsRepository(pool)
-    ) {
-        this.repository = new RepoMethods(
-            this.pool,
-            this.TABLE_NAME,
-            this.RETURN_COLS,
-            this.relations
-        )
+export class TaskRepository extends BaseRepository {
+    constructor(pool: Pool = defaultPool) {
+        super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT, { jobs: JOBS_RELATION })
     }
 
     async getAll(): Promise<TaskRow[]> {
-        return this.repository.getAll()
+        return this.get()
     }
 
     async getById(id: number, include?: string[]): Promise<TaskRow> {
-        const task = await this.repository.getOne({ where: { id: id }, include })
+        const task = await this.getOne({ where: { id: id }, include })
         return task
     }
 
-    async createTask(data: CreateTaskBodyDto): Promise<any> {
-        const { jobs_ids, ...taskData } = data
-        const jobIds = this.dedupe(jobs_ids)
-
-        const client = await this.pool.connect()
-
-        try {
-            const task = await this.repository.create(taskData, client)
-            const taskId = task.id
-            await this.taskJobsRepo.replaceForTaskTx(taskId, jobIds, client)
-
-            await client.query('COMMIT')
-            return { ...task, jobIds }
-        } catch (err) {
-            await client.query('ROLLBACK')
-            throw err
-        } finally {
-            client.release()
-        }
+    async createTask(data: CreateTaskDto, client?: PoolClient): Promise<TaskRow> {
+        return this.create(data, client)
     }
 
     async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
-        return this.repository.update(id, data)
+        return this.update(id, data)
     }
 
     async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
@@ -92,7 +62,7 @@ export class TaskRepository {
 
         const ALLOWED_SORT = ['created_at', 'updated_at', 'name', 'next_run_at'] as const
 
-        return this.repository.paginate<TaskRow, any>({
+        return this.paginate<TaskRow, any>({
             filters: {
                 schedule_type: params.schedule_type,
                 interval_type: params.interval_type,
@@ -109,12 +79,6 @@ export class TaskRepository {
     }
 
     async deleteById(id: number): Promise<void> {
-        this.repository.deleteById(id)
-    }
-
-    private dedupe(ids: number[]) {
-        const set = new Set(ids)
-        if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
-        return ids
+        this.deleteById(id)
     }
 }

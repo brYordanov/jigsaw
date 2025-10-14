@@ -1,3 +1,5 @@
+import { JobRow } from '../jobs/job.entity'
+
 export type ScheduleType = 'fixed' | 'deadman'
 export type IntervalType = 'monthly' | 'weekly' | 'daily' | 'hourly'
 
@@ -25,6 +27,8 @@ export interface TaskRow {
     created_at: string
     updated_at: string
 }
+
+export type TaskWithJobs = TaskRow & { jobs: JobRow[] }
 
 export const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
   schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 

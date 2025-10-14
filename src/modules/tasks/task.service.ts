@@ -1,13 +1,19 @@
+import { Pool } from 'pg'
+import { pool as defaultPool } from '../../db/db'
 import { PaginatedResponse } from '../../db/types'
-import { JobService } from '../jobs/job.service'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
-import { TaskRow } from './task.entity'
+import { TaskRow, TaskWithJobs } from './task.entity'
 import { TaskRepository } from './task.repo'
+import { TasksJobsService } from '../taks-jobs/tasks-jobs.service'
+import { JobRow } from '../jobs/job.entity'
+import { JobRepository } from '../jobs/job.repo'
 
 export class TaskService {
     constructor(
+        private readonly pool: Pool = defaultPool,
         private readonly repo = new TaskRepository(),
-        private readonly jobService = new JobService()
+        private readonly jobRepository = new JobRepository(),
+        private readonly tasksJobsRepository = new TasksJobsService()
     ) {}
 
     async getAll(): Promise<TaskRow[]> {
@@ -29,11 +35,27 @@ export class TaskService {
         return this.repo.listPaginated(params)
     }
 
-    async createTask(body: CreateTaskBodyDto): Promise<TaskRow> {
-        const { jobs_ids } = body
-        const jobIds = this.dedupe(jobs_ids)
-        //TODO check if jobs exist
-        return this.repo.createTask(body)
+    async createTask(body: CreateTaskBodyDto): Promise<TaskWithJobs> {
+        const jobIds = this.dedupe(body.jobs_ids)
+        const jobs = await this.jobRepository.get({ where: { id: [jobIds] } })
+        const client = await this.pool.connect()
+        try {
+            await client.query('BEGIN')
+
+            const { jobs_ids, ...taskData } = body
+            const task = await this.repo.createTask(taskData, client)
+
+            await this.tasksJobsRepository.assignJobsToTask(task.id, jobIds, client)
+
+            await client.query('COMMIT')
+
+            return { ...task, jobs }
+        } catch (err) {
+            await client.query('ROLLBACK')
+            throw err
+        } finally {
+            client.release()
+        }
     }
 
     async updateTask(id: number, body: UpdateTaskBodyDto) {
@@ -48,5 +70,17 @@ export class TaskService {
         const set = new Set(ids)
         if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
         return ids
+    }
+
+    private async loadExistingJobsOrdered(jobIds: number[]): Promise<JobRow[]> {
+        if (!jobIds.length) return []
+        const { rows } = await this.pool.query<JobRow>(
+            'SELECT j.* FROM jobs j WHERE id = ANY($1) ORDER BY array_position($1::bigint[], j.id)',
+            [jobIds]
+        )
+        if (rows.length !== jobIds.length) {
+            throw new Error('One or more jobs_ids do not exist or are not accessible')
+        }
+        return rows
     }
 }
