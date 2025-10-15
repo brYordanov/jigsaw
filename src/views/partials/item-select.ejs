@@ -11,12 +11,12 @@
                 </tr>
             </thead>
             <tbody data-func="tbody" data-role="selected-body">
-                <% currentTaskJobs.forEach(function(taskJob) {%>
+                <% existingSelectedJobs.forEach(function(job, index) {%>
                 <tr data-func="row">
-                    <td data-func="position"><%= taskJob.position %></td>
-                    <td data-func="id"><%= taskJob.jobId %></td>
-                    <td></td>
-                    <td>✅</td>
+                    <td data-func="position"><%= index + 1 %></td>
+                    <td data-func="id"><%= job.id %></td>
+                    <td><%= job.name %></td>
+                    <td><%= job.is_enabled ? "✅" : "❌" %></td>
                 </tr>
                 <% }) %>
             </tbody>
@@ -42,7 +42,7 @@
                 </tr>
             </thead>
             <tbody data-func="tbody">
-                <% allJobs.forEach(function(job) {%>
+                <% availableJobs.forEach(function(job) {%>
                 <tr data-func="row">
                     <td data-func="id"><%= job.id %></td>
                     <td><%= job.name %></td>

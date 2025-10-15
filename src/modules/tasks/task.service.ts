@@ -37,6 +37,15 @@ export class TaskService {
     async createTask(body: CreateTaskBodyDto): Promise<TaskRow> {
         const jobIds = this.dedupe(body.jobs_ids)
         const jobs = await this.jobRepository.get({ where: { id: [jobIds] } })
+        const missingIds = jobIds.filter(id => !jobs.find(j => j.id === id))
+        console.log(missingIds)
+        console.log(jobs)
+
+        if (missingIds.length > 0) {
+            throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
+        }
+
+        //todo create transation method
         const client = await this.pool.connect()
         try {
             await client.query('BEGIN')
