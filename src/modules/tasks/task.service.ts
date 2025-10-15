@@ -5,7 +5,6 @@ import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.
 import { TaskRow } from './task.entity'
 import { TaskRepository } from './task.repo'
 import { TasksJobsService } from '../taks-jobs/tasks-jobs.service'
-import { JobRow } from '../jobs/job.entity'
 import { JobRepository } from '../jobs/job.repo'
 
 export class TaskService {

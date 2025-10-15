@@ -1,5 +1,4 @@
 import { Pool, PoolClient } from 'pg'
-import { JobRow } from '../jobs/job.entity'
 import { TasksJobsRepository } from './tasks-jobs.repo'
 
 export class TasksJobsService {

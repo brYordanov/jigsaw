@@ -1,7 +1,7 @@
-import { Pool, PoolClient } from 'pg'
+import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
 import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
-import { CreateTaskDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
+import { ListTasksQueryDto } from './task.dtos'
 import { BaseRepository } from '../../db/BaseRepository'
 import { PaginatedResponse, RelationSpec } from '../../db/types'
 
