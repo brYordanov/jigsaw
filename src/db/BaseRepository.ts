@@ -1,5 +1,5 @@
 import { Pool, PoolClient, QueryConfig, QueryResultRow } from 'pg'
-import { PaginateConfig, RelationSpec } from './types'
+import { PaginateConfig, RelationSpec, TxOptions } from './types'
 
 export class BaseRepository {
     constructor(
@@ -184,8 +184,64 @@ export class BaseRepository {
         }
     }
 
-    async deleteById(id: string | number): Promise<void> {
-        await this.pool.query(`DELETE FROM ${this.tableName} WHERE id=$1`, [id])
+    async deleteById(id: string | number, client?: PoolClient): Promise<void> {
+        const db = this.runner(client)
+        await db.query(`DELETE FROM ${this.tableName} WHERE id=$1`, [id])
+    }
+
+    async transaction<T>(
+        fn: (client: PoolClient) => Promise<T>,
+        options: TxOptions = {
+            isolationLevel: 'READ COMMITTED',
+            isReadonly: false,
+            isDeferrable: false,
+            maxRetries: 1,
+        }
+    ) {
+        const {
+            isolationLevel = 'READ COMMITTED',
+            isReadonly = false,
+            isDeferrable = false,
+            maxRetries = 1,
+        } = options
+
+        let attempt = 0
+
+        while (true) {
+            const client = await this.pool.connect()
+
+            try {
+                await client.query(
+                    `START TRANSACTION ISOLATION LEVEL ${isolationLevel} ${isReadonly ? 'READ ONLY' : 'READ WRITE'}${isDeferrable ? ' DEFERRABLE' : ''};`
+                )
+                const result = await fn(client)
+
+                await client.query('COMMIT')
+                return result
+            } catch (err: any) {
+                await client.query('ROLLBACK')
+                if (attempt < maxRetries && (err?.code === '40001' || err?.code === '40P01')) {
+                    attempt++
+                    continue
+                }
+                throw err
+            } finally {
+                client.release()
+            }
+        }
+    }
+
+    async withSavepoint<T>(client: PoolClient, fn: (client: PoolClient) => Promise<T>): Promise<T> {
+        const sp = `sp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+        await client.query(`SAVEPOINT ${sp}`)
+        try {
+            const out = await fn(client)
+            await client.query(`RELEASE SAVEPOINT ${sp}`)
+            return out
+        } catch (e) {
+            await client.query(`ROLLBACK TO SAVEPOINT ${sp}`)
+            throw e
+        }
     }
 
     private getWhereElements(whereConfig?: Record<string, any>) {

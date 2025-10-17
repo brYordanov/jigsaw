@@ -43,25 +43,14 @@ export class TaskService {
             throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
         }
 
-        //todo create transation method
-        const client = await this.pool.connect()
-        try {
-            await client.query('BEGIN')
-
+        const task = await this.repo.transaction(async client => {
             const { jobs_ids, ...taskData } = body
-            const task = await this.repo.create(taskData, client)
+            const created = await this.repo.create(taskData, client)
+            await this.tasksJobsService.assignJobsToTask(created.id, jobs_ids, client)
+            return created
+        })
 
-            await this.tasksJobsService.assignJobsToTask(task.id, jobIds, client)
-
-            await client.query('COMMIT')
-
-            return { ...task, jobs }
-        } catch (err) {
-            await client.query('ROLLBACK')
-            throw err
-        } finally {
-            client.release()
-        }
+        return { ...task, jobs }
     }
 
     async updateTask(id: number, body: UpdateTaskBodyDto) {

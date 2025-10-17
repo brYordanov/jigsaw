@@ -61,8 +61,6 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
             const availableJobs = allJobs.filter(job => !foundIds.has(job.id))
             const hasMissing = missingIds.length > 0
 
-            console.log(errors)
-
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: req.body,
                 errors,

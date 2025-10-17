@@ -37,3 +37,10 @@ export type RelationSpec = {
     /** Columns the relation adds to SELECT (e.g., r_jobs.jobs AS "jobs") */
     select: string
 }
+
+export type TxOptions = {
+    isolationLevel?: 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE'
+    isReadonly?: boolean
+    isDeferrable?: boolean
+    maxRetries?: number
+}
