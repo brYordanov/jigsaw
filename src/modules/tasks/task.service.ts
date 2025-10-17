@@ -36,10 +36,8 @@ export class TaskService {
 
     async createTask(body: CreateTaskBodyDto): Promise<TaskRow> {
         const jobIds = this.dedupe(body.jobs_ids)
-        const jobs = await this.jobRepository.get({ where: { id: [jobIds] } })
+        const jobs = await this.jobRepository.get({ where: { id: jobIds } })
         const missingIds = jobIds.filter(id => !jobs.find(j => j.id === id))
-        console.log(missingIds)
-        console.log(jobs)
 
         if (missingIds.length > 0) {
             throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
@@ -74,7 +72,7 @@ export class TaskService {
         await this.repo.deleteById(id)
     }
 
-    private dedupe(ids: number[]) {
+    private dedupe(ids: string[]) {
         const set = new Set(ids)
         if (set.size !== ids.length) throw new Error('jobs_ids must be unique')
         return ids

@@ -8,7 +8,7 @@ export class TasksJobsRepository extends BaseRepository {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT)
     }
 
-    async replaceForTaskTx(taskId: number, jobIds: number[], client?: PoolClient): Promise<void> {
+    async replaceForTaskTx(taskId: number, jobIds: string[], client?: PoolClient): Promise<void> {
         const db = this.runner(client)
         await db.query(`DELETE FROM ${this.tableName} WHERE task_id = $1`, [taskId])
         if (jobIds.length === 0) return

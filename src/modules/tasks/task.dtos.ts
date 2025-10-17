@@ -49,7 +49,7 @@ const baseSchema = z.object({
     minutes: z.array(z.number().int().min(0).max(59)).nullable().optional(),
     timeout_seconds: z.number().int().positive().nullable().optional(),
     expires_at: futureDate.nullable().optional(),
-    jobs_ids: z.array(z.number().int().min(0)),
+    jobs_ids: z.array(z.string().min(1)),
 })
 
 export const createTaskSchema = z.discriminatedUnion('schedule_type', [

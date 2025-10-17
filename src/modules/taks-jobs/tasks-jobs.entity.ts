@@ -1,7 +1,7 @@
 export type TaskJobRow = {
-    id: number
-    task_id: number
-    job_id: number
+    id: string
+    task_id: string
+    job_id: string
     position: number
     is_enabled: boolean
     created_at: string

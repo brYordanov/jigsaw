@@ -10,7 +10,7 @@ export class JobService {
         return this.repo.get()
     }
 
-    async getByIdOrFail(id: number): Promise<JobRow> {
+    async getByIdOrFail(id: string): Promise<JobRow> {
         const task = await this.repo.getOne<JobRow>({ where: { id: id } })
         if (!task) throw new Error('Task not found')
 
@@ -26,7 +26,7 @@ export class JobService {
         return this.repo.create<JobRow>(body)
     }
 
-    async updateJob(id: number, body: UpdateJobBodyDto) {
+    async updateJob(id: string, body: UpdateJobBodyDto) {
         const job = await this.getByIdOrFail(id)
         if (body.config) {
             const jobType = body.job_type ? body.job_type : job.job_type
@@ -35,11 +35,11 @@ export class JobService {
         return this.repo.update<JobRow>(id, body)
     }
 
-    async deleteById(id: number): Promise<void> {
+    async deleteById(id: string): Promise<void> {
         await this.repo.deleteById(id)
     }
 
-    getManyJobsByid(ids: number[]): Promise<JobRow[]> {
+    getManyJobsByid(ids: string[]): Promise<JobRow[]> {
         return this.repo.get<JobRow>({ where: { id: ids } })
     }
 }

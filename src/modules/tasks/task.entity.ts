@@ -4,7 +4,7 @@ export type ScheduleType = 'fixed' | 'deadman'
 export type IntervalType = 'monthly' | 'weekly' | 'daily' | 'hourly'
 
 export interface TaskRow {
-    id: number
+    id: string
     name: string
     description: string | null
     is_single_time_only: boolean

@@ -72,7 +72,7 @@ ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
 })
 
 ViewJobRouter.get('/edit/:id', async (req, res) => {
-    const id = Number(req.params.id)
+    const { id } = req.params
     const job = await service.getByIdOrFail(id)
     let configPartialHtml = ''
 
@@ -85,7 +85,7 @@ ViewJobRouter.get('/edit/:id', async (req, res) => {
 
 ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
-        const id = Number(req.params.id)
+        const { id } = req.params
         const dto = updateJobBodySchema.parse(req.body)
         await service.updateJob(id, dto)
 
@@ -106,7 +106,7 @@ ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
 })
 
 ViewJobRouter.delete('/:id', async (req, res) => {
-    const id = Number(req.params.id)
+    const { id } = req.params
     await service.deleteById(id)
     return res.status(HttpStatus.OK).send('')
 })

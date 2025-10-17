@@ -1,7 +1,7 @@
 import { JobType } from './job.dtos'
 
 export interface JobRow {
-    id: number
+    id: string
     name: string
     description: string | null
     job_type: JobType

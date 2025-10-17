@@ -46,8 +46,6 @@ ViewTaskRouter.get('/create', async (req, res) => {
 ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createTaskSchema.parse(req.body)
-        console.log(dto)
-
         await service.createTask(dto)
 
         return res.redirect(`/task`)
@@ -62,6 +60,8 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
             const missingIds = selectedIds.filter(id => !foundIds.has(id))
             const availableJobs = allJobs.filter(job => !foundIds.has(job.id))
             const hasMissing = missingIds.length > 0
+
+            console.log(errors)
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-create', {
                 values: req.body,
@@ -118,8 +118,8 @@ ViewTaskRouter.delete('/:id', async (req, res) => {
     return res.status(HttpStatus.OK).send('')
 })
 
-const jobsIdsFromBody = (body: any): number[] => {
+const jobsIdsFromBody = (body: any): string[] => {
     const v = body?.jobs_ids
     const arr = Array.isArray(v) ? v : v === undefined ? [] : [v]
-    return arr.map(Number).filter(n => Number.isInteger(n) && n >= 0)
+    return arr.map(id => (id == null ? '' : String(id).trim())).filter(id => id.length > 0)
 }

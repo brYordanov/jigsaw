@@ -78,7 +78,7 @@ export class BaseRepository {
     }
 
     async update<T extends QueryResultRow = any>(
-        id: number,
+        id: string | number,
         data: Record<string, any>,
         client?: PoolClient | Pool
     ): Promise<T> {
@@ -184,8 +184,8 @@ export class BaseRepository {
         }
     }
 
-    async deleteById(id: number): Promise<void> {
-        await this.pool.query('DELETE FROM ${this.tableName} WHERE id=$1', [id])
+    async deleteById(id: string | number): Promise<void> {
+        await this.pool.query(`DELETE FROM ${this.tableName} WHERE id=$1`, [id])
     }
 
     private getWhereElements(whereConfig?: Record<string, any>) {
