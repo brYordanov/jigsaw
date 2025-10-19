@@ -11,11 +11,11 @@ const JOBS_RELATION: RelationSpec = {
         SELECT
         tj.task_id AS "taskId",
         COALESCE(
-            json_agg(
-                json_build_object(
-                    'id', j.id,
+                json_agg(
+                    json_build_object(
+                    'id', j.id::text,
                     'name', j.name,
-                    'isEnabled', j.is_enabled,
+                    'is_enabled', j.is_enabled,
                     'position', tj.position
                 )
                 ORDER BY tj.position

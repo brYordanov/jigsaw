@@ -79,9 +79,22 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
 
 ViewTaskRouter.get('/edit/:id', async (req, res) => {
     const id = Number(req.params.id)
-    const task = await service.getByIdOrFail(id)
+    const task = await service.getByIdOrFail(id, ['jobs'])
 
-    res.render('pages/task-edit', { values: task, errors: {} })
+    const allJobs = await jobService.getAll()
+    const existingSelectedJobs = task.jobs
+    const availableJobs = allJobs.filter(
+        job => !existingSelectedJobs?.find(assignedJob => assignedJob.id === job.id)
+    )
+
+    console.log(existingSelectedJobs)
+
+    res.render('pages/task-edit', {
+        values: task,
+        errors: {},
+        availableJobs,
+        existingSelectedJobs,
+    })
 })
 
 ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {

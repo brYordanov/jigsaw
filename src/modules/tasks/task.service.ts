@@ -1,5 +1,3 @@
-import { Pool } from 'pg'
-import { pool as defaultPool } from '../../db/db'
 import { PaginatedResponse } from '../../db/types'
 import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { TaskRow } from './task.entity'
@@ -9,7 +7,6 @@ import { JobRepository } from '../jobs/job.repo'
 
 export class TaskService {
     constructor(
-        private readonly pool: Pool = defaultPool,
         private readonly repo = new TaskRepository(),
         private readonly jobRepository = new JobRepository(),
         private readonly tasksJobsService = new TasksJobsService()
