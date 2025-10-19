@@ -1,7 +1,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th><a href="/task/create" class="btn btn-primary" hx-disable="true">➕</a></th>
+            <th>
+                <a href="/task/create" class="btn btn-primary" hx-disable="true"
+                    ><%- include('./icons/create') %></a
+                >
+            </th>
             <th>id</th>
             <th>name</th>
             <th>enabled</th>
@@ -22,10 +26,10 @@
                     hx-swap="outerHTML:remove"
                     hx-push-url="false"
                 >
-                    🗑
+                    <%- include('./icons/delete')  %>
                 </button>
                 <a hx-boost="false" href="/task/edit/<%= task.id %>" class="btn btn-secondary">
-                    ✏️
+                    <%- include('./icons/edit') %>
                 </a>
             </td>
             <td><%= task.id %></td>
