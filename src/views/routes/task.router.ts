@@ -22,6 +22,7 @@ ViewTaskRouter.get('/', async (req, res) => {
             tasks,
             filterValues: params,
             paginateData,
+            module: 'task',
             layout: false,
         })
     }
@@ -30,6 +31,7 @@ ViewTaskRouter.get('/', async (req, res) => {
         tasks,
         filterValues: params,
         paginateData,
+        module: 'task',
     })
 })
 
@@ -87,8 +89,6 @@ ViewTaskRouter.get('/edit/:id', async (req, res) => {
         job => !existingSelectedJobs?.find(assignedJob => assignedJob.id === job.id)
     )
 
-    console.log(existingSelectedJobs)
-
     res.render('pages/task-edit', {
         values: task,
         errors: {},
@@ -111,10 +111,22 @@ ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     } catch (err) {
         if (err instanceof ZodError) {
             const errors = groupZodIssues(err.issues)
+            const allJobs = await jobService.getAll()
+            const selectedIds = jobsIdsFromBody(req.body)
+            const existingSelectedJobs = await jobService.getManyJobsByid(selectedIds)
+            const foundIds = new Set(existingSelectedJobs.map(j => j.id))
+            const missingIds = selectedIds.filter(id => !foundIds.has(id))
+            const availableJobs = allJobs.filter(job => !foundIds.has(job.id))
+            const hasMissing = missingIds.length > 0
 
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).render('pages/task-edit', {
-                values: req.body,
+                values: { ...req.body, id: req.params.id },
                 errors,
+                availableJobs,
+                existingSelectedJobs,
+                warningMissingJobs: hasMissing
+                    ? `Follwing ids dont exist (IDs: ${missingIds.join(', ')})`
+                    : null,
             })
         }
 

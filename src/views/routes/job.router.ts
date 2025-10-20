@@ -24,6 +24,7 @@ ViewJobRouter.get('/', async (req, res) => {
             jobs,
             filterValues: params,
             paginateData,
+            module: 'job',
             layout: false,
         })
     }
@@ -32,6 +33,7 @@ ViewJobRouter.get('/', async (req, res) => {
         jobs,
         filterValues: params,
         paginateData,
+        module: 'job',
     })
 })
 

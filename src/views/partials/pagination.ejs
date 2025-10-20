@@ -1,6 +1,9 @@
 <nav class="pagination">
     <% if (paginateData.hasPrev) { %>
-    <a class="btn btn-primary" href="/task<%= paginateData.prevHref %>">← Prev</a>
+    <a class="btn btn-primary btn--align" href="/<%= module %><%= paginateData.prevHref %>"
+        ><%- include('./icons/arrow-left') %>
+        Prev</a
+    >
     <% } else { %>
     <span class="btn btn--disabled btn--align"
         ><%- include('./icons/arrow-left') %>
@@ -13,7 +16,10 @@
     </span>
 
     <% if (paginateData.hasNext) { %>
-    <a class="btn btn-primary" href="/task<%= paginateData.nextHref %>">Next →</a>
+    <a class="btn btn-primary btn--align" href="/<%= module %><%= paginateData.nextHref %>"
+        >Next
+        <%- include('./icons/arrow-right') %></a
+    >
     <% } else { %>
     <span class="btn btn--disabled btn--align">Next <%- include('./icons/arrow-right') %></span>
     <% } %>

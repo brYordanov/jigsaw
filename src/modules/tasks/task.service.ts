@@ -51,7 +51,21 @@ export class TaskService {
     }
 
     async updateTask(id: number, body: UpdateTaskBodyDto) {
-        return this.repo.update(id, body)
+        const jobIds = this.dedupe(body.jobs_ids)
+        const jobs = await this.jobRepository.get({ where: { id: jobIds } })
+        const missingIds = jobIds.filter(id => !jobs.find(j => j.id === id))
+        if (missingIds.length > 0) {
+            throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
+        }
+
+        const task = await this.repo.transaction(async client => {
+            const { jobs_ids, ...taskData } = body
+            const updated = await this.repo.update(id, taskData, client)
+            await this.tasksJobsService.assignJobsToTask(updated.id, jobs_ids, client)
+            return updated
+        })
+
+        return { ...task, jobs }
     }
 
     async deleteById(id: number): Promise<void> {
