@@ -24,6 +24,7 @@ ViewJobRouter.get('/', async (req, res) => {
             jobs,
             filterValues: params,
             paginateData,
+            module: 'job',
             layout: false,
         })
     }
@@ -32,6 +33,7 @@ ViewJobRouter.get('/', async (req, res) => {
         jobs,
         filterValues: params,
         paginateData,
+        module: 'job',
     })
 })
 
@@ -42,7 +44,7 @@ ViewJobRouter.get('/create', (req, res) => {
 ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createJobBodySchema.parse(req.body)
-        const job = await service.createJob(dto)
+        await service.createJob(dto)
         return res.redirect('/job')
     } catch (err: any) {
         if (err instanceof ZodError) {
@@ -72,7 +74,7 @@ ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
 })
 
 ViewJobRouter.get('/edit/:id', async (req, res) => {
-    const id = Number(req.params.id)
+    const { id } = req.params
     const job = await service.getByIdOrFail(id)
     let configPartialHtml = ''
 
@@ -85,9 +87,9 @@ ViewJobRouter.get('/edit/:id', async (req, res) => {
 
 ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
-        const id = Number(req.params.id)
+        const { id } = req.params
         const dto = updateJobBodySchema.parse(req.body)
-        const job = await service.updateJob(id, dto)
+        await service.updateJob(id, dto)
 
         return res.redirect(`/job`)
     } catch (err) {
@@ -106,7 +108,7 @@ ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
 })
 
 ViewJobRouter.delete('/:id', async (req, res) => {
-    const id = Number(req.params.id)
+    const { id } = req.params
     await service.deleteById(id)
     return res.status(HttpStatus.OK).send('')
 })

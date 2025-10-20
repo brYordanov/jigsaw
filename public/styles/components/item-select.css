@@ -1,0 +1,57 @@
+.item-select {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    justify-items: center;
+}
+
+.item-select__tab {
+    width: 100%;
+}
+
+.item-select__controlls {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: calc(35px * 3);
+    height: calc(28px * 3);
+
+    button {
+        position: absolute;
+        width: 35px;
+        border: 0;
+        font-size: 28px;
+    }
+
+    button.disabled {
+        filter: brightness(0.7);
+        pointer-events: none;
+    }
+}
+
+.item-select__controlls .to-left {
+    transform: translate(-35px, 28px);
+}
+
+.item-select__controlls .to-left:hover {
+    transform: translate(-35px, 28px) scale(1.2);
+}
+
+.item-select__controlls .to-right {
+    transform: translate(35px, 28px);
+}
+
+.item-select__controlls .to-right:hover {
+    transform: translate(35px, 28px) scale(1.2);
+}
+
+.item-select__controlls .down {
+    transform: translate(0, 56px);
+}
+
+.item-select__controlls .down:hover {
+    transform: translate(0, 56px) scale(1.2);
+}
+
+.item-select__controlls .up:hover {
+    transform: scale(1.2);
+}

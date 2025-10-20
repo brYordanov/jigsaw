@@ -1,0 +1,55 @@
+<div class="item-select form-page__item-select js_item_select <%= modifier %>">
+    <input type="text" name="jobs_ids/strArr" hidden data-func="id-store" />
+    <div class="table-container">
+        <table class="table table--interactive" data-func="table" data-role="selected">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Enabled</th>
+                </tr>
+            </thead>
+            <tbody data-func="tbody" data-role="selected-body">
+                <% existingSelectedJobs.forEach(function(job, index) {%>
+                <tr data-func="row">
+                    <td data-func="position"><%= index + 1 %></td>
+                    <td data-func="id"><%= job.id %></td>
+                    <td><%= job.name %></td>
+                    <td><%= job.is_enabled ? "✅" : "❌" %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <div class="item-select__controlls" data-func="control-container">
+        <button type="button" class="to-left disabled" data-func="control" data-role="left">
+            ⬅️
+        </button>
+        <button type="button" class="up disabled" data-func="control" data-role="up">⬆️</button>
+        <button type="button" class="to-right disabled" data-func="control" data-role="right">
+            ➡️
+        </button>
+        <button type="button" class="down disabled" data-func="control" data-role="down">⬇️</button>
+    </div>
+    <div class="table-container">
+        <table class="table table--interactive" data-func="table" data-role="available">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Enabled</th>
+                </tr>
+            </thead>
+            <tbody data-func="tbody">
+                <% availableJobs.forEach(function(job) {%>
+                <tr data-func="row">
+                    <td data-func="id"><%= job.id %></td>
+                    <td><%= job.name %></td>
+                    <td><%= job.is_enabled ? "✅" : "❌"%></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>

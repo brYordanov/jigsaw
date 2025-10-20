@@ -39,13 +39,6 @@ CREATE INDEX IF NOT EXISTS idx_tasks_next_run_at_is_enabled ON tasks (next_run_a
 WHERE
     is_enabled = TRUE;
 
-CREATE OR REPLACE FUNCTION set_updated_at () RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 DO $$
 BEGIN 
   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'tasks_set_updated_at') THEN

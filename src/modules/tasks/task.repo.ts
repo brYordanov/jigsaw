@@ -1,41 +1,38 @@
 import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
-import { TaskRow } from './task.entity'
-import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
-import { RepoMethods } from '../../db/queryMethods'
-import { PaginatedResponse } from '../../db/types'
+import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
+import { ListTasksQueryDto } from './task.dtos'
+import { BaseRepository } from '../../db/BaseRepository'
+import { PaginatedResponse, RelationSpec } from '../../db/types'
 
-const RETURN_COLS_DEFAULT = `id, name, description, is_single_time_only, is_enabled,
-  schedule_type, interval_type, days_of_month, days_of_week, hours, minutes, last_run_at, next_run_at, 
-  timeout_seconds, last_ping_at, expires_at,
-  created_at, updated_at` as const
+const JOBS_RELATION: RelationSpec = {
+    join: `
+    LEFT JOIN (
+        SELECT
+        tj.task_id AS "taskId",
+        COALESCE(
+                json_agg(
+                    json_build_object(
+                    'id', j.id::text,
+                    'name', j.name,
+                    'is_enabled', j.is_enabled,
+                    'position', tj.position
+                )
+                ORDER BY tj.position
+            ) FILTER (WHERE j.id IS NOT NULL),
+            '[]'
+        ) AS "jobs"
+        FROM tasks_jobs tj
+        JOIN jobs j ON j.id = tj.job_id
+        GROUP BY tj.task_id
+    ) AS rJobs ON rJobs."taskId" = baseTable.id
+    `,
+    select: `rJobs."jobs" AS "jobs"`,
+} as const
 
-const TABLE_NAME_DEFAULT = 'tasks' as const
-
-export class TaskRepository {
-    private readonly repository: RepoMethods
-    constructor(
-        private readonly pool: Pool = defaultPool,
-        private readonly RETURN_COLS: string = RETURN_COLS_DEFAULT,
-        private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT
-    ) {
-        this.repository = new RepoMethods(this.pool, this.TABLE_NAME, this.RETURN_COLS)
-    }
-
-    async getAll(): Promise<TaskRow[]> {
-        return this.repository.getAll()
-    }
-
-    async getById(id: number): Promise<TaskRow> {
-        return this.repository.getById(id)
-    }
-
-    async createTask(data: CreateTaskBodyDto): Promise<any> {
-        return this.repository.create(data)
-    }
-
-    async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
-        return this.repository.update(id, data)
+export class TaskRepository extends BaseRepository {
+    constructor(pool: Pool = defaultPool) {
+        super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT, { jobs: JOBS_RELATION })
     }
 
     async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
@@ -48,7 +45,7 @@ export class TaskRepository {
 
         const ALLOWED_SORT = ['created_at', 'updated_at', 'name', 'next_run_at'] as const
 
-        return this.repository.paginate<TaskRow, any>({
+        return this.paginate<TaskRow, any>({
             filters: {
                 schedule_type: params.schedule_type,
                 interval_type: params.interval_type,
@@ -62,9 +59,5 @@ export class TaskRepository {
             limit: params.limit,
             offset: params.offset,
         })
-    }
-
-    async deleteById(id: number): Promise<void> {
-        this.repository.deleteById(id)
     }
 }

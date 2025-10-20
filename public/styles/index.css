@@ -6,17 +6,22 @@
 @import './components/filters.css';
 @import './components/pagination.css';
 @import './components/navigation.css';
+@import './components/item-select.css';
+@import './components/table.css';
 
 * {
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    color: var(--color-font);
 }
 
 :root {
     --color-primary: #2196f3;
     --color-secondary: #ccc;
     --br-primary: 10px;
+    --color-disabled: #6f7275;
+    --color-font: #000;
 }
 
 a {

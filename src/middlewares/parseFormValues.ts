@@ -32,6 +32,15 @@ const coercers = {
         }
         throw new Error(`Cannot coerce to intArr. value: ${v} type: ${typeof v}`)
     },
+    strArr: (v: unknown) => {
+        if (typeof v === 'string') {
+            if (!v) return null
+            const arr = v.split(',')
+
+            return arr.length !== 0 ? arr : null
+        }
+        throw new Error(`Cannot coerce to strArr. value: ${v} type: ${typeof v}`)
+    },
     date: (v: unknown) => {
         try {
             if (!v) return null

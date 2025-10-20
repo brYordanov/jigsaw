@@ -10,7 +10,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    width: 60%;
+    width: clamp(60%, 100%, 80%);
 }
 
 .form-page__btn {
@@ -39,4 +39,8 @@
     flex-direction: column;
     gap: 10px;
     padding-top: 10px;
+}
+
+.form-page__item-select {
+    grid-column: 1 / 3;
 }

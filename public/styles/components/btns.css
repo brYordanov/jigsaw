@@ -2,10 +2,19 @@
     display: inline-block;
     padding: 5px 10px;
     border-radius: var(--br-primary);
+    cursor: pointer;
 }
 
 .btn:hover {
     transform: scale(1.2);
+}
+
+.btn--disabled {
+    background-color: var(--color-disabled);
+}
+
+.btn--disabled:hover {
+    transform: scale(1);
 }
 
 .btn-primary {
@@ -15,4 +24,10 @@
 .btn-secondary {
     border: 0;
     background-color: var(--color-secondary);
+}
+
+.btn--align {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }

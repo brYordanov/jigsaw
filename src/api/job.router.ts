@@ -20,7 +20,7 @@ jobRouter.get('/paginate', async (req, res) => {
 
 jobRouter.get('/:id', async (req, res) => {
     const { id } = req.params
-    res.send(await service.getByIdOrFail(Number(id)))
+    res.send(await service.getByIdOrFail(id))
 })
 
 jobRouter.post('/', async (req, res) => {
@@ -29,10 +29,10 @@ jobRouter.post('/', async (req, res) => {
 
 jobRouter.patch('/:id', async (req, res) => {
     const { id } = req.params
-    res.send(await service.updateJob(Number(id), req.body))
+    res.send(await service.updateJob(id, req.body))
 })
 
 jobRouter.delete('/:id', async (req, res) => {
     const { id } = req.params
-    res.send(await service.deleteById(Number(id)))
+    res.send(await service.deleteById(id))
 })

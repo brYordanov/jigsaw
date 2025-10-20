@@ -1,43 +1,16 @@
 import { Pool } from 'pg'
 import { pool as defaultPool } from '../../db/db'
-import { RepoMethods } from '../../db/queryMethods'
+import { BaseRepository } from '../../db/BaseRepository'
 import { PaginatedResponse } from '../../db/types'
-import { JobRow } from './job.entity'
-import { CreateJobBodyDto, ListJobsQueryDto } from './job.dtos'
-import { UpdateTaskBodyDto } from '../tasks/task.dtos'
+import { JobRow, RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT } from './job.entity'
+import { ListJobsQueryDto } from './job.dtos'
 
-const RETURN_COLS_DEFAULT =
-    `id, name, description, config, job_type, is_enabled, max_retries, retry_backoff_seconds, max_concurrency, created_at, updated_at` as const
-
-const TABLE_NAME_DEFAULT = 'jobs' as const
-
-export class JobRepository {
-    private readonly repository: RepoMethods
-    constructor(
-        private readonly pool: Pool = defaultPool,
-        private readonly RETURN_COLS: string = RETURN_COLS_DEFAULT,
-        private readonly TABLE_NAME: string = TABLE_NAME_DEFAULT
-    ) {
-        this.repository = new RepoMethods(this.pool, this.TABLE_NAME, this.RETURN_COLS)
+export class JobRepository extends BaseRepository {
+    constructor(pool: Pool = defaultPool) {
+        super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT)
     }
 
-    async getAll(): Promise<JobRow[]> {
-        return this.repository.getAll()
-    }
-
-    async getById(id: number): Promise<JobRow> {
-        return this.repository.getById(id)
-    }
-
-    async createTask(data: CreateJobBodyDto): Promise<any> {
-        return this.repository.create(data)
-    }
-
-    async updateTask(id: number, data: UpdateTaskBodyDto): Promise<any> {
-        return this.repository.update(id, data)
-    }
-
-    async listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
+    listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
         const FILTERS_NAME = {
             job_type: 'eq',
             is_enabled: 'eq',
@@ -46,7 +19,7 @@ export class JobRepository {
 
         const ALLOWED_SORT = ['created_at', 'updated_at', 'name'] as const
 
-        return this.repository.paginate<JobRow, any>({
+        return this.paginate<JobRow, any>({
             filters: {
                 job_type: params.job_type,
                 is_enabled: params.is_enabled,
@@ -59,9 +32,5 @@ export class JobRepository {
             limit: params.limit,
             offset: params.offset,
         })
-    }
-
-    async deleteById(id: number): Promise<void> {
-        this.repository.deleteById(id)
     }
 }
