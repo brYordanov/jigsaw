@@ -1,0 +1,19 @@
+.loader {
+    display: none;
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loader.htmx-request {
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

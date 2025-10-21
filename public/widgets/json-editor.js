@@ -9,12 +9,13 @@ export class JsonEditor {
     }
 
     init() {
-        if (!this.field || !this.error) return
+        if (!this.field) return
 
         const { signal } = this.ac
 
         this.field.addEventListener('input', () => this.validate(), { signal })
         this.field.addEventListener('blur', () => this.format(), { signal })
+        this.field.addEventListener('change', () => this.format(), { signal })
 
         this.container.dataset.init = 'true'
 
@@ -27,6 +28,7 @@ export class JsonEditor {
     }
 
     validate() {
+        if (!this.error) return
         try {
             JSON.parse(this.field.value)
             this.error.textContent = ''

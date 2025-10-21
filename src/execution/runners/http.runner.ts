@@ -1,0 +1,16 @@
+import { HttpConfigDto } from '../../modules/jobs/job.dtos'
+
+export async function runHttpJob(config: HttpConfigDto): Promise<any> {
+    const { url, method = 'GET', headers, body } = config
+    if (!url) throw new Error('HTTP job missing url')
+
+    const response = await fetch(url, { method, headers, body })
+    const text = await response.text()
+
+    return {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        body: text,
+    }
+}

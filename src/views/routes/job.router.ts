@@ -10,9 +10,11 @@ import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { getPaginationData } from '../../helpers/getPaginationData'
+import { RunnerService } from '../../execution/runner.service'
 
 export const ViewJobRouter = Router()
 const service = new JobService()
+const runnerService = new RunnerService()
 
 ViewJobRouter.get('/', async (req, res) => {
     const params = listJobsQuerySchema.parse(req.query)
@@ -129,6 +131,12 @@ ViewJobRouter.get('/config-partial', (req, res) => {
     } catch (err) {
         res.status(400).json({ error: (err as Error).message })
     }
+})
+
+ViewJobRouter.post('/:id/execute', async (req, res) => {
+    const { id: jobId } = req.params
+    const result = await runnerService.executeJobById(jobId)
+    res.send(result)
 })
 
 function renderConfigPartial(

@@ -30,6 +30,21 @@
                 <a hx-boost="false" href="/job/edit/<%= job.id %>" class="btn btn-secondary">
                     <%- include('./icons/edit') %>
                 </a>
+                <button
+                    class="btn btn-primary"
+                    hx-post="/job/<%= job.id %>/execute"
+                    hx-swap="none"
+                    hx-push-url="false"
+                    hx-indicator="#result-loader"
+                    hx-on::after-request="
+                    const jobResultFieldElement = document.querySelector('#job_result')
+                    jobResultFieldElement.value = event.detail.xhr.responseText;
+                    const changeEvent = new Event('change');
+                    jobResultFieldElement.dispatchEvent(changeEvent);
+                    "
+                >
+                    <%- include('./icons/play') %>
+                </button>
             </td>
             <td><%= job.id %></td>
             <td><%= job.name %></td>
