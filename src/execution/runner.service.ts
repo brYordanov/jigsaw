@@ -8,6 +8,7 @@ import {
     validateJobConfig,
 } from '../modules/jobs/job.dtos'
 import { runHttpJob } from './runners/http.runner'
+import e from 'express'
 
 export class RunnerService {
     constructor(private readonly jobService = new JobService()) {}
@@ -43,7 +44,27 @@ export class RunnerService {
         let lastError: string | undefined
         let lastStatus: 'success' | 'failed' = 'failed'
 
-        return await runner(validatedConfig as any)
+        for (let attempt = 1; attempt <= totalAttempts; attempt++) {
+            attempts = attempt
+            try {
+                const result = await runner(validatedConfig as any)
+                lastResult = result
+                lastStatus = result.ok ? 'success' : 'failed'
+
+                if (result.ok)
+                    return { ok: true, attempts: attempt, lastStatus: 'success', lastResult }
+            } catch (err: any) {
+                lastError = err?.message ?? err
+                lastStatus = 'failed'
+            }
+
+            if (attempt < totalAttempts) {
+                const waitMs = exponentialBackoffMs(retry_backoff_seconds, attempt)
+                await sleep(waitMs)
+            }
+        }
+
+        return { ok: false, attempts, lastStatus, lastResult, lastError }
     }
 }
 

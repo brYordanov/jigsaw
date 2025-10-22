@@ -2,10 +2,9 @@
     position: relative;
 }
 
-.field-container .loader {
+.field-container .loader-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    inset: 0;
 }
 
 .field {
