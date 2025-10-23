@@ -30,21 +30,33 @@
                 <a hx-boost="false" href="/job/edit/<%= job.id %>" class="btn btn-secondary">
                     <%- include('./icons/edit') %>
                 </a>
-                <button
-                    class="btn btn-primary"
-                    hx-post="/job/<%= job.id %>/execute"
-                    hx-swap="none"
-                    hx-push-url="false"
-                    hx-indicator="#result-loader"
-                    hx-on::after-request="
-                    const jobResultFieldElement = document.querySelector('#job_result')
-                    jobResultFieldElement.value = event.detail.xhr.responseText;
-                    const changeEvent = new Event('change');
-                    jobResultFieldElement.dispatchEvent(changeEvent);
-                    "
-                >
-                    <%- include('./icons/play') %>
-                </button>
+                <div class="btn-container">
+                    <button
+                        class="btn btn-primary run"
+                        hx-post="/job/<%= job.id %>/execute"
+                        hx-swap="none"
+                        hx-push-url="false"
+                        hx-indicator=".job-execution-indicator"
+                        onclick="this.parentElement.classList.add('running')"
+                        hx-on::after-request="
+                            this.parentElement.classList.remove('running')
+                            const jobResultFieldElement = document.querySelector('#job_result')
+                            jobResultFieldElement.value = event.detail.xhr.responseText;
+                            const changeEvent = new Event('change');
+                            jobResultFieldElement.dispatchEvent(changeEvent);
+                        "
+                    >
+                        <%- include('./icons/play') %>
+                    </button>
+                    <button
+                        class="btn btn-primary stop"
+                        hx-post="/job/<%= job.id %>/stop"
+                        hx-swap="none"
+                        hx-push-url="false"
+                    >
+                        <%- include('./icons/stop') %>
+                    </button>
+                </div>
             </td>
             <td><%= job.id %></td>
             <td><%= job.name %></td>

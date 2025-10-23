@@ -35,7 +35,3 @@ button {
     border: 0;
     cursor: pointer;
 }
-
-.htmx-indicator {
-    display: none;
-}

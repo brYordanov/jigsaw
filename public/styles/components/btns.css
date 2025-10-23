@@ -31,3 +31,31 @@
     align-items: center;
     gap: 4px;
 }
+
+.btn-container {
+    display: inline-block;
+}
+
+.btn-container .stop {
+    display: none;
+}
+
+.btn-container.running .run {
+    display: none;
+}
+
+.btn-container.running .stop {
+    display: inline-block;
+}
+
+.job-execution-indicator.htmx-request button.run {
+    display: none;
+}
+
+.job-execution-indicator button.stop {
+    display: none;
+}
+
+.job-execution-indicator.htmx-request button.stop {
+    display: block;
+}

@@ -86,6 +86,7 @@ const commonJobFields = z.object({
     max_retries: z.number().int().min(0).default(3),
     retry_backoff_seconds: z.number().int().min(0).default(60),
     max_concurrency: z.number().int().min(1).default(1),
+    timeout_seconds: z.number().int().positive().nullable().optional(),
 })
 
 export const createJobBodySchema = z.discriminatedUnion('job_type', [
@@ -118,6 +119,7 @@ export const updateJobBodySchema = z
         max_retries: z.number().int().min(0).optional(),
         retry_backoff_seconds: z.number().int().min(0).optional(),
         max_concurrency: z.number().int().min(1).optional(),
+        timeout_seconds: z.number().int().positive().nullable().optional(),
     })
     .superRefine((data, ctx) => {
         if (data.config === undefined) return

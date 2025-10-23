@@ -84,6 +84,15 @@
                 <% if(errors.max_concurrency) {%> <p class="error"><%= errors.max_concurrency  %></p><% } %>
             </div>
 
+            <div class="field-container">
+
+                <div class="field">
+                    <label for="timeout_seconds">Seconds Timeout</label>
+                    <input type="number" name="timeout_seconds/number" id="timeout_seconds"  value="<%= values.timeout_seconds %>"/>
+                </div>
+                <% if(errors.timeout_seconds) {%> <p class="error"><%= errors.timeout_seconds  %></p><% } %>
+            </div>
+
            <div class="form-page__config">
             <h2>Config (JSON)</h2>
             <div id="config-fields" class="form-page__dynamic-fields">
