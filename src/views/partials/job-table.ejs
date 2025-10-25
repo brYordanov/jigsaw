@@ -33,26 +33,70 @@
                 <div class="btn-container">
                     <button
                         class="btn btn-primary run"
-                        hx-post="/job/<%= job.id %>/execute"
+                        hx-post="/api/run/job/<%= job.id %>/start"
+                        hx-headers='{"Accept":"application/json"}'
                         hx-swap="none"
                         hx-push-url="false"
-                        hx-indicator=".job-execution-indicator"
-                        onclick="this.parentElement.classList.add('running')"
                         hx-on::after-request="
-                            this.parentElement.classList.remove('running')
-                            const jobResultFieldElement = document.querySelector('#job_result')
-                            jobResultFieldElement.value = event.detail.xhr.responseText;
-                            const changeEvent = new Event('change');
-                            jobResultFieldElement.dispatchEvent(changeEvent);
+                            const {ok, runId} = JSON.parse(event.detail.xhr.responseText)
+
+                            if (!ok) return;
+                            document.querySelector('.loader-container')?.classList.add('active') 
+                            this.parentElement.querySelector('#cancel-btn').dataset.runId = runId
+                            this.parentElement.classList.add('running')
+
+                            const eventSource = new EventSource(`/api/run/${runId}/stream`)
+
+                            eventSource.addEventListener('started', () => {
+                                console.log('started')
+                            })
+
+                            eventSource.addEventListener('finished', (e) => {
+                                console.log('finished')
+
+                                const payload = JSON.parse(e.data);
+                                const outcome = payload.outcome || {};
+                                const out = outcome.lastResult ?? outcome.result ?? outcome;
+                                
+                                const jobResultFieldElement = document.querySelector('#job_result');
+                                jobResultFieldElement.value = JSON.stringify(outcome, null, 2);
+                               jobResultFieldElement.dispatchEvent(new Event('change'));
+                                
+                                this.parentElement.classList.remove('running');
+                                document.querySelector('.loader-container')?.classList.remove('active');
+                                this.parentElement.querySelector('#cancel-btn').dataset.runId = '';
+                                eventSource.close();
+                            });
+
+                            eventSource.addEventListener('canceled', () => {
+                                console.log('canceled')
+
+                                const jobResultFieldElement = document.querySelector('#job_result')
+                                jobResultFieldElement.value = JSON.stringify({ ok:false, error:'canceled' }, null, 2)
+                                
+                                jobResultFieldElement.dispatchEvent(new Event('change'));
+
+                                this.parentElement.classList.remove('running')
+                                this.parentElement.querySelector('#cancel-btn').dataset.runId = '';
+                                document.querySelector('.loader-container')?.classList.remove('active') 
+
+                                eventSource.close()
+                            });
+
+                            eventSource.addEventListener('gone', () => { eventSource.close(); });
                         "
                     >
                         <%- include('./icons/play') %>
                     </button>
                     <button
+                        id="cancel-btn"
                         class="btn btn-primary stop"
-                        hx-post="/job/<%= job.id %>/stop"
                         hx-swap="none"
-                        hx-push-url="false"
+                        hx-on:click="
+                        event.preventDefault();
+                        const id = event.currentTarget.dataset.runId;
+                        if (id) htmx.ajax('POST', `/api/run/${id}/cancel`, { swap: 'none' });
+                        "
                     >
                         <%- include('./icons/stop') %>
                     </button>

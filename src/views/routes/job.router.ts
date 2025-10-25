@@ -139,12 +139,12 @@ ViewJobRouter.post('/:id/execute', async (req, res) => {
     res.send(result)
 })
 
-function renderConfigPartial(
+const renderConfigPartial = async (
     res: Response,
     jobType: string,
     values: any = {},
     errors: any = {}
-): Promise<string> {
+): Promise<string> => {
     return new Promise((resolve, reject) => {
         const partialPath = `partials/job-config-fields/${jobType}.ejs`
         res.render(partialPath, { values, errors, layout: false }, (err, html) =>

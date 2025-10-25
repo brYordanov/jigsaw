@@ -8,10 +8,14 @@ import {
     validateJobConfig,
 } from '../modules/jobs/job.dtos'
 import { runHttpJob } from './runners/http.runner'
-import e from 'express'
+import { runWithRetries } from './runner.helpers'
+import { RunRegistry } from './run.registry'
 
 export class RunnerService {
-    constructor(private readonly jobService = new JobService()) {}
+    constructor(
+        private readonly jobService = new JobService(),
+        private runRegistry = new RunRegistry()
+    ) {}
 
     async executeJobById(id: string): Promise<any> {
         const job = await this.jobService.getByIdOrFail(id)
@@ -22,7 +26,7 @@ export class RunnerService {
             max_retries,
             retry_backoff_seconds,
             max_concurrency,
-            timeout_seconds
+            timeout_seconds,
         } = job
 
         if (!is_enabled)
@@ -39,43 +43,56 @@ export class RunnerService {
 
         const validatedConfig = validateJobConfig(job_type, config)
 
-        const totalAttempts = max_retries + 1
-
-        return runWithRetries(totalAttempts, retry_backoff_seconds, timeout_seconds * 1000, () =>
+        return runWithRetries(max_retries + 1, retry_backoff_seconds, timeout_seconds * 1000, () =>
             runner(validatedConfig as any)
         )
     }
-}
 
-const runWithRetries = async (
-    totalAttempts: number,
-    baseBackoffSeconds: number,
-    perRunTimeoutMs: number,
-    runOnce: (signal: AbortSignal) => Promise<{ ok: boolean } & Record<string, any>>
-) => {
-    let lastResult: any
-    let lastError: string | undefined
-    let lastStatus: 'success' | 'failed' = 'failed'
+    async startJobById(id: string) {
+        const job = await this.jobService.getByIdOrFail(id)
+        const {
+            is_enabled,
+            job_type,
+            config,
+            max_retries,
+            retry_backoff_seconds,
+            timeout_seconds,
+        } = job
 
-    for (let attempt = 1; attempt <= totalAttempts; attempt++) {
-        try {
-            const result = await withTimeoutSignal( perRunTimeoutMs, (signal) => runOnce(signal))
-            lastResult = result
-            lastStatus = result.ok ? 'success' : 'failed'
+        if (!is_enabled) throw new Error('Job not enabled')
 
-            if (result.ok) return { ok: true, attempts: attempt, lastStatus: 'success', lastResult }
-        } catch (err: any) {
-            lastError = err?.message ?? err
-            lastStatus = 'failed'
-        }
+        const runner = getRunner[job_type as keyof typeof getRunner]
+        if (!runner) throw new Error(`No runner for type ${job_type}`)
 
-        if (attempt < totalAttempts) {
-            const waitMs = exponentialBackoffMs(baseBackoffSeconds, attempt)
-            await sleep(waitMs)
-        }
+        const validatedConfig = validateJobConfig(job_type, config)
+
+        const { runId, controller } = this.runRegistry.create(id)
+
+        ;(async () => {
+            const outcome = await runWithRetries(
+                max_retries + 1,
+                retry_backoff_seconds,
+                timeout_seconds * 1000,
+                signal => runner(validatedConfig as any, signal),
+                controller.signal
+            )
+            this.runRegistry.finish(runId, outcome)
+        })().catch(e => this.runRegistry.finish(runId, { ok: false, lastError: String(e) }))
+
+        return { runId }
     }
 
-    return { ok: false, totalAttempts, lastStatus: 'failed', lastResult, lastError }
+    cancelRun(runId: string) {
+        return this.runRegistry.cancel(runId)
+    }
+
+    subscribe(runId: string, fn: (e: any) => void) {
+        return this.runRegistry.subscribe(runId, fn)
+    }
+
+    getRun(runId: string) {
+        return this.runRegistry.get(runId)
+    }
 }
 
 export type RunnerMap = {
@@ -88,25 +105,4 @@ export type RunnerMap = {
 
 export const getRunner: RunnerMap = {
     http: runHttpJob,
-}
-
-const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
-
-const exponentialBackoffMs = (baseSeconds: number, attempt: number) => {
-    const baseMs = baseSeconds * 1000
-    const exp = Math.max(1, attempt - 1)
-    const raw = baseMs * Math.pow(2, exp)
-    const jitter = 0.8 + Math.random() * 0.4
-    return Math.round(raw * jitter)
-}
-
-const withTimeoutSignal = async<T>(ms: number, run: (signal: AbortSignal) => Promise<T>) {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), ms);
-
-    try {
-        return run(controller.signal)
-    } finally {
-        clearTimeout(timeout)
-    }
 }

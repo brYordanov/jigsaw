@@ -3,6 +3,7 @@
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
+    border-radius: var(--br-primary);
 }
 
 .loader {
@@ -15,7 +16,7 @@
     animation: spin 0.8s linear infinite;
 }
 
-.loader-container.htmx-request {
+.loader-container.active {
     display: flex;
 }
 
