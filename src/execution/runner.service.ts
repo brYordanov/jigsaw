@@ -9,7 +9,7 @@ import {
 } from '../modules/jobs/job.dtos'
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runner.helpers'
-import { RunRegistry } from './run.registry'
+import { RunRegistry } from './runRegistry'
 
 export class RunnerService {
     constructor(

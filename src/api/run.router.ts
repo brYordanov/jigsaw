@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { RunnerService } from '../execution/runner.service'
-import { send } from 'process'
 
 export const runRouter = Router()
 
@@ -58,10 +57,10 @@ runRouter.get('/:runId/stream', (req, res) => {
         }
     })
 
-    const hb = setInterval(() => res.write(`event: ping\ndata: {}\n\n`), 15000)
+    const heartbeat = setInterval(() => res.write(`event: ping\ndata: {}\n\n`), 15000)
 
     req.on('close', () => {
-        clearInterval(hb)
+        clearInterval(heartbeat)
         unsubscribe()
     })
 })
