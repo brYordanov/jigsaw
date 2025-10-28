@@ -1,5 +1,19 @@
-<nav class="navigation">
-    <a href="/" class="header__link">Home</a>
-    <a href="/task" class="header__link">Tasks</a>
-    <a href="/job" class="header__link">Jobs</a>
-</nav>
+<header class="header">
+    <div class="header__container">
+        <a href="/" class="header__logo">Jigsaw<span>.</span></a>
+
+        <nav class="header__nav">
+            <a href="/" class="header__link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+            <a
+                href="/task"
+                class="header__link <%= currentPath.startsWith('/task') ? 'active' : '' %>"
+                >Tasks</a
+            >
+            <a
+                href="/job"
+                class="header__link <%= currentPath.startsWith('/job') ? 'active' : '' %>"
+                >Jobs</a
+            >
+        </nav>
+    </div>
+</header>

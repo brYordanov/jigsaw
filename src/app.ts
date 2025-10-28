@@ -17,6 +17,10 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(expressLayouts)
 
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path
+    next()
+})
 app.set('layout', 'layouts/default')
 app.use('/', viewRouter)
 app.use('/api', apiRouter)
