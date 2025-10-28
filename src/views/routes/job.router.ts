@@ -10,9 +10,11 @@ import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { getPaginationData } from '../../helpers/getPaginationData'
+import { RunnerService } from '../../execution/runner.service'
 
 export const ViewJobRouter = Router()
 const service = new JobService()
+const runnerService = new RunnerService()
 
 ViewJobRouter.get('/', async (req, res) => {
     const params = listJobsQuerySchema.parse(req.query)
@@ -131,12 +133,18 @@ ViewJobRouter.get('/config-partial', (req, res) => {
     }
 })
 
-function renderConfigPartial(
+ViewJobRouter.post('/:id/execute', async (req, res) => {
+    const { id: jobId } = req.params
+    const result = await runnerService.executeJobById(jobId)
+    res.send(result)
+})
+
+const renderConfigPartial = async (
     res: Response,
     jobType: string,
     values: any = {},
     errors: any = {}
-): Promise<string> {
+): Promise<string> => {
     return new Promise((resolve, reject) => {
         const partialPath = `partials/job-config-fields/${jobType}.ejs`
         res.render(partialPath, { values, errors, layout: false }, (err, html) =>

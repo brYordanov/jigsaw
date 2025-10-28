@@ -1,3 +1,12 @@
+.field-container {
+    position: relative;
+}
+
+.field-container .loader-container {
+    position: absolute;
+    inset: 0;
+}
+
 .field {
     display: flex;
     align-items: center;

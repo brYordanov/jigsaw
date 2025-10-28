@@ -8,8 +8,9 @@ const HttpConfigSchema = z.object({
     method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST'),
     url: urlSchema,
     headers: z.record(z.string(), z.string()).default({}),
-    body: z.unknown().optional(),
+    body: z.any().optional(),
 })
+export type HttpConfigDto = z.infer<typeof HttpConfigSchema>
 
 const EmailConfigSchema = z.object({
     to: emailSchema,
@@ -17,6 +18,7 @@ const EmailConfigSchema = z.object({
     template: z.string(),
     variables: z.record(z.string(), z.unknown()).default({}),
 })
+export type EmailConfigDto = z.infer<typeof EmailConfigSchema>
 
 const ShellConfigSchema = z.object({
     command: z.string(),
@@ -25,6 +27,7 @@ const ShellConfigSchema = z.object({
     env: z.record(z.string(), z.unknown()).default({}),
     timeoutSeconds: z.number().int().positive().optional().nullable(),
 })
+export type ShellConfigDto = z.infer<typeof ShellConfigSchema>
 
 const SqlConfigSchema = z.object({
     statement: z.string(),
@@ -37,6 +40,7 @@ const SqlConfigSchema = z.object({
         .partial()
         .default({}),
 })
+export type SqlConfigDto = z.infer<typeof SqlConfigSchema>
 
 const HealthcheckConfigSchema = z.object({
     checks: z.array(
@@ -59,6 +63,7 @@ const HealthcheckConfigSchema = z.object({
         }),
     ]),
 })
+export type HealthcheckConfigDto = z.infer<typeof HealthcheckConfigSchema>
 
 export const validatorsByType = {
     http: HttpConfigSchema,
@@ -81,6 +86,7 @@ const commonJobFields = z.object({
     max_retries: z.number().int().min(0).default(3),
     retry_backoff_seconds: z.number().int().min(0).default(60),
     max_concurrency: z.number().int().min(1).default(1),
+    timeout_seconds: z.number().int().positive().nullable().optional(),
 })
 
 export const createJobBodySchema = z.discriminatedUnion('job_type', [
@@ -113,6 +119,7 @@ export const updateJobBodySchema = z
         max_retries: z.number().int().min(0).optional(),
         retry_backoff_seconds: z.number().int().min(0).optional(),
         max_concurrency: z.number().int().min(1).optional(),
+        timeout_seconds: z.number().int().positive().nullable().optional(),
     })
     .superRefine((data, ctx) => {
         if (data.config === undefined) return

@@ -15,6 +15,11 @@ CREATE TABLE IF NOT EXISTS jobs (
     max_retries INTEGER NOT NULL DEFAULT 3 CHECK (max_retries >= 0),
     retry_backoff_seconds INTEGER NOT NULL DEFAULT 60 CHECK (retry_backoff_seconds >= 0),
     max_concurrency INTEGER NOT NULL DEFAULT 1 CHECK (max_concurrency > 0),
+    timeout_seconds INTEGER,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (
+        timeout_seconds IS NULL
+        OR timeout_seconds > 0
+    )
 )

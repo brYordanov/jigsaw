@@ -4,6 +4,7 @@ import expressLayouts from 'express-ejs-layouts'
 import { viewRouter } from './views/intex'
 import { apiRouter } from './api'
 import { pool, shutdownDb } from './db/db'
+import { Server } from 'http'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -20,7 +21,22 @@ app.set('layout', 'layouts/default')
 app.use('/', viewRouter)
 app.use('/api', apiRouter)
 
-let server: import('http').Server | undefined
+app.use((err: any, req: any, res: any, next: any) => {
+    const status = err.status || 500
+    const wantsJson = (req.headers.accept || '').includes('application/json') || req.xhr
+
+    if (wantsJson) {
+        return res.status(status).json({
+            ok: false,
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        })
+    }
+
+    res.status(status).type('text').send(`Error: ${err.message}`)
+})
+
+let server: Server | undefined
 
 async function start() {
     await pool.query('SELECT 1')

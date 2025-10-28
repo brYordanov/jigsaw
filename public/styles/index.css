@@ -8,6 +8,8 @@
 @import './components/navigation.css';
 @import './components/item-select.css';
 @import './components/table.css';
+@import './components/container.css';
+@import './components/loader.css';
 
 * {
     box-sizing: border-box;

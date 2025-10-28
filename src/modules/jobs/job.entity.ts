@@ -10,6 +10,7 @@ export interface JobRow {
     max_retries: number
     retry_backoff_seconds: number
     max_concurrency: number
+    timeout_seconds: number
     created_at: string
     updated_at: string
 }

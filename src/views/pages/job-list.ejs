@@ -13,6 +13,25 @@
     >
         <%- include('../partials/job-filters', {filterValues}) %>
         <%-include('../partials/pagination', {paginateData, module}) %>
-        <%- include('../partials/job-table', {jobs}) %>
+        <div class="container">
+            <%- include('../partials/job-table', {jobs}) %>
+            <div class="field-container js_json_container">
+                <div class="field">
+                    <label for="job_result">Result (JSON)</label>
+                    <textarea
+                        disabled
+                        name="job_result"
+                        id="job_result"
+                        class="bigger js_json_field"
+                        rows="6"
+                        placeholder='{"firstName":"Ada","age":42}'
+                    >
+                    </textarea>
+                </div>
+                <div class="loader-container">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
     </section>
 </main>
