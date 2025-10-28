@@ -34,25 +34,19 @@ export class ConcurrencyGate {
             if (signal) {
                 if (signal.aborted) {
                     this.removeFromQueue(key, resolve, reject)
-                    reject(new Error('Aborted'))
+                    return reject(new Error('aborted'))
                 }
                 onAbort = () => {
                     this.removeFromQueue(key, resolve, reject)
-                    reject(new Error('Aborted'))
+                    reject(new Error('aborted'))
                 }
 
                 signal.addEventListener('abort', onAbort, { once: true })
             }
         })
 
-        try {
-            await holdExecution
-        } catch (e) {
-            if (onAbort) signal?.removeEventListener('abort', onAbort)
-            throw e
-        } finally {
-            if (onAbort) signal?.removeEventListener('abort', onAbort)
-        }
+        await holdExecution
+        if (onAbort) signal?.removeEventListener('abort', onAbort)
 
         this.active.set(key, (this.active.get(key) ?? 0) + 1)
 
@@ -63,7 +57,44 @@ export class ConcurrencyGate {
         }
     }
 
-    release(key: string) {}
+    private release(key: string) {
+        const currentRunsCount = (this.active.get(key) ?? 1) - 1
+        if (currentRunsCount <= 0) this.active.delete(key)
+        else this.active.set(key, currentRunsCount)
 
-    removeFromQueue(key: string, resolveRef: () => void, rejectRef: (err: any) => void) {}
+        const currentJobWaiters = this.queue.get(key)
+        if (!currentJobWaiters || currentJobWaiters.length === 0) return
+
+        let nextIdx = -1
+
+        for (let i = 0; i < currentJobWaiters.length; i++) {
+            const waiter = currentJobWaiters[i]
+            if (waiter.signal?.aborted) {
+                const [abortedWaiter] = currentJobWaiters.splice(i, 1)
+                abortedWaiter.reject(new Error('aborted'))
+                i--
+                continue
+            }
+
+            nextIdx = i
+            break
+        }
+
+        if (nextIdx >= 0) {
+            const [nextWaiter] = currentJobWaiters.splice(nextIdx, 1)
+            nextWaiter.resume()
+        }
+
+        if (currentJobWaiters.length === 0) this.queue.delete(key)
+    }
+
+    private removeFromQueue(key: string, resolveRef: () => void, rejectRef: (err: any) => void) {
+        const currentJobWaiters = this.queue.get(key)
+        if (!currentJobWaiters) return
+        const idx = currentJobWaiters.findIndex(
+            waiter => waiter.resume === resolveRef && waiter.reject === rejectRef
+        )
+        if (idx >= 0) currentJobWaiters.splice(idx, 1)
+        if (currentJobWaiters.length === 0) this.queue.delete(key)
+    }
 }

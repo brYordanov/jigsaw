@@ -10,13 +10,16 @@ import {
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runner.helpers'
 import { RunRegistry } from './runRegistry'
+import { ConcurrencyGate } from './concurrencyGate'
 
 export class RunnerService {
     constructor(
         private readonly jobService = new JobService(),
-        private runRegistry = new RunRegistry()
+        private readonly runRegistry = new RunRegistry(),
+        private readonly concurrencyGate = new ConcurrencyGate()
     ) {}
 
+    //todo add concurrency
     async executeJobById(id: string): Promise<any> {
         const job = await this.jobService.getByIdOrFail(id)
         const {
@@ -43,8 +46,10 @@ export class RunnerService {
 
         const validatedConfig = validateJobConfig(job_type, config)
 
-        return runWithRetries(max_retries + 1, retry_backoff_seconds, timeout_seconds * 1000, () =>
-            runner(validatedConfig as any)
+        return this.concurrencyGate.run(id, max_concurrency, () =>
+            runWithRetries(max_retries + 1, retry_backoff_seconds, timeout_seconds * 1000, signal =>
+                runner(validatedConfig as any, signal)
+            )
         )
     }
 
@@ -57,6 +62,7 @@ export class RunnerService {
             max_retries,
             retry_backoff_seconds,
             timeout_seconds,
+            max_concurrency,
         } = job
 
         if (!is_enabled) throw new Error('Job not enabled')
@@ -69,15 +75,41 @@ export class RunnerService {
         const { runId, controller } = this.runRegistry.create(id)
 
         ;(async () => {
-            const outcome = await runWithRetries(
-                max_retries + 1,
-                retry_backoff_seconds,
-                timeout_seconds * 1000,
-                signal => runner(validatedConfig as any, signal),
-                controller.signal
-            )
-            this.runRegistry.finish(runId, outcome)
-        })().catch(e => this.runRegistry.finish(runId, { ok: false, lastError: String(e) }))
+            try {
+                const outcome = await this.concurrencyGate.run(
+                    String(id),
+                    max_concurrency,
+                    async () => {
+                        if (controller.signal.aborted) {
+                            return {
+                                ok: false,
+                                attempts: 0,
+                                lastStatus: 'failed',
+                                lastError: 'aborted',
+                            }
+                        }
+                        return runWithRetries(
+                            max_retries + 1,
+                            retry_backoff_seconds,
+                            timeout_seconds * 1000,
+                            signal => runner(validatedConfig as any, signal),
+                            controller.signal
+                        )
+                    },
+                    controller.signal
+                )
+
+                this.runRegistry.finish(runId, outcome)
+            } catch (e: any) {
+                const msg = String(e?.message ?? e)
+                this.runRegistry.finish(runId, {
+                    ok: false,
+                    attempts: 0,
+                    lastStatus: 'failed',
+                    lastError: msg,
+                })
+            }
+        })()
 
         return { runId }
     }
