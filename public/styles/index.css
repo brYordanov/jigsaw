@@ -30,7 +30,6 @@
     --color-border: #2b313d;
 
     --color-font: #e5e7eb;
-    --color-font-muted: #9ca3af;
     --color-font-disabled: #6b7280;
 
     --color-success: #22c55e;
@@ -40,7 +39,10 @@
     --color-white: #ffffff;
     --color-black: #000000;
     --br-primary: 10px;
-    --shadow-elevate: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    background-color: var(--color-bg);
 }
 
 a {
