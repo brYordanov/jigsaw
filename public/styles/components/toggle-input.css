@@ -12,11 +12,11 @@
 }
 
 .switch__input:checked + .switch__slider {
-    background-color: var(--color-secondary-light);
+    background-color: var(--color-secondary-selected);
 }
 
 .switch__input:focus + .switch__slider {
-    box-shadow: 0 0 1px var(--color-secondary-light);
+    box-shadow: 0 0 1px var(--color-secondary-selected);
 }
 
 .switch__input:checked + .switch__slider:before {
@@ -27,7 +27,7 @@
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background-color: var(--color-secondary);
+    background-color: var(--color-primary);
     transition: 0.4s;
 }
 

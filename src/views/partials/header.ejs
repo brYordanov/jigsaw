@@ -1,7 +1,19 @@
 <header class="header">
     <div class="header__container">
         <a href="/" class="header__logo">Jigsaw<span>.</span></a>
-
+        <div class="theme-switch-container">
+            <%- include('./icons/moon.ejs') %>
+            <label class="switch" for="theme-switch">
+                <input
+                    type="checkbox"
+                    class="switch__input"
+                    name="theme-switch"
+                    id="theme-switch"
+                />
+                <span class="switch__slider round"></span>
+            </label>
+            <%- include('./icons/sun.ejs') %>
+        </div>
         <nav class="header__nav">
             <a href="/" class="header__link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
             <a
