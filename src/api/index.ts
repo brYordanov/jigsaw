@@ -8,7 +8,7 @@ export const apiRouter = Router()
 apiRouter.get('/test', (req, res) => {
     // count++
     // if (count < 5) throw new Error('random err')
-    setTimeout(() => res.status(200).send('test EP hit'), 10000)
+    setTimeout(() => res.status(200).send('test EP hit'), 5000)
 })
 
 apiRouter.use('/tasks', taskRouter)

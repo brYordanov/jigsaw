@@ -2,8 +2,8 @@
     position: sticky;
     top: 0;
     margin-bottom: 12px;
-    background: #0e1117;
-    color: #fff;
+    background: var(--color-surface);
+    color: var(--color-white);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 100;
 }
@@ -20,13 +20,13 @@
 .header__logo {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white);
     text-decoration: none;
     letter-spacing: 0.5px;
 }
 
 .header__logo span {
-    color: #4ea1ff;
+    color: var(--color-secondary);
 }
 
 .header__nav {
@@ -43,7 +43,7 @@
 }
 
 .header__link:hover {
-    color: #fff;
+    color: var(--color-font-highlighted);
 }
 
 .header__link::after {
@@ -53,7 +53,7 @@
     left: 0;
     width: 0%;
     height: 2px;
-    background-color: #4ea1ff;
+    background-color: var(--color-secondary);
     transition: width 0.25s ease;
 }
 
@@ -62,14 +62,13 @@
 }
 
 .header__link.active {
-    color: #fff;
+    color: var(--color-font-highlighted);
 }
 
 .header__link.active::after {
     width: 100%;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
     .header__container {
         flex-direction: column;

@@ -10,6 +10,7 @@
 @import './components/table.css';
 @import './components/container.css';
 @import './components/loader.css';
+@import './fonts.css';
 
 * {
     box-sizing: border-box;
@@ -23,6 +24,7 @@
     --color-primary-dark: #1e40af;
     --color-secondary: #14b8a6;
     --color-secondary-dark: #0f766e;
+    --color-secondary-light: #19ddc6;
 
     --color-bg: #0e1117;
     --color-surface: #1b1f27;
@@ -30,6 +32,7 @@
     --color-border: #2b313d;
 
     --color-font: #e5e7eb;
+    --color-font-highlighted: #fff;
     --color-font-disabled: #6b7280;
 
     --color-success: #22c55e;
