@@ -12,7 +12,7 @@
     <% } %>
 
     <span class="paginateData__info">
-        Page <%= paginateData.page %> of <%= paginateData.totalPages %>
+        Page <%= paginateData.page %> of <%= paginateData.totalPages || 1 %>
     </span>
 
     <% if (paginateData.hasNext) { %>

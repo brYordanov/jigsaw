@@ -1,5 +1,33 @@
-<nav class="navigation">
-    <a href="/" class="header__link">Home</a>
-    <a href="/task" class="header__link">Tasks</a>
-    <a href="/job" class="header__link">Jobs</a>
-</nav>
+<header class="header">
+    <div class="header__container">
+        <a href="/" class="header__logo">Jigsaw<span>.</span></a>
+        <div class="theme-switch-container js_theme_switch">
+            <%- include('./icons/moon.ejs') %>
+            <label class="switch" for="theme-switch">
+                <input
+                    <%= theme === 'light' ? 'checked' : ''  %>
+                    data-func="input"
+                    type="checkbox"
+                    class="switch__input"
+                    name="theme-switch"
+                    id="theme-switch"
+                />
+                <span class="switch__slider round"></span>
+            </label>
+            <%- include('./icons/sun.ejs') %>
+        </div>
+        <nav class="header__nav">
+            <a href="/" class="header__link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+            <a
+                href="/task"
+                class="header__link <%= currentPath.startsWith('/task') ? 'active' : '' %>"
+                >Tasks</a
+            >
+            <a
+                href="/job"
+                class="header__link <%= currentPath.startsWith('/job') ? 'active' : '' %>"
+                >Jobs</a
+            >
+        </nav>
+    </div>
+</header>

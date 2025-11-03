@@ -21,8 +21,21 @@ function initItemSelect() {
     })
 }
 
+function initThemeSwitch() {
+    const containers = document.querySelectorAll('.js_theme_switch:not([data-init])')
+
+    if (!containers.length) return
+
+    import('./theme-switch.js').then(({ ThemeSwitch }) => {
+        containers.forEach(container => {
+            new ThemeSwitch(container)
+        })
+    })
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initJsonEditors()
     initItemSelect()
+    initThemeSwitch()
 })
 document.addEventListener('htmx:afterSwap', e => initJsonEditors(e.target))

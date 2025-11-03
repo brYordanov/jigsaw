@@ -17,13 +17,19 @@
     transform: scale(1);
 }
 
+.btn--bigger {
+    min-height: 60px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 .btn-primary {
-    border: 1px solid var(--color-secondary);
+    border: 2px solid var(--color-primary);
 }
 
 .btn-secondary {
     border: 0;
-    background-color: var(--color-secondary);
+    background-color: var(--color-primary);
 }
 
 .btn--align {

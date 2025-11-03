@@ -9,8 +9,7 @@
         <link rel="stylesheet" href="/styles/index.css" />
         <script type="text/javascript" defer src="/widgets/index.js"></script>
     </head>
-    <body>
-        <%- include('../partials/header') %>
-        <%- body %>
+    <body data-theme="<%= theme  %>">
+        <%- include('../partials/header', {theme}) %> <%- body %>
     </body>
 </html>

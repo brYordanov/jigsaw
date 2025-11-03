@@ -13,19 +13,6 @@
     width: clamp(60%, 100%, 80%);
 }
 
-.form-page__btn {
-    align-self: center;
-    width: 80%;
-    padding: 16px 0;
-    background-color: var(--color-primary);
-    color: #fff;
-    border: 0;
-    border-radius: var(--br-primary);
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
 .form-page__btn:hover {
     filter: grayscale(0.2);
 }

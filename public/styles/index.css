@@ -1,3 +1,4 @@
+@import './fonts.css';
 @import './components/toggle-input.css';
 @import './components/fields.css';
 @import './components/form.css';
@@ -5,11 +6,12 @@
 @import './components/btns.css';
 @import './components/filters.css';
 @import './components/pagination.css';
-@import './components/navigation.css';
+@import './components/header.css';
 @import './components/item-select.css';
 @import './components/table.css';
 @import './components/container.css';
 @import './components/loader.css';
+@import './components/theme-switch.css';
 
 * {
     box-sizing: border-box;
@@ -19,11 +21,46 @@
 }
 
 :root {
-    --color-primary: #2196f3;
-    --color-secondary: #ccc;
+    color-scheme: dark;
+    --color-primary: #14b8a6;
+    --color-secondary: #0f766e;
+    --color-secondary-selected: #19ddc6;
+
+    --color-bg: #0e1117;
+
+    --color-font: #e5e7eb;
+    --color-font-highlighted: #fff;
+    --color-font-darker: #ccc;
+
+    --color-success: #22c55e;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+
+    --color-white: #ffffff;
+    --color-black: #000000;
     --br-primary: 10px;
-    --color-disabled: #6f7275;
-    --color-font: #000;
+}
+
+:root:has(body[data-theme='light']) {
+    color-scheme: light;
+    --color-primary: #0ea5e9;
+    --color-secondary: #38bdf8;
+    --color-secondary-selected: #0369a1;
+
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+
+    --color-font: #0f172a;
+    --color-font-highlighted: #000000;
+    --color-font-darker: #838181;
+
+    --color-success: #16a34a;
+    --color-error: #dc2626;
+    --color-warning: #d97706;
+}
+
+body {
+    background-color: var(--color-bg);
 }
 
 a {

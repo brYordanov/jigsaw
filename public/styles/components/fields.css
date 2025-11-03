@@ -11,9 +11,9 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    background-color: #e0e0e0;
+    background-color: var(--color-secondary);
     border-radius: var(--br-primary);
-    color: #212121;
+    color: var(--color-font);
     padding: 10px 20px;
 
     input,
@@ -21,7 +21,7 @@
     select {
         flex: 1;
         padding: 5px;
-        background-color: #fff;
+        background-color: var(--color-bg);
         border-radius: var(--br-primary);
         border: 0;
     }
@@ -36,5 +36,5 @@
 }
 
 .error {
-    color: red;
+    color: var(--color-error);
 }

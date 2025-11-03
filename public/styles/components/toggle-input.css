@@ -12,11 +12,11 @@
 }
 
 .switch__input:checked + .switch__slider {
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary-selected);
 }
 
 .switch__input:focus + .switch__slider {
-    box-shadow: 0 0 1px var(--color-primary);
+    box-shadow: 0 0 1px var(--color-secondary-selected);
 }
 
 .switch__input:checked + .switch__slider:before {
@@ -27,7 +27,7 @@
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background-color: var(--color-secondary);
+    background-color: var(--color-primary);
     transition: 0.4s;
 }
 
@@ -38,7 +38,7 @@
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: #fff;
+    background-color: var(--color-white);
     transition: 0.4s;
 }
 
