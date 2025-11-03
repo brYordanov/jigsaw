@@ -5,7 +5,7 @@ import { viewRouter } from './views/intex'
 import { apiRouter } from './api'
 import { pool, shutdownDb } from './db/db'
 import { Server } from 'http'
-
+import cookieParser from 'cookie-parser'
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -16,7 +16,13 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(expressLayouts)
+app.use(cookieParser())
 
+app.use((req, res, next) => {
+    const theme = req.cookies.theme
+    res.locals.theme = theme === 'light' || theme === 'dark' ? theme : null
+    next()
+})
 app.use((req, res, next) => {
     res.locals.currentPath = req.path
     next()

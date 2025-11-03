@@ -30,6 +30,7 @@
 
     --color-font: #e5e7eb;
     --color-font-highlighted: #fff;
+    --color-font-darker: #ccc;
 
     --color-success: #22c55e;
     --color-error: #ef4444;
@@ -40,7 +41,7 @@
     --br-primary: 10px;
 }
 
-:root:has(#theme-switch:checked) {
+:root:has(body[data-theme='light']) {
     color-scheme: light;
     --color-primary: #0ea5e9;
     --color-secondary: #38bdf8;
@@ -51,6 +52,7 @@
 
     --color-font: #0f172a;
     --color-font-highlighted: #000000;
+    --color-font-darker: #838181;
 
     --color-success: #16a34a;
     --color-error: #dc2626;

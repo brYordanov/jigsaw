@@ -1,10 +1,12 @@
 <header class="header">
     <div class="header__container">
         <a href="/" class="header__logo">Jigsaw<span>.</span></a>
-        <div class="theme-switch-container">
+        <div class="theme-switch-container js_theme_switch">
             <%- include('./icons/moon.ejs') %>
             <label class="switch" for="theme-switch">
                 <input
+                    <%= theme === 'light' ? 'checked' : ''  %>
+                    data-func="input"
                     type="checkbox"
                     class="switch__input"
                     name="theme-switch"
