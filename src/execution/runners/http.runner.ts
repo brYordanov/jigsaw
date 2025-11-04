@@ -1,6 +1,6 @@
 import { HttpConfigDto } from '../../modules/jobs/job.dtos'
 
-export async function runHttpJob(config: HttpConfigDto, signal?: AbortSignal): Promise<any> {
+export const runHttpJob = async (config: HttpConfigDto, signal?: AbortSignal): Promise<any> => {
     const { url, method = 'GET', headers, body } = config
     if (!url) throw new Error('HTTP job missing url')
 

@@ -11,6 +11,7 @@ import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runner.helpers'
 import { RunRegistry } from './runRegistry'
 import { ConcurrencyGate } from './concurrencyGate'
+import { runEmailJob } from './runners/email.runner'
 
 export class RunnerService {
     constructor(
@@ -131,10 +132,11 @@ export type RunnerMap = {
     http: (config: HttpConfigDto, signal?: AbortSignal) => Promise<any>
     // shell: (config: ShellConfigDto) => Promise<any>
     // sql: (config: SqlConfigDto) => Promise<any>
-    // email: (config: EmailConfigDto) => Promise<any>
+    email: (config: EmailConfigDto) => Promise<any>
     // healthcheck: (config: HealthcheckConfigDto) => Promise<any>
 }
 
 export const getRunner: RunnerMap = {
     http: runHttpJob,
+    email: runEmailJob,
 }
