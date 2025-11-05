@@ -1,17 +1,11 @@
 import { JobService } from '../modules/jobs/job.service'
-import {
-    EmailConfigDto,
-    HealthcheckConfigDto,
-    HttpConfigDto,
-    ShellConfigDto,
-    SqlConfigDto,
-    validateJobConfig,
-} from '../modules/jobs/job.dtos'
+import { validateJobConfig } from '../modules/jobs/job.dtos'
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runner.helpers'
 import { RunRegistry } from './runRegistry'
 import { ConcurrencyGate } from './concurrencyGate'
 import { runEmailJob } from './runners/email.runner'
+import { RunnerMap } from './types'
 
 export class RunnerService {
     constructor(
@@ -128,15 +122,7 @@ export class RunnerService {
     }
 }
 
-export type RunnerMap = {
-    http: (config: HttpConfigDto, signal?: AbortSignal) => Promise<any>
-    // shell: (config: ShellConfigDto) => Promise<any>
-    // sql: (config: SqlConfigDto) => Promise<any>
-    email: (config: EmailConfigDto) => Promise<any>
-    // healthcheck: (config: HealthcheckConfigDto) => Promise<any>
-}
-
-export const getRunner: RunnerMap = {
+const getRunner: RunnerMap = {
     http: runHttpJob,
     email: runEmailJob,
 }

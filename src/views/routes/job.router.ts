@@ -81,6 +81,7 @@ ViewJobRouter.get('/edit/:id', async (req, res) => {
     let configPartialHtml = ''
 
     if (job.job_type) {
+        job.config.variables = JSON.stringify(job.config.variables)
         configPartialHtml = await renderConfigPartial(res, job.job_type, job.config)
     }
 
