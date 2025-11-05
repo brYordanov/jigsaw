@@ -6,6 +6,7 @@ import { RunRegistry } from './runRegistry'
 import { ConcurrencyGate } from './concurrencyGate'
 import { runEmailJob } from './runners/email.runner'
 import { RunnerMap } from './types'
+import { runShellJob } from './runners/shell.runner'
 
 export class RunnerService {
     constructor(
@@ -125,4 +126,5 @@ export class RunnerService {
 const getRunner: RunnerMap = {
     http: runHttpJob,
     email: runEmailJob,
+    shell: runShellJob,
 }

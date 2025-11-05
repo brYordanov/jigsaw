@@ -25,7 +25,6 @@ const ShellConfigSchema = z.object({
     args: z.array(z.string()).default([]),
     cwd: z.string().optional(),
     env: z.record(z.string(), z.unknown()).default({}),
-    timeoutSeconds: z.number().int().positive().optional().nullable(),
 })
 export type ShellConfigDto = z.infer<typeof ShellConfigSchema>
 
