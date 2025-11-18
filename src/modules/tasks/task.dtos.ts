@@ -1,4 +1,5 @@
 import z from 'zod'
+import { futureDate, qAny, qBool } from '../../commonSchemas'
 
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
@@ -12,26 +13,6 @@ const daysOfWeek = z.enum([
     'Sunday',
 ])
 const isoDate = z.coerce.date().transform(d => d.toISOString())
-const futureDate = isoDate.refine(
-    date => {
-        if (!date) return true
-        const now = new Date()
-        const dateVal = new Date(date)
-        return dateVal > now
-    },
-    { message: 'Expiration date must be in the future' }
-)
-const qBool = z.preprocess(v => {
-    if (v === 'true' || v === true) return true
-    if (v === 'false' || v === false) return false
-    return undefined
-}, z.boolean().optional())
-const qAny = <T extends z.ZodTypeAny>(schema: T) =>
-    z.preprocess((v: unknown) => {
-        if (Array.isArray(v)) v = v[v.length - 1]
-        if (v === undefined || v === null || v === '' || v === 'any') return undefined
-        return v
-    }, schema.optional())
 
 export const sortOptionsSchema = z
     .enum(['created_at', 'updated_at', 'name', 'next_run_at', 'last_run_at'])
