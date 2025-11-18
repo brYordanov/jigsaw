@@ -12,11 +12,11 @@ import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { getPaginationData } from '../../helpers/getPaginationData'
 import { RunnerService } from '../../execution/runner.service'
 
-export const ViewJobRouter = Router()
+export const JobController = Router()
 const service = new JobService()
 const runnerService = new RunnerService()
 
-ViewJobRouter.get('/', async (req, res) => {
+JobController.get('/', async (req, res) => {
     const params = listJobsQuerySchema.parse(req.query)
     const { items: jobs, total, limit, offset } = await service.paginate(params)
     const paginateData = getPaginationData({ limit, offset, total, filters: params })
@@ -39,11 +39,11 @@ ViewJobRouter.get('/', async (req, res) => {
     })
 })
 
-ViewJobRouter.get('/create', (req, res) => {
+JobController.get('/create', (req, res) => {
     res.render('pages/job-create', { values: {}, errors: {}, configPartialHtml: '' })
 })
 
-ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
+JobController.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createJobBodySchema.parse(req.body)
         await service.createJob(dto)
@@ -75,7 +75,7 @@ ViewJobRouter.post('/create', parseFormValuesMD, async (req, res) => {
     }
 })
 
-ViewJobRouter.get('/edit/:id', async (req, res) => {
+JobController.get('/edit/:id', async (req, res) => {
     const { id } = req.params
     const job = await service.getByIdOrFail(id)
     let configPartialHtml = ''
@@ -88,7 +88,7 @@ ViewJobRouter.get('/edit/:id', async (req, res) => {
     res.render('pages/job-edit', { values: job, errors: {}, configPartialHtml })
 })
 
-ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
+JobController.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
         const { id } = req.params
         const dto = updateJobBodySchema.parse(req.body)
@@ -110,13 +110,13 @@ ViewJobRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     }
 })
 
-ViewJobRouter.delete('/:id', async (req, res) => {
+JobController.delete('/:id', async (req, res) => {
     const { id } = req.params
     await service.deleteById(id)
     return res.status(HttpStatus.OK).send('')
 })
 
-ViewJobRouter.get('/config-partial', (req, res) => {
+JobController.get('/config-partial', (req, res) => {
     try {
         const jobType = String(req.query.job_type)
         const known = ['http', 'email', 'shell', 'sql', 'healthcheck']
@@ -134,7 +134,7 @@ ViewJobRouter.get('/config-partial', (req, res) => {
     }
 })
 
-ViewJobRouter.post('/:id/execute', async (req, res) => {
+JobController.post('/:id/execute', async (req, res) => {
     const { id: jobId } = req.params
     const result = await runnerService.executeJobById(jobId)
     res.send(result)

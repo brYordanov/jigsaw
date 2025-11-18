@@ -8,11 +8,11 @@ import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
 import { JobService } from '../../modules/jobs/job.service'
 
-export const ViewTaskRouter = Router()
+export const TaskController = Router()
 const service = new TaskService()
 const jobService = new JobService()
 
-ViewTaskRouter.get('/', async (req, res) => {
+TaskController.get('/', async (req, res) => {
     const params = listTasksQuerySchema.parse(req.query)
     const { items: tasks, total, limit, offset } = await service.paginate(params)
     const paginateData = getPaginationData({ limit, offset, total, filters: params })
@@ -35,7 +35,7 @@ ViewTaskRouter.get('/', async (req, res) => {
     })
 })
 
-ViewTaskRouter.get('/create', async (req, res) => {
+TaskController.get('/create', async (req, res) => {
     const availableJobs = await jobService.getAll()
     res.render('pages/task-create', {
         values: {},
@@ -45,7 +45,7 @@ ViewTaskRouter.get('/create', async (req, res) => {
     })
 })
 
-ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
+TaskController.post('/create', parseFormValuesMD, async (req, res) => {
     try {
         const dto = createTaskSchema.parse(req.body)
         await service.createTask(dto)
@@ -79,7 +79,7 @@ ViewTaskRouter.post('/create', parseFormValuesMD, async (req, res) => {
     }
 })
 
-ViewTaskRouter.get('/edit/:id', async (req, res) => {
+TaskController.get('/edit/:id', async (req, res) => {
     const id = Number(req.params.id)
     const task = await service.getByIdOrFail(id, ['jobs'])
 
@@ -97,7 +97,7 @@ ViewTaskRouter.get('/edit/:id', async (req, res) => {
     })
 })
 
-ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
+TaskController.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     try {
         const id = Number(req.params.id)
 
@@ -135,7 +135,7 @@ ViewTaskRouter.post('/edit/:id', parseFormValuesMD, async (req, res) => {
     }
 })
 
-ViewTaskRouter.delete('/:id', async (req, res) => {
+TaskController.delete('/:id', async (req, res) => {
     const id = Number(req.params.id)
     await service.deleteById(id)
     return res.status(HttpStatus.OK).send('')
