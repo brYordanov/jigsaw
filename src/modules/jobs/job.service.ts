@@ -1,7 +1,7 @@
 import { PaginatedResponse } from '../../db/types'
 import { CreateJobBodyDto } from './dtos/create-job.dto'
 import { UpdateJobBodyDto } from './dtos/update-job.dto'
-import { ListJobsQueryDto, validateJobConfig } from './job.dtos'
+import { ListJobsQueryDto, validateJobConfig } from './dtos/module.dtos'
 import { JobRow } from './job.entity'
 import { JobRepository } from './job.repo'
 

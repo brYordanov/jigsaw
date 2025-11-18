@@ -3,7 +3,7 @@ import { pool as defaultPool } from '../../db/db'
 import { BaseRepository } from '../../db/BaseRepository'
 import { PaginatedResponse } from '../../db/types'
 import { JobRow, RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT } from './job.entity'
-import { ListJobsQueryDto } from './job.dtos'
+import { ListJobsQueryDto } from './dtos/module.dtos'
 
 export class JobRepository extends BaseRepository {
     constructor(pool: Pool = defaultPool) {

@@ -1,4 +1,4 @@
-import { JobType } from './job.dtos'
+import { JobType } from './dtos/module.dtos'
 
 export interface JobRow {
     id: string

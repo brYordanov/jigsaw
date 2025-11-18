@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { listJobsQuerySchema } from '../modules/jobs/job.dtos'
+import { listJobsQuerySchema } from '../modules/jobs/dtos/module.dtos'
 import { JobService } from '../modules/jobs/job.service'
 
 export const jobRouter = Router()

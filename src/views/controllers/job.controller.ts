@@ -1,6 +1,6 @@
 import { Response, Router } from 'express'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
-import { listJobsQuerySchema } from '../../modules/jobs/job.dtos'
+import { listJobsQuerySchema } from '../../modules/jobs/dtos/module.dtos'
 import { JobService } from '../../modules/jobs/job.service'
 import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'

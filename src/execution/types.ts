@@ -1,4 +1,4 @@
-import { EmailConfigDto, HttpConfigDto, ShellConfigDto } from '../modules/jobs/job.dtos'
+import { EmailConfigDto, HttpConfigDto, ShellConfigDto } from '../modules/jobs/dtos/module.dtos'
 
 export type RunnerMap = {
     http: (config: HttpConfigDto, signal?: AbortSignal) => Promise<any>

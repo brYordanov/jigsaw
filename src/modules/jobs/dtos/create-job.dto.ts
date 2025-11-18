@@ -1,5 +1,5 @@
 import z from 'zod'
-import { validatorsByType } from '../job.dtos'
+import { validatorsByType } from './module.dtos'
 
 const commonJobFields = z.object({
     name: z.string().min(1),

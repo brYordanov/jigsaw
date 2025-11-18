@@ -1,5 +1,5 @@
 import { JobService } from '../modules/jobs/job.service'
-import { validateJobConfig } from '../modules/jobs/job.dtos'
+import { validateJobConfig } from '../modules/jobs/dtos/module.dtos'
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runner.helpers'
 import { RunRegistry } from './runRegistry'
