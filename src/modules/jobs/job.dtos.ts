@@ -1,7 +1,7 @@
 import z from 'zod'
 import { emailSchema, qAny, qBool, urlSchema } from '../../commonSchemas'
 
-const JobTypeEnum = z.enum(['http', 'email', 'shell', 'sql', 'healthcheck'])
+const JobTypeEnum = z.enum(['http', 'email', 'shell', 'healthcheck'])
 export type JobType = z.infer<typeof JobTypeEnum>
 
 const HttpConfigSchema = z.object({
@@ -27,19 +27,6 @@ const ShellConfigSchema = z.object({
     env: z.record(z.string(), z.unknown()).default({}),
 })
 export type ShellConfigDto = z.infer<typeof ShellConfigSchema>
-
-const SqlConfigSchema = z.object({
-    statement: z.string(),
-    params: z.array(z.unknown()).default([]),
-    assert: z
-        .object({
-            maxRowCount: z.number().int().positive().optional(),
-            minRowCount: z.number().int().min(0).optional(),
-        })
-        .partial()
-        .default({}),
-})
-export type SqlConfigDto = z.infer<typeof SqlConfigSchema>
 
 const HealthcheckConfigSchema = z.object({
     checks: z.array(
@@ -68,7 +55,6 @@ export const validatorsByType = {
     http: HttpConfigSchema,
     email: EmailConfigSchema,
     shell: ShellConfigSchema,
-    sql: SqlConfigSchema,
     healthcheck: HealthcheckConfigSchema,
 } as const
 
@@ -97,9 +83,6 @@ export const createJobBodySchema = z.discriminatedUnion('job_type', [
         .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('shell'), config: validatorsByType.shell })
-        .extend(commonJobFields.shape),
-    z
-        .object({ job_type: z.literal('sql'), config: validatorsByType.sql })
         .extend(commonJobFields.shape),
     z
         .object({ job_type: z.literal('healthcheck'), config: validatorsByType.healthcheck })
