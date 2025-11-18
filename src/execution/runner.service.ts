@@ -7,6 +7,7 @@ import { ConcurrencyGate } from './concurrencyGate'
 import { runEmailJob } from './runners/email.runner'
 import { RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
+import { runHealthcheckJob } from './runners/healthcheck.runner'
 
 export class RunnerService {
     constructor(
@@ -127,4 +128,5 @@ const getRunner: RunnerMap = {
     http: runHttpJob,
     email: runEmailJob,
     shell: runShellJob,
+    healthcheck: runHealthcheckJob,
 }

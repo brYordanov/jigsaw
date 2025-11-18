@@ -22,7 +22,12 @@ const OnFailHttpSchema = z.object({
 })
 export const HealthcheckConfigSchema = z.object({
     checks: z.array(z.discriminatedUnion('type', [HttpCheckSchema, DbCheckSchema])),
-    failThreshold: z.number().int().positive().default(2),
+    failThreshold: z
+        .number()
+        .int()
+        .positive()
+        .nullable()
+        .transform(val => val ?? 2),
     onFail: z.discriminatedUnion('type', [OnFailEmailSchema, OnFailHttpSchema]),
 })
 export type HealthcheckConfigDto = z.infer<typeof HealthcheckConfigSchema>
