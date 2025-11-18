@@ -28,26 +28,29 @@ const ShellConfigSchema = z.object({
 })
 export type ShellConfigDto = z.infer<typeof ShellConfigSchema>
 
+const HttpCheckSchema = z.object({
+    type: z.literal('http'),
+    url: urlSchema,
+    expect: z.string().default('2xx'),
+})
+const DbCheckSchema = z.object({
+    type: z.literal('db'),
+    target: z.string().min(1),
+})
+const OnFailEmailSchema = z.object({
+    type: z.literal('email'),
+    to: emailSchema,
+    template: z.string(),
+})
+const OnFailHttpSchema = z.object({
+    type: z.literal('http'),
+    url: urlSchema,
+    method: z.enum(['POST', 'GET']).default('POST'),
+})
 const HealthcheckConfigSchema = z.object({
-    checks: z.array(
-        z.union([
-            z.object({
-                type: z.literal('http'),
-                url: urlSchema,
-                expect: z.string().default('2xx'),
-            }),
-            z.object({ type: z.literal('sql'), statement: z.string() }),
-        ])
-    ),
+    checks: z.array(z.discriminatedUnion('type', [HttpCheckSchema, DbCheckSchema])),
     failThreshold: z.number().int().positive().default(2),
-    onFail: z.union([
-        z.object({ type: z.literal('email'), to: emailSchema, template: z.string() }),
-        z.object({
-            type: z.literal('http'),
-            url: urlSchema,
-            method: z.enum(['POST', 'GET']).default('POST'),
-        }),
-    ]),
+    onFail: z.discriminatedUnion('type', [OnFailEmailSchema, OnFailHttpSchema]),
 })
 export type HealthcheckConfigDto = z.infer<typeof HealthcheckConfigSchema>
 
