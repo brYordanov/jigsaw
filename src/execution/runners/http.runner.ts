@@ -1,4 +1,4 @@
-import { HttpConfigDto } from '../../modules/jobs/job.dtos'
+import { HttpConfigDto } from '../../modules/jobs/dtos/http-config.dto'
 
 export const runHttpJob = async (config: HttpConfigDto, signal?: AbortSignal): Promise<any> => {
     const { url, method = 'GET', headers, body } = config

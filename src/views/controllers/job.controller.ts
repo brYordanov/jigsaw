@@ -1,16 +1,14 @@
 import { Response, Router } from 'express'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
-import {
-    createJobBodySchema,
-    listJobsQuerySchema,
-    updateJobBodySchema,
-} from '../../modules/jobs/job.dtos'
+import { listJobsQuerySchema } from '../../modules/jobs/job.dtos'
 import { JobService } from '../../modules/jobs/job.service'
 import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { getPaginationData } from '../../helpers/getPaginationData'
 import { RunnerService } from '../../execution/runner.service'
+import { createJobBodySchema } from '../../modules/jobs/dtos/create-job.dto'
+import { updateJobBodySchema } from '../../modules/jobs/dtos/update-job.dto'
 
 export const JobController = Router()
 const service = new JobService()
