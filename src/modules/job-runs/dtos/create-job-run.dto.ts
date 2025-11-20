@@ -8,3 +8,4 @@ export const CreateJobRunSchema = z.object({
     error_message: z.string().optional(),
     config_snapshot: JobConfigSchema,
 })
+export type CreateJobRunDto = z.infer<typeof CreateJobRunSchema>

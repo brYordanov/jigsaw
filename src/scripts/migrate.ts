@@ -244,7 +244,7 @@ async function main() {
     console.log('❤️❤️❤️ All done ❤️❤️❤️')
 }
 
-main().catch(e => {
-    console.error(`❌ ${e}`)
+main().catch(err => {
+    console.error(`❌ ${err}`)
     process.exit(1)
 })

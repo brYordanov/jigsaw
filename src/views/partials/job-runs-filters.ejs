@@ -1,0 +1,28 @@
+<form 
+  method="GET" 
+  class="filters" 
+  hx-get="/job-runs" 
+  hx-target="#results" 
+  hx-swap="outerHTML" 
+  hx-include=".filters" 
+  hx-trigger="submit, change delay:300ms">
+  <div class="field">
+    <label for="job_id">Job id</label>
+    <input type="text" name="job_id" id="job_id" value="<%= filterValues.job_id %>" />
+  </div>
+  <div class="field">
+    <label for="task_id">Task id</label>
+    <input type="text" name="task_id" id="task_id" value="<%= filterValues.task_id %>" />
+  </div>
+
+  <div class="field">
+    <label for="status">Status</label>
+    <select name="status" id="status">
+      <option value="" <%= !filterValues.status ? 'selected' : '' %>>any</option>
+      <option value="fixed" <%= filterValues.status === 'ok' ? 'selected' : '' %>>ok</option>
+      <option value="deadman" <%= filterValues.status === 'failed' ? 'selected' : '' %>>failed</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary"><%- include('./icons/search')  %></button>
+</form>

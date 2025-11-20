@@ -1,0 +1,18 @@
+<main class="list-page">
+    <div class="list-page__head">
+        <h1 class="list-page__title">Job Runs</h1>
+    </div>
+
+    <section
+        id="results"
+        hx-boost="true"
+        hx-target="#results"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        style="display: flex; flex-direction: column; align-items: center"
+    >
+        <%- include('../partials/job-runs-filters', {filterValues}) %>
+        <%-include('../partials/pagination', {paginateData}) %>
+        <div class="container"><%- include('../partials/job-runs-table', {jobRuns}) %></div>
+    </section>
+</main>

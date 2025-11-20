@@ -1,0 +1,28 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Job Id</th>
+            <th>Task Id</th>
+            <th>Status</th>
+            <th>Created At</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% if (jobRuns && jobRuns.length) { %>
+        <% jobRuns.forEach(function(joRun) { %>
+        <tr>
+            <td><%= joRun.id %></td>
+            <td><%= joRun.job_id %></td>
+            <td><%= joRun.task_id %></td>
+            <td><%= joRun.status %></td>
+            <td><%= joRun.created_at %></td>
+        </tr>
+        <% }) %>
+        <% } else { %>
+        <tr>
+            <td colspan="5">No logs found.</td>
+        </tr>
+        <% } %>
+    </tbody>
+</table>
