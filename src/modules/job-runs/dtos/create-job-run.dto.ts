@@ -1,0 +1,10 @@
+import z from 'zod'
+import { JobConfigSchema } from '../../jobs/dtos/module.dtos'
+
+export const CreateJobRunSchema = z.object({
+    job_id: z.string(),
+    status: z.enum(['ok', 'failed']),
+    task_id: z.string().optional(),
+    error_message: z.string().optional(),
+    config_snapshot: JobConfigSchema,
+})

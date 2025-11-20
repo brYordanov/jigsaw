@@ -1,9 +1,9 @@
 import z from 'zod'
 import { emailSchema, qAny, qBool, urlSchema } from '../../../commonSchemas'
-import { HealthcheckConfigSchema } from './healthcheck-config.dto'
-import { HttpConfigSchema } from './http-config.dto'
-import { ShellConfigSchema } from './shell-config.dto'
-import { EmailConfigSchema } from './email-config.dto'
+import { HealthcheckConfigDto, HealthcheckConfigSchema } from './healthcheck-config.dto'
+import { HttpConfigDto, HttpConfigSchema } from './http-config.dto'
+import { ShellConfigDto, ShellConfigSchema } from './shell-config.dto'
+import { EmailConfigDto, EmailConfigSchema } from './email-config.dto'
 
 export const JobTypeEnum = z.enum(['http', 'email', 'shell', 'healthcheck'])
 export type JobType = z.infer<typeof JobTypeEnum>
@@ -34,3 +34,11 @@ export const listJobsQuerySchema = z.object({
     is_enabled: qBool,
 })
 export type ListJobsQueryDto = z.infer<typeof listJobsQuerySchema>
+
+export const JobConfigSchema = z.discriminatedUnion('type', [
+    HttpConfigSchema,
+    HealthcheckConfigSchema,
+    EmailConfigSchema,
+    ShellConfigSchema,
+])
+export type JobConfig = z.infer<typeof JobConfigSchema>
