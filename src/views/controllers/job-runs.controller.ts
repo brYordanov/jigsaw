@@ -11,6 +11,16 @@ JobRunsController.get('/', async (req, res) => {
     const { items: jobRuns, total, limit, offset } = await service.paginate(params)
     const paginateData = getPaginationData({ limit, offset, total, filters: params })
 
+    if (req.get('HX-Request') === 'true') {
+        return res.render('partials/job-runs-list-section', {
+            jobRuns,
+            filterValues: params,
+            paginateData,
+            module: 'job-runs',
+            layout: false,
+        })
+    }
+
     res.render('pages/job-runs-list', {
         jobRuns,
         filterValues: params,

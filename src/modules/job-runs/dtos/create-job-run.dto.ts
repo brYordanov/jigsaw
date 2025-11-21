@@ -7,5 +7,6 @@ export const CreateJobRunSchema = z.object({
     task_id: z.string().optional(),
     error_message: z.string().optional(),
     config_snapshot: JobConfigSchema,
+    result: z.record(z.string(), z.unknown()).optional(),
 })
 export type CreateJobRunDto = z.infer<typeof CreateJobRunSchema>

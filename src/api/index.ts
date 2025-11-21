@@ -4,10 +4,10 @@ import { jobRouter } from './job.router'
 import { runRouter } from './run.router'
 
 export const apiRouter = Router()
-// let count = 0
+let count = 0
 apiRouter.get('/test', (req, res) => {
-    // count++
-    // if (count < 5) throw new Error('random err')
+    count++
+    if (count < 3) throw new Error('random err')
     setTimeout(() => res.status(200).send('test EP hit'), 5000)
 })
 

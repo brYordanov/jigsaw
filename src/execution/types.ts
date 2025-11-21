@@ -5,7 +5,7 @@ import { ShellConfigDto } from '../modules/jobs/dtos/shell-config.dto'
 
 export type RunnerMap = {
     http: (config: HttpConfigDto, signal?: AbortSignal) => Promise<any>
+    shell: (config: ShellConfigDto, signal?: AbortSignal) => Promise<any>
     email: (config: EmailConfigDto) => Promise<any>
-    shell: (config: ShellConfigDto) => Promise<any>
     healthcheck: (config: HealthcheckConfigDto) => Promise<any>
 }

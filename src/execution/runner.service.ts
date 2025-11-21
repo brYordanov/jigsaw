@@ -1,7 +1,7 @@
 import { JobService } from '../modules/jobs/job.service'
 import { validateJobConfig } from '../modules/jobs/dtos/module.dtos'
 import { runHttpJob } from './runners/http.runner'
-import { runWithRetries } from './runner.helpers'
+import { runWithRetries } from './runWithRetries'
 import { RunRegistry } from './runRegistry'
 import { ConcurrencyGate } from './concurrencyGate'
 import { runEmailJob } from './runners/email.runner'
@@ -44,9 +44,12 @@ export class RunnerService {
         const validatedConfig = validateJobConfig(job_type, config)
 
         return this.concurrencyGate.run(id, max_concurrency, () =>
-            runWithRetries(max_retries + 1, retry_backoff_seconds, timeout_seconds * 1000, signal =>
-                runner(validatedConfig as any, signal)
-            )
+            runWithRetries({
+                totalAttempts: max_retries + 1,
+                baseBackoffSeconds: retry_backoff_seconds,
+                perRunTimeoutMs: timeout_seconds * 1000,
+                runOnce: () => runner(validatedConfig as any),
+            })
         )
     }
 
@@ -85,13 +88,13 @@ export class RunnerService {
                                 lastError: 'aborted',
                             }
                         }
-                        return runWithRetries(
-                            max_retries + 1,
-                            retry_backoff_seconds,
-                            timeout_seconds * 1000,
-                            signal => runner(validatedConfig as any, signal),
-                            controller.signal
-                        )
+                        return runWithRetries({
+                            totalAttempts: max_retries + 1,
+                            baseBackoffSeconds: retry_backoff_seconds,
+                            perRunTimeoutMs: timeout_seconds * 1000,
+                            runOnce: signal => runner(validatedConfig as any, signal),
+                            outerSignal: controller.signal,
+                        })
                     },
                     controller.signal
                 )
