@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS job_runs (
     job_id BIGINT REFERENCES jobs (id) ON DELETE SET NULL,
     task_id BIGINT REFERENCES tasks (id) ON DELETE SET NULL,
     config_snapshot JSONB NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('ok', 'failed')),
+    status TEXT NOT NULL CHECK (status IN ('ok', 'failed', 'aborted')),
     error_message TEXT,
     result JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

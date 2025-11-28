@@ -1,3 +1,4 @@
+import { RunAttemptLog } from './runWithLoggingAttempt'
 import { withTimeoutSignal } from './runWIthTimeoutSignal'
 
 interface runWithRetriesParams {
@@ -6,6 +7,7 @@ interface runWithRetriesParams {
     perRunTimeoutMs: number
     runOnce: (signal: AbortSignal) => Promise<{ ok: boolean } & Record<string, any>>
     outerSignal?: AbortSignal
+    onAttempt?: (log: RunAttemptLog) => void | Promise<void>
 }
 
 export type runWithRetriesReturn = successReturn | failedReturn
@@ -23,6 +25,11 @@ type failedReturn = {
     lastError: string
 }
 
+/**
+ * Repeatedly calls `runOnce` with timeout + backoff.
+ * Reports each attempt via `onAttempt` but only returns once
+ * (either first lastStatus='ok' result, abort, or after N failed attempts).
+ */
 export const runWithRetries = async ({
     totalAttempts,
     baseBackoffSeconds,

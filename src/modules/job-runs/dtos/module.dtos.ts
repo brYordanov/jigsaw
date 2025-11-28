@@ -9,6 +9,6 @@ export const listJobRunsQuerySchema = z.object({
     dir: z.enum(['ASC', 'DESC']).default('DESC'),
     searchJobId: z.string().max(200).optional(),
     searchTaskId: z.string().max(200).optional(),
-    status: z.enum(['ok', 'failed']).default('ok'),
+    status: z.enum(['ok', 'failed', 'aborted']).default('ok'),
 })
 export type listJobRunsQueryDto = z.infer<typeof listJobRunsQuerySchema>
