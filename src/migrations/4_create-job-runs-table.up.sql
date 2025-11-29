@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS job_runs (
     status TEXT NOT NULL CHECK (status IN ('ok', 'failed', 'aborted')),
     error_message TEXT,
     result JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    attempts INT
 );
 
 CREATE INDEX IF NOT EXISTS job_runs_job_id_idx ON job_runs (job_id);

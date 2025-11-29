@@ -16,8 +16,8 @@ export const validatorsByType = {
 } as const
 
 export const validateJobConfig = (job_type: string, config: unknown) => {
-    const validator = (validatorsByType as Record<string, z.ZodTypeAny>)[job_type]
-    if (!validator) throw new Error(`Unknown job_type: ${job_type}`)
+    const parsedType = JobTypeEnum.parse(job_type)
+    const validator = validatorsByType[parsedType]
     return validator.parse(config)
 }
 

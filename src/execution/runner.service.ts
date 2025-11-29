@@ -8,6 +8,7 @@ import { runEmailJob } from './runners/email.runner'
 import { RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
 import { runHealthcheckJob } from './runners/healthcheck.runner'
+import { runWithLoggingAttempt } from './runWithLoggingAttempt'
 
 export class RunnerService {
     constructor(
@@ -88,13 +89,16 @@ export class RunnerService {
                                 lastError: 'aborted',
                             }
                         }
-                        return runWithRetries({
-                            totalAttempts: max_retries + 1,
-                            baseBackoffSeconds: retry_backoff_seconds,
-                            perRunTimeoutMs: timeout_seconds * 1000,
-                            runOnce: signal => runner(validatedConfig as any, signal),
-                            outerSignal: controller.signal,
-                        })
+                        return runWithLoggingAttempt(job.id, validatedConfig, onAttempt =>
+                            runWithRetries({
+                                totalAttempts: max_retries + 1,
+                                baseBackoffSeconds: retry_backoff_seconds,
+                                perRunTimeoutMs: timeout_seconds * 1000,
+                                runOnce: signal => runner(validatedConfig as any, signal),
+                                outerSignal: controller.signal,
+                                onAttempt,
+                            })
+                        )
                     },
                     controller.signal
                 )

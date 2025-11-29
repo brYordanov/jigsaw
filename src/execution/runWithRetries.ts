@@ -7,7 +7,7 @@ interface runWithRetriesParams {
     perRunTimeoutMs: number
     runOnce: (signal: AbortSignal) => Promise<{ ok: boolean } & Record<string, any>>
     outerSignal?: AbortSignal
-    onAttempt?: (log: RunAttemptLog) => void | Promise<void>
+    onAttempt?: (log: RunAttemptLog) => Promise<void>
 }
 
 export type runWithRetriesReturn = successReturn | failedReturn
@@ -36,6 +36,7 @@ export const runWithRetries = async ({
     perRunTimeoutMs,
     runOnce,
     outerSignal,
+    onAttempt,
 }: runWithRetriesParams): Promise<runWithRetriesReturn> => {
     let lastResult: any
     let lastError: string = ''
@@ -43,9 +44,18 @@ export const runWithRetries = async ({
 
     for (let attempt = 1; attempt <= totalAttempts; attempt++) {
         if (outerSignal?.aborted) {
+            const log: RunAttemptLog = {
+                attempt: attempt - 1,
+                status: 'failed',
+                result: lastResult,
+                error: 'aborted',
+                aborted: true,
+            }
+            await onAttempt?.(log)
+
             return {
                 attempts: attempt - 1,
-                lastStatus: 'failed' as const,
+                lastStatus: 'failed',
                 lastResult,
                 lastError: 'aborted',
             }
@@ -57,15 +67,27 @@ export const runWithRetries = async ({
                 signal => runOnce(signal),
                 outerSignal
             )
+
             lastResult = result
             lastStatus = 'ok'
 
             if (result.ok) {
+                await onAttempt?.({
+                    attempt,
+                    status: lastStatus,
+                    result,
+                })
                 return { attempts: attempt, lastStatus, lastResult }
             }
         } catch (err: any) {
             lastError = err?.message ?? err
             lastStatus = 'failed'
+
+            await onAttempt?.({
+                attempt,
+                status: 'failed',
+                error: lastError,
+            })
         }
 
         if (attempt < totalAttempts) {
@@ -73,6 +95,13 @@ export const runWithRetries = async ({
             await sleep(waitMs)
         }
     }
+
+    await onAttempt?.({
+        attempt: totalAttempts,
+        status: 'failed',
+        result: lastResult,
+        error: lastError,
+    })
 
     return { attempts: totalAttempts, lastStatus: 'failed', lastResult, lastError }
 }
