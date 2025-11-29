@@ -1,22 +1,28 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Job Id</th>
-            <th>Task Id</th>
+            <th class="nowrap">Log Id</th>
+            <th class="nowrap">Job Id</th>
+            <th class="nowrap">Task Id</th>
             <th>Status</th>
             <th>Created At</th>
+            <th>Config</th>
+            <th>Result</th>
         </tr>
     </thead>
     <tbody>
         <% if (jobRuns && jobRuns.length) { %>
-        <% jobRuns.forEach(function(joRun) { %>
+        <% jobRuns.forEach(function(jobRun) { %>
         <tr>
-            <td><%= joRun.id %></td>
-            <td><%= joRun.job_id %></td>
-            <td><%= joRun.task_id %></td>
-            <td><%= joRun.status %></td>
-            <td><%= joRun.created_at %></td>
+            <td><%= jobRun.id %></td>
+            <td><%= jobRun.job_id %></td>
+            <td><%= jobRun.task_id ?? 'none' %></td>
+            <td><%= jobRun.status %></td>
+            <td class="nowrap">
+                <%= jobRun.created_at.toISOString().replace("T", " ").substring(0, 19) %>
+            </td>
+            <td class="limit-width"><%= JSON.stringify(jobRun.config_snapshot) %></td>
+            <td class="limit-width"><%= JSON.stringify(jobRun.result) %></td>
         </tr>
         <% }) %>
         <% } else { %>

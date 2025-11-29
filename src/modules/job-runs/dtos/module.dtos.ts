@@ -1,4 +1,7 @@
 import z from 'zod'
+import { qAny } from '../../../commonSchemas'
+
+export const jobRunStatusEnum = z.enum(['ok', 'failed', 'aborted'])
 
 export const sortOptionsSchema = z.enum(['created_at', 'job_id', 'task_id']).default('created_at')
 
@@ -9,6 +12,6 @@ export const listJobRunsQuerySchema = z.object({
     dir: z.enum(['ASC', 'DESC']).default('DESC'),
     searchJobId: z.string().max(200).optional(),
     searchTaskId: z.string().max(200).optional(),
-    status: z.enum(['ok', 'failed', 'aborted']).default('ok'),
+    status: qAny(jobRunStatusEnum),
 })
 export type listJobRunsQueryDto = z.infer<typeof listJobRunsQuerySchema>

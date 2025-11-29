@@ -17,6 +17,15 @@
     tbody td:not(:last-child) {
         border-right: 1px solid;
     }
+
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    .limit-width {
+        max-width: 300px;
+        overflow-wrap: break-word;
+    }
 }
 
 .table--interactive {

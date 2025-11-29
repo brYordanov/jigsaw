@@ -11,17 +11,18 @@ export class JobRunRepository extends BaseRepository {
 
     listPaginated(params: listJobRunsQueryDto): Promise<PaginatedResponse<JobRun>> {
         const FILTERS_NAME = {
-            job_id: { op: 'ilike' },
-            task_id: { op: 'ilike' },
+            job_id: 'eq',
+            task_id: 'eq',
             status: 'eq',
         } as const
 
         const ALLOWED_SORT = ['created_at', 'job_id', 'task_id'] as const
+        console.log(params)
 
         return this.paginate<JobRun, any>({
             filters: {
-                job_id: params.searchJobId,
-                task_id: params.searchTaskId,
+                job_id: params.searchJobId ? Number(params.searchJobId) : undefined,
+                task_id: params.searchTaskId ? Number(params.searchTaskId) : undefined,
                 status: params.status,
             },
             filterConfig: FILTERS_NAME,

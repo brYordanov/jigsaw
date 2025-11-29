@@ -1,10 +1,10 @@
 <section
+    class="section"
     id="results"
     hx-boost="true"
     hx-target="#results"
     hx-swap="outerHTML"
     hx-push-url="true"
-    style="display: flex; flex-direction: column; align-items: center"
 >
     <%- include('../partials/task-filters', {filterValues}) %>
     <%-include('../partials/pagination', {paginateData}) %>
