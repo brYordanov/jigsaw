@@ -2,7 +2,6 @@ import { Pool } from 'pg'
 
 export type Dir = 'ASC' | 'DESC'
 export type FilterSpec =
-    | 'eq'
     | { op: 'eq' }
     | { op: 'ilike' }
     | { op: 'in' }
@@ -11,6 +10,8 @@ export type FilterSpec =
     | { op: 'gt' }
     | { op: 'lt' }
     | { op: 'is'; value: 'null' | 'not null' }
+    | { op: 'date_gte' }
+    | { op: 'date_lte' }
 
 export type FilterConfig = Record<string, FilterSpec>
 

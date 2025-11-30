@@ -147,6 +147,13 @@ export class BaseRepository {
                     case 'is':
                         whereParts.push(`${key} IS ${spec.value.toUpperCase()}`)
                         break
+                    case 'date_gte':
+                        whereParts.push(`${key} >= $${i++}::date`)
+                        values.push(val)
+                        break
+                    case 'date_lte':
+                        whereParts.push(`${key} <= $${i++}::date`)
+                        values.push(val)
                     default:
                         whereParts.push(`${key} = $${i++}`)
                         values.push(val)

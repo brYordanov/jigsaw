@@ -18,6 +18,7 @@ export const validatorsByType = {
 export const validateJobConfig = (job_type: string, config: unknown) => {
     const parsedType = JobTypeEnum.parse(job_type)
     const validator = validatorsByType[parsedType]
+    if (!validator) throw new Error(`No validator found for job type: ${parsedType}`)
     return validator.parse(config)
 }
 

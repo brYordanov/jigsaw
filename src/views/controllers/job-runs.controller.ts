@@ -2,10 +2,12 @@ import { Router } from 'express'
 import { JobRunService } from '../../modules/job-runs/job-runs.service'
 import { listJobRunsQuerySchema } from '../../modules/job-runs/dtos/module.dtos'
 import { getPaginationData } from '../../helpers/getPaginationData'
+import { parseFormValuesMD } from '../../middlewares/parseFormValues'
 
 export const JobRunsController = Router()
 const service = new JobRunService()
 JobRunsController.get('/', async (req, res) => {
+    console.log(req.query)
     const params = listJobRunsQuerySchema.parse(req.query)
 
     const { items: jobRuns, total, limit, offset } = await service.paginate(params)
