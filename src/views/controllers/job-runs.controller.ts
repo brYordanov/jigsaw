@@ -7,9 +7,7 @@ import { parseFormValuesMD } from '../../middlewares/parseFormValues'
 export const JobRunsController = Router()
 const service = new JobRunService()
 JobRunsController.get('/', async (req, res) => {
-    console.log(req.query)
     const params = listJobRunsQuerySchema.parse(req.query)
-
     const { items: jobRuns, total, limit, offset } = await service.paginate(params)
     const paginateData = getPaginationData({ limit, offset, total, filters: params })
 

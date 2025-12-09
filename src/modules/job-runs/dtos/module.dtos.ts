@@ -7,7 +7,7 @@ export const sortOptionsSchema = z.enum(['created_at', 'job_id', 'task_id']).def
 
 export const listJobRunsQuerySchema = z
     .object({
-        limit: z.coerce.number().int().min(1).max(100).default(4),
+        limit: z.coerce.number().int().min(1).max(100).default(10),
         offset: z.coerce.number().int().min(0).default(0),
         sort: sortOptionsSchema,
         dir: z.enum(['ASC', 'DESC']).default('DESC'),
@@ -16,10 +16,12 @@ export const listJobRunsQuerySchema = z
         after_date: z
             .string()
             .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD')
+            .or(z.literal(''))
             .optional(),
         before_date: z
             .string()
             .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD')
+            .or(z.literal(''))
             .optional(),
         status: qAny(jobRunStatusEnum),
     })

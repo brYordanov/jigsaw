@@ -8,5 +8,7 @@
 >
     <%- include('../partials/job-runs-filters', {filterValues}) %>
     <%-include('../partials/pagination', {paginateData}) %>
-    <div class="container"><%- include('../partials/job-runs-table', {jobRuns}) %></div>
+    <div class="container container--scrollable">
+        <%- include('../partials/job-runs-table', {jobRuns}) %>
+    </div>
 </section>

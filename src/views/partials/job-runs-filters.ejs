@@ -30,14 +30,14 @@
   <div class="field-container">    
     <div class="field">
       <label for="after_date">After date</label>
-      <input type="date" name="after_date" id="after_date"  value="<%= filterValues.after_date ? filterValues.after_date.toISOString().slice(0, 10) : ""  %>"/>
+      <input type="date" name="after_date" id="after_date"  value="<%= filterValues.after_date ? filterValues.after_date : ""  %>"/>
     </div>
   </div>
 
   <div class="field-container">    
     <div class="field">
       <label for="before_date">Before date</label>
-      <input type="date" name="before_date" id="before_date"  value="<%= filterValues.before_date ? filterValues.before_date.toISOString().slice(0, 10) : ""  %>"/>
+      <input type="date" name="before_date" id="before_date"  value="<%= filterValues.before_date ? filterValues.before_date : ""  %>"/>
     </div>
   </div>
 
