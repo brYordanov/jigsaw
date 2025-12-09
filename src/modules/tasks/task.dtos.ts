@@ -1,5 +1,5 @@
 import z from 'zod'
-import { futureDate, qAny, qBool } from '../../commonSchemas'
+import { futureDate, isoDate, qAny, qBool } from '../../commonSchemas'
 
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
@@ -12,7 +12,6 @@ const daysOfWeek = z.enum([
     'Saturday',
     'Sunday',
 ])
-const isoDate = z.coerce.date().transform(d => d.toISOString())
 
 export const sortOptionsSchema = z
     .enum(['created_at', 'updated_at', 'name', 'next_run_at', 'last_run_at'])

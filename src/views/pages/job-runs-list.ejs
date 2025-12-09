@@ -1,6 +1,6 @@
 <main class="list-page">
     <div class="list-page__head">
-        <h1 class="list-page__title">Task Manager</h1>
+        <h1 class="list-page__title">Job Runs</h1>
     </div>
 
     <section
@@ -11,8 +11,10 @@
         hx-swap="outerHTML"
         hx-push-url="true"
     >
-        <%- include('../partials/task-filters', {filterValues}) %>
+        <%- include('../partials/job-runs-filters', {filterValues}) %>
         <%-include('../partials/pagination', {paginateData}) %>
-        <div class="container"><%- include('../partials/task-table', {tasks}) %></div>
+        <div class="container container--scrollable">
+            <%- include('../partials/job-runs-table', {jobRuns}) %>
+        </div>
     </section>
 </main>

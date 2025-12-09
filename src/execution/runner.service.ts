@@ -1,13 +1,14 @@
 import { JobService } from '../modules/jobs/job.service'
 import { validateJobConfig } from '../modules/jobs/dtos/module.dtos'
 import { runHttpJob } from './runners/http.runner'
-import { runWithRetries } from './runner.helpers'
+import { runWithRetries } from './runWithRetries'
 import { RunRegistry } from './runRegistry'
 import { ConcurrencyGate } from './concurrencyGate'
 import { runEmailJob } from './runners/email.runner'
 import { RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
 import { runHealthcheckJob } from './runners/healthcheck.runner'
+import { runWithLoggingAttempt } from './runWithLoggingAttempt'
 
 export class RunnerService {
     constructor(
@@ -44,9 +45,12 @@ export class RunnerService {
         const validatedConfig = validateJobConfig(job_type, config)
 
         return this.concurrencyGate.run(id, max_concurrency, () =>
-            runWithRetries(max_retries + 1, retry_backoff_seconds, timeout_seconds * 1000, signal =>
-                runner(validatedConfig as any, signal)
-            )
+            runWithRetries({
+                totalAttempts: max_retries + 1,
+                baseBackoffSeconds: retry_backoff_seconds,
+                perRunTimeoutMs: timeout_seconds * 1000,
+                runOnce: () => runner(validatedConfig as any),
+            })
         )
     }
 
@@ -85,12 +89,15 @@ export class RunnerService {
                                 lastError: 'aborted',
                             }
                         }
-                        return runWithRetries(
-                            max_retries + 1,
-                            retry_backoff_seconds,
-                            timeout_seconds * 1000,
-                            signal => runner(validatedConfig as any, signal),
-                            controller.signal
+                        return runWithLoggingAttempt(job.id, validatedConfig, onAttempt =>
+                            runWithRetries({
+                                totalAttempts: max_retries + 1,
+                                baseBackoffSeconds: retry_backoff_seconds,
+                                perRunTimeoutMs: timeout_seconds * 1000,
+                                runOnce: signal => runner(validatedConfig as any, signal),
+                                outerSignal: controller.signal,
+                                onAttempt,
+                            })
                         )
                     },
                     controller.signal

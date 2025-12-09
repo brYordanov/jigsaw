@@ -1,16 +1,28 @@
 import { Pool } from 'pg'
 
 export type Dir = 'ASC' | 'DESC'
-export type FilterSpec =
+export type FilterOp =
     | 'eq'
-    | { op: 'eq' }
-    | { op: 'ilike' }
-    | { op: 'in' }
-    | { op: 'gte' }
-    | { op: 'lte' }
-    | { op: 'gt' }
-    | { op: 'lt' }
-    | { op: 'is'; value: 'null' | 'not null' }
+    | 'ilike'
+    | 'in'
+    | 'gte'
+    | 'lte'
+    | 'gt'
+    | 'lt'
+    | 'is'
+    | 'date_gte'
+    | 'date_lte'
+
+export type FilterSpec =
+    | {
+          op: Exclude<FilterOp, 'is'>
+          fieldName?: string
+      }
+    | {
+          op: 'is'
+          fieldName?: string
+          value: 'null' | 'not null'
+      }
 
 export type FilterConfig = Record<string, FilterSpec>
 

@@ -6,7 +6,9 @@
     hx-swap="outerHTML"
     hx-push-url="true"
 >
-    <%- include('../partials/task-filters', {filterValues}) %>
+    <%- include('../partials/job-runs-filters', {filterValues}) %>
     <%-include('../partials/pagination', {paginateData}) %>
-    <%- include('../partials/task-table', {tasks}) %>
+    <div class="container container--scrollable">
+        <%- include('../partials/job-runs-table', {jobRuns}) %>
+    </div>
 </section>

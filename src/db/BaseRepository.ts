@@ -108,51 +108,58 @@ export class BaseRepository {
         cfg: PaginateConfig<TFilters>
     ) {
         const { filters, filterConfig, sort, dir, allowedSort, limit, offset } = cfg
-
         const whereParts: string[] = []
         const values: any[] = []
         let i = 1
 
         for (const [key, spec] of Object.entries(filterConfig)) {
             if (!(key in filters)) continue
-            const val = (filters as any)[key]
+            const val = filters[key]
+            const col = spec.fieldName ?? key
             if (val === undefined) continue
-
             if (typeof spec === 'object' && 'op' in spec) {
                 switch (spec.op) {
                     case 'ilike':
-                        whereParts.push(`${key} ILIKE $${i++}`)
+                        whereParts.push(`${col} ILIKE $${i++}`)
                         values.push(typeof val === 'string' ? `%${val}%` : val)
                         break
                     case 'in':
-                        whereParts.push(`${key} = ANY($${i++})`)
+                        whereParts.push(`${col} = ANY($${i++})`)
                         values.push(val)
                         break
                     case 'gte':
-                        whereParts.push(`${key} >= $${i++}`)
+                        whereParts.push(`${col} >= $${i++}`)
                         values.push(val)
                         break
                     case 'lte':
-                        whereParts.push(`${key} <= $${i++}`)
+                        whereParts.push(`${col} <= $${i++}`)
                         values.push(val)
                         break
                     case 'gt':
-                        whereParts.push(`${key} > $${i++}`)
+                        whereParts.push(`${col} > $${i++}`)
                         values.push(val)
                         break
                     case 'lt':
-                        whereParts.push(`${key} < $${i++}`)
+                        whereParts.push(`${col} < $${i++}`)
                         values.push(val)
                         break
                     case 'is':
-                        whereParts.push(`${key} IS ${spec.value.toUpperCase()}`)
+                        whereParts.push(`${col} IS ${spec.value.toUpperCase()}`)
+                        break
+                    case 'date_gte':
+                        whereParts.push(`${col} >= $${i++}::date`)
+                        values.push(val)
+                        break
+                    case 'date_lte':
+                        whereParts.push(`${col} <= $${i++}::date`)
+                        values.push(val)
                         break
                     default:
-                        whereParts.push(`${key} = $${i++}`)
+                        whereParts.push(`${col} = $${i++}`)
                         values.push(val)
                 }
             } else {
-                whereParts.push(`${key} = $${i++}`)
+                whereParts.push(`${col} = $${i++}`)
                 values.push(val)
             }
         }

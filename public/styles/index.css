@@ -12,6 +12,7 @@
 @import './components/container.css';
 @import './components/loader.css';
 @import './components/theme-switch.css';
+@import './components/section.css';
 
 * {
     box-sizing: border-box;
