@@ -12,7 +12,14 @@ export class JobRunService {
         return this.repo.listPaginated(params)
     }
 
-    create(body: CreateJobRunDto): Promise<JobRow> {
+    create(body: CreateJobRunDto): Promise<JobRun> {
         return this.repo.create(body)
+    }
+
+    async getByJobIdOrFail(jobId: string): Promise<JobRun[]> {
+        const logs = await this.repo.get<JobRun>({ where: { jobId: jobId } })
+        if (!logs) throw new Error(`Logs for jobId ${jobId} not found`)
+
+        return logs
     }
 }
