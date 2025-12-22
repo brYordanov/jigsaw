@@ -7,7 +7,7 @@ export const updateJobBodySchema = z
         config: z.unknown().optional(),
         name: z.string().min(1).optional(),
         description: z.string().nullable().optional(),
-        is_enabled: z.boolean().optional(),
+        is_enabled: z.boolean().optional().default(false),
         max_retries: z.number().int().min(0).optional(),
         retry_backoff_seconds: z.number().int().min(0).optional(),
         max_concurrency: z.number().int().min(1).optional(),

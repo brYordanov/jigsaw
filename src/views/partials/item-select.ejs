@@ -24,13 +24,17 @@
     </div>
     <div class="item-select__controlls" data-func="control-container">
         <button type="button" class="to-left disabled" data-func="control" data-role="left">
-            ⬅️
+            <%- include('./icons/circle-arrow-left', {width: 35, height:35}) %>
         </button>
-        <button type="button" class="up disabled" data-func="control" data-role="up">⬆️</button>
+        <button type="button" class="up disabled" data-func="control" data-role="up">
+            <%- include('./icons/circle-arrow-up', {width: 35, height:35}) %>
+        </button>
         <button type="button" class="to-right disabled" data-func="control" data-role="right">
-            ➡️
+            <%- include('./icons/circle-arrow-right', {width: 35, height:35}) %>
         </button>
-        <button type="button" class="down disabled" data-func="control" data-role="down">⬇️</button>
+        <button type="button" class="down disabled" data-func="control" data-role="down">
+            <%- include('./icons/circle-arrow-down', {width: 35, height:35}) %>
+        </button>
     </div>
     <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="available">
@@ -46,7 +50,13 @@
                 <tr data-func="row">
                     <td data-func="id"><%= job.id %></td>
                     <td><%= job.name %></td>
-                    <td><%= job.is_enabled ? "✅" : "❌"%></td>
+                    <td>
+                        <% if(job.is_enabled) {%>
+                        <%- include('./icons/ok', {width: 30, height:30}) %>
+                        <% } else {%>
+                        <%- include('./icons/disabled', {width: 24, height:24}) %>
+                        <% } %>
+                    </td>
                 </tr>
                 <% }) %>
             </tbody>
