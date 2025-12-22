@@ -23,4 +23,3 @@ CREATE TABLE IF NOT EXISTS jobs (
         OR timeout_seconds > 0
     )
 )
--- todo add updated func
