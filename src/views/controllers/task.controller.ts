@@ -57,7 +57,7 @@ TaskController.post('/create', parseFormValuesMD, async (req, res) => {
             const allJobs = await jobService.getAll()
 
             const selectedIds = jobsIdsFromBody(req.body)
-            const existingSelectedJobs = await jobService.getManyJobsByid(selectedIds)
+            const existingSelectedJobs = await jobService.getManyJobsById(selectedIds)
             const foundIds = new Set(existingSelectedJobs.map(j => j.id))
             const missingIds = selectedIds.filter(id => !foundIds.has(id))
             const availableJobs = allJobs.filter(job => !foundIds.has(job.id))
@@ -113,7 +113,7 @@ TaskController.post('/edit/:id', parseFormValuesMD, async (req, res) => {
             const errors = groupZodIssues(err.issues)
             const allJobs = await jobService.getAll()
             const selectedIds = jobsIdsFromBody(req.body)
-            const existingSelectedJobs = await jobService.getManyJobsByid(selectedIds)
+            const existingSelectedJobs = await jobService.getManyJobsById(selectedIds)
             const foundIds = new Set(existingSelectedJobs.map(j => j.id))
             const missingIds = selectedIds.filter(id => !foundIds.has(id))
             const availableJobs = allJobs.filter(job => !foundIds.has(job.id))

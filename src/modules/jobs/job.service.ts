@@ -41,7 +41,7 @@ export class JobService {
         await this.repo.deleteById(id)
     }
 
-    getManyJobsByid(ids: string[]): Promise<JobRow[]> {
+    getManyJobsById(ids: string[]): Promise<JobRow[]> {
         return this.repo.get<JobRow>({ where: { id: ids } })
     }
 }
