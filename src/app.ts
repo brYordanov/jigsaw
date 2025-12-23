@@ -3,7 +3,8 @@ import path from 'path'
 import expressLayouts from 'express-ejs-layouts'
 import cookieParser from 'cookie-parser'
 import { viewRouter } from './views/intex'
-import { apiRouter } from './api'
+import { createContainer } from './modules/createContainer'
+import { createApiRouter } from './api/createApiRouter'
 
 export function createApp() {
     const app = express()
@@ -29,8 +30,10 @@ export function createApp() {
     })
 
     app.set('layout', 'layouts/default')
+
+    const container = createContainer()
     app.use('/', viewRouter)
-    app.use('/api', apiRouter)
+    app.use('/api', createApiRouter(container))
 
     app.use((err: any, req: any, res: any, _next: any) => {
         const status = err.status || 500

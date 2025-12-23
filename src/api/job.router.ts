@@ -1,38 +1,70 @@
 import { Router } from 'express'
-import { listJobsQuerySchema } from '../modules/jobs/dtos/module.dtos'
 import { JobService } from '../modules/jobs/job.service'
+import { ListJobsQueryDto, listJobsQuerySchema } from '../modules/jobs/dtos/module.dtos'
+import { CreateJobBodyDto, createJobBodySchema } from '../modules/jobs/dtos/create-job.dto'
+import { UpdateJobBodyDto, updateJobBodySchema } from '../modules/jobs/dtos/update-job.dto'
+import { asyncHandler } from '../helpers/asyncHandler'
+import { validate, vBody, vParams, vQuery } from '../middlewares/validate'
+import { HttpStatus } from '../helpers/statusCodes'
+import { idParamDto, idParamSchema } from '../commonSchemas'
 
-export const jobRouter = Router()
-const service = new JobService()
+export function createJobRouter(service: JobService) {
+    const jobRouter = Router()
 
-jobRouter.get('/', async (req, res) => {
-    res.send(await service.getAll())
-})
+    jobRouter.get(
+        '/',
+        asyncHandler(async (_req, res) => {
+            res.json(await service.getAll())
+        })
+    )
 
-jobRouter.get('/paginate', async (req, res) => {
-    const parsed = listJobsQuerySchema.safeParse(req.query)
-    if (!parsed.success) {
-        res.send('param validation error')
-        return
-    }
-    res.send(await service.paginate(parsed.data))
-})
+    jobRouter.get(
+        '/paginate',
+        validate(listJobsQuerySchema, 'query'),
+        asyncHandler(async (req, res) => {
+            const query = vQuery<ListJobsQueryDto>(req)
+            res.json(await service.paginate(query))
+        })
+    )
 
-jobRouter.get('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.getByIdOrFail(id))
-})
+    jobRouter.get(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            res.json(await service.getByIdOrFail(id))
+        })
+    )
 
-jobRouter.post('/', async (req, res) => {
-    res.send(await service.createJob(req.body))
-})
+    jobRouter.post(
+        '/',
+        validate(createJobBodySchema, 'body'),
+        asyncHandler(async (req, res) => {
+            const body = vBody<CreateJobBodyDto>(req)
+            res.status(HttpStatus.CREATED).json(await service.createJob(body))
+        })
+    )
 
-jobRouter.patch('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.updateJob(id, req.body))
-})
+    jobRouter.patch(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        validate(updateJobBodySchema, 'body'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            const body = vBody<UpdateJobBodyDto>(req)
+            res.json(await service.updateJob(id, body))
+        })
+    )
 
-jobRouter.delete('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.deleteById(id))
-})
+    jobRouter.delete(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            await service.deleteById(id)
+            res.status(HttpStatus.NO_CONTENT).send()
+        })
+    )
+
+    return jobRouter
+}
