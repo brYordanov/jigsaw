@@ -7,9 +7,9 @@ import { JobRepository } from '../jobs/job.repo'
 
 export class TaskService {
     constructor(
-        private readonly repo = new TaskRepository(),
-        private readonly jobRepository = new JobRepository(),
-        private readonly tasksJobsService = new TasksJobsService()
+        private readonly repo: TaskRepository,
+        private readonly jobRepository: JobRepository,
+        private readonly tasksJobsService: TasksJobsService
     ) {}
 
     async getAll(): Promise<TaskRow[]> {

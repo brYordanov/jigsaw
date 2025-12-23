@@ -10,8 +10,6 @@ import { asyncHandler } from '../helpers/asyncHandler'
 import { validate, vBody, vParams, vQuery } from '../middlewares/validate'
 import { idParamDto, idParamSchema } from '../commonSchemas'
 
-const service = new TaskService()
-
 export function createTaskRouter(service: TaskService) {
     const taskRouter = Router()
 

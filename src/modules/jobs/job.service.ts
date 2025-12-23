@@ -6,7 +6,7 @@ import { JobRow } from './job.entity'
 import { JobRepository } from './job.repo'
 
 export class JobService {
-    constructor(private readonly repo = new JobRepository()) {}
+    constructor(private readonly repo: JobRepository) {}
 
     getAll(): Promise<JobRow[]> {
         return this.repo.get()

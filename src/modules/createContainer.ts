@@ -1,4 +1,6 @@
+import { ConcurrencyGate } from './execution/concurrencyGate.service'
 import { RunnerService } from './execution/runner.service'
+import { RunRegistry } from './execution/runRegistry.service'
 import { JobRunService } from './job-runs/job-runs.service'
 import { JobRunRepository } from './job-runs/jon-runs.repository'
 import { JobRepository } from './jobs/job.repo'
@@ -11,15 +13,17 @@ import { TaskService } from './tasks/task.service'
 export type Container = ReturnType<typeof createContainer>
 
 export function createContainer() {
-    const jobService = new JobService()
     const jobRepo = new JobRepository()
-    const jobRunService = new JobRunService()
+    const jobService = new JobService(jobRepo)
     const jobRunRepo = new JobRunRepository()
-    const tasksJobsService = new TasksJobsService()
+    const jobRunService = new JobRunService(jobRunRepo)
     const tasksJobsRepo = new TasksJobsRepository()
-    const taskService = new TaskService()
+    const tasksJobsService = new TasksJobsService(tasksJobsRepo)
     const taskRepo = new TaskRepository()
-    const runnerService = new RunnerService()
+    const taskService = new TaskService(taskRepo, jobRepo, tasksJobsService)
+    const runRegistry = new RunRegistry()
+    const concurrencyGate = new ConcurrencyGate()
+    const runnerService = new RunnerService(jobService, runRegistry, concurrencyGate, jobRunService)
 
     return {
         jobService,

@@ -1,20 +1,21 @@
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runWithRetries'
-import { RunRegistry } from './runRegistry'
-import { ConcurrencyGate } from './concurrencyGate'
+import { RunRegistry } from './runRegistry.service'
+import { ConcurrencyGate } from './concurrencyGate.service'
 import { runEmailJob } from './runners/email.runner'
-import { RunnerMap } from './types'
+import { RunAttemptLog, RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
 import { runHealthcheckJob } from './runners/healthcheck.runner'
-import { runWithLoggingAttempt } from './runWithLoggingAttempt'
 import { JobService } from '../jobs/job.service'
-import { validateJobConfig } from '../jobs/dtos/module.dtos'
+import { JobConfig, validateJobConfig } from '../jobs/dtos/module.dtos'
+import { JobRunService } from '../job-runs/job-runs.service'
 
 export class RunnerService {
     constructor(
-        private readonly jobService = new JobService(),
-        private readonly runRegistry = new RunRegistry(),
-        private readonly concurrencyGate = new ConcurrencyGate()
+        private readonly jobService: JobService,
+        private readonly runRegistry: RunRegistry,
+        private readonly concurrencyGate: ConcurrencyGate,
+        private readonly logService: JobRunService
     ) {}
 
     //todo add concurrency
@@ -89,7 +90,7 @@ export class RunnerService {
                                 lastError: 'aborted',
                             }
                         }
-                        return runWithLoggingAttempt(job.id, validatedConfig, onAttempt =>
+                        return this.runWithLoggingAttempt(job.id, validatedConfig, onAttempt =>
                             runWithRetries({
                                 totalAttempts: max_retries + 1,
                                 baseBackoffSeconds: retry_backoff_seconds,
@@ -128,6 +129,28 @@ export class RunnerService {
 
     getRun(runId: string) {
         return this.runRegistry.get(runId)
+    }
+
+    async runWithLoggingAttempt<T>(
+        job_id: string,
+        config_snapshot: JobConfig,
+        run: (logAttempt: (log: RunAttemptLog) => Promise<void>) => Promise<T>,
+        task_id?: string
+    ) {
+        const logAttempt = async ({ status, error, result, aborted, attempt }: RunAttemptLog) => {
+            const finalStatus = aborted ? 'aborted' : status
+            await this.logService.create({
+                job_id,
+                status: finalStatus,
+                config_snapshot,
+                task_id,
+                error_message: error,
+                result,
+                attempts: attempt,
+            })
+        }
+
+        return run(logAttempt)
     }
 }
 
