@@ -1,5 +1,3 @@
-import { JobService } from '../modules/jobs/job.service'
-import { validateJobConfig } from '../modules/jobs/dtos/module.dtos'
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runWithRetries'
 import { RunRegistry } from './runRegistry'
@@ -9,6 +7,8 @@ import { RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
 import { runHealthcheckJob } from './runners/healthcheck.runner'
 import { runWithLoggingAttempt } from './runWithLoggingAttempt'
+import { JobService } from '../jobs/job.service'
+import { validateJobConfig } from '../jobs/dtos/module.dtos'
 
 export class RunnerService {
     constructor(

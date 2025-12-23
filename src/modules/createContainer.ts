@@ -1,4 +1,4 @@
-import { RunnerService } from '../execution/runner.service'
+import { RunnerService } from './execution/runner.service'
 import { JobRunService } from './job-runs/job-runs.service'
 import { JobRunRepository } from './job-runs/jon-runs.repository'
 import { JobRepository } from './jobs/job.repo'

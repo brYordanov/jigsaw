@@ -1,5 +1,5 @@
-import { JobRunService } from '../modules/job-runs/job-runs.service'
-import { JobConfig } from '../modules/jobs/dtos/module.dtos'
+import { JobRunService } from '../job-runs/job-runs.service'
+import { JobConfig } from '../jobs/dtos/module.dtos'
 
 type AttemptStatus = 'ok' | 'failed' | 'aborted'
 export interface RunAttemptLog {

@@ -1,4 +1,4 @@
-import { HealthcheckConfigDto } from '../../modules/jobs/dtos/healthcheck-config.dto'
+import { HealthcheckConfigDto } from '../../jobs/dtos/healthcheck-config.dto'
 
 const dataStoreTargets = process.env.DATA_STORE_TARGETS?.split(',')
 

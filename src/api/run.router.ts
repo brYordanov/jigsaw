@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { RunnerService } from '../execution/runner.service'
 import { validate, vParams } from '../middlewares/validate'
 import { idParamDto, idParamSchema } from '../commonSchemas'
 import { asyncHandler } from '../helpers/asyncHandler'
 import z from 'zod'
+import { RunnerService } from '../modules/execution/runner.service'
 
 const runIdParamSchema = z.object({ runId: z.string().min(1) })
 type runIdParamDto = z.infer<typeof runIdParamSchema>

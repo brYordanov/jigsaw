@@ -1,6 +1,6 @@
 import { promisify } from 'util'
 import { execFile } from 'child_process'
-import { ShellConfigDto } from '../../modules/jobs/dtos/shell-config.dto'
+import { ShellConfigDto } from '../../jobs/dtos/shell-config.dto'
 
 const execFileAsync = promisify(execFile)
 export const runShellJob = async (config: ShellConfigDto, signal?: AbortSignal) => {

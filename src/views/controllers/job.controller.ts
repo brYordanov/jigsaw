@@ -10,12 +10,12 @@ import { ZodError } from 'zod'
 import { HttpStatus } from '../../helpers/statusCodes'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { getPaginationData } from '../../helpers/getPaginationData'
-import { RunnerService } from '../../execution/runner.service'
 import { createJobBodySchema } from '../../modules/jobs/dtos/create-job.dto'
 import { updateJobBodySchema } from '../../modules/jobs/dtos/update-job.dto'
 import { validate, vParams, vQuery } from '../../middlewares/validate'
 import { asyncHandler } from '../../helpers/asyncHandler'
 import { idParamDto, idParamSchema } from '../../commonSchemas'
+import { RunnerService } from '../../modules/execution/runner.service'
 
 export function createJobController(service: JobService, runnerService: RunnerService) {
     const JobController = Router()
