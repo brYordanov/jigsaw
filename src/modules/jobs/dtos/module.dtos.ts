@@ -5,8 +5,8 @@ import { HttpConfigDto, HttpConfigSchema } from './http-config.dto'
 import { ShellConfigDto, ShellConfigSchema } from './shell-config.dto'
 import { EmailConfigDto, EmailConfigSchema } from './email-config.dto'
 
-export const JobTypeEnum = z.enum(['http', 'email', 'shell', 'healthcheck'])
-export type JobType = z.infer<typeof JobTypeEnum>
+export const JobTypeSchema = z.enum(['http', 'email', 'shell', 'healthcheck'])
+export type JobType = z.infer<typeof JobTypeSchema>
 
 export const validatorsByType = {
     http: HttpConfigSchema,
@@ -16,7 +16,7 @@ export const validatorsByType = {
 } as const
 
 export const validateJobConfig = (job_type: string, config: unknown) => {
-    const parsedType = JobTypeEnum.parse(job_type)
+    const parsedType = JobTypeSchema.parse(job_type)
     const validator = validatorsByType[parsedType]
     if (!validator) throw new Error(`No validator found for job type: ${parsedType}`)
     return validator.parse(config)
@@ -31,7 +31,7 @@ export const listJobsQuerySchema = z.object({
     sort: sortOptionsSchema,
     dir: z.enum(['ASC', 'DESC']).default('DESC'),
     search: z.string().max(200).optional(),
-    job_type: qAny(JobTypeEnum),
+    job_type: qAny(JobTypeSchema),
     is_enabled: qBool,
 })
 export type ListJobsQueryDto = z.infer<typeof listJobsQuerySchema>

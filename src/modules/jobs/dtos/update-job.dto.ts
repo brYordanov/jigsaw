@@ -1,9 +1,9 @@
 import z from 'zod'
-import { JobTypeEnum, validatorsByType } from './module.dtos'
+import { JobTypeSchema, validatorsByType } from './module.dtos'
 
 export const updateJobBodySchema = z
     .object({
-        job_type: JobTypeEnum.optional(),
+        job_type: JobTypeSchema.optional(),
         config: z.unknown().optional(),
         name: z.string().min(1).optional(),
         description: z.string().nullable().optional(),

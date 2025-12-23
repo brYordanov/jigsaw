@@ -16,14 +16,14 @@ export class TaskService {
         return this.repo.get()
     }
 
-    async getByIdOrFail(id: number, include?: string[]): Promise<TaskRow> {
+    async getByIdOrFail(id: string, include?: string[]): Promise<TaskRow> {
         const task = await this.repo.getOne({ where: { id: id }, include })
         if (!task) throw new Error('Task not found')
 
         return task
     }
 
-    async getTaskWithJobs(taskId: number): Promise<TaskRow> {
+    async getTaskWithJobs(taskId: string): Promise<TaskRow> {
         return this.getByIdOrFail(taskId, ['jobs'])
     }
 
@@ -50,7 +50,7 @@ export class TaskService {
         return { ...task, jobs }
     }
 
-    async updateTask(id: number, body: UpdateTaskBodyDto) {
+    async updateTask(id: string, body: UpdateTaskBodyDto) {
         const jobIds = this.dedupe(body.jobs_ids)
         const jobs = await this.jobRepository.get({ where: { id: jobIds } })
         const missingIds = jobIds.filter(id => !jobs.find(j => j.id === id))
@@ -68,7 +68,7 @@ export class TaskService {
         return { ...task, jobs }
     }
 
-    async deleteById(id: number): Promise<void> {
+    async deleteById(id: string): Promise<void> {
         await this.repo.deleteById(id)
     }
 

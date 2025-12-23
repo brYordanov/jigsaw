@@ -36,7 +36,7 @@ export function createTaskRouter(service: TaskService) {
         validate(idParamSchema, 'params'),
         asyncHandler(async (req, res) => {
             const { id } = vParams<idParamDto>(req)
-            res.send(await service.getByIdOrFail(Number(id)))
+            res.send(await service.getByIdOrFail(id))
         })
     )
 
@@ -54,7 +54,7 @@ export function createTaskRouter(service: TaskService) {
         validate(idParamSchema, 'params'),
         asyncHandler(async (req, res) => {
             const { id } = vParams<idParamDto>(req)
-            res.send(await service.updateTask(Number(id), req.body))
+            res.send(await service.updateTask(id, req.body))
         })
     )
 
@@ -63,7 +63,7 @@ export function createTaskRouter(service: TaskService) {
         validate(idParamSchema, 'params'),
         asyncHandler(async (req, res) => {
             const { id } = vParams<idParamDto>(req)
-            res.send(await service.deleteById(Number(id)))
+            res.send(await service.deleteById(id))
         })
     )
 
