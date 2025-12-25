@@ -3,6 +3,7 @@ import { futureDate, isoDate, qAny, qBool } from '../../commonSchemas'
 
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
+export type intervalType = z.infer<typeof interval_type>
 const daysOfWeek = z.enum([
     'Monday',
     'Tuesday',

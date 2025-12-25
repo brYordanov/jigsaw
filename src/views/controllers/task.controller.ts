@@ -104,7 +104,6 @@ export function createTaskController(service: TaskService, jobService: JobServic
         asyncHandler(async (req, res) => {
             const { id } = vParams<idParamDto>(req)
             const task = await service.getByIdOrFail(id, ['jobs'])
-
             const allJobs = await jobService.getAll()
             const existingSelectedJobs = task.jobs
             const availableJobs = allJobs.filter(
@@ -132,7 +131,7 @@ export function createTaskController(service: TaskService, jobService: JobServic
                 const candidate = { ...currentTask, ...req.body }
                 const dto = createTaskSchema.parse(candidate)
 
-                await service.updateTask(id, dto)
+                await service.updateTask(id, dto, currentTask.interval_type)
 
                 return res.redirect(`/task`)
             } catch (err) {

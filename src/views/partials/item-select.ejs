@@ -1,5 +1,11 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
-    <input type="text" name="jobs_ids/strArr" hidden data-func="id-store" />
+    <input
+        type="text"
+        name="jobs_ids/strArr"
+        hidden
+        data-func="id-store"
+        value="<%= existingSelectedJobs.map((job) => job.id).join(',')  %>"
+    />
     <div class="table-container">
         <table class="table table--interactive" data-func="table" data-role="selected">
             <thead>
