@@ -1,5 +1,5 @@
-import { RunAttemptLog } from './runWithLoggingAttempt'
 import { withTimeoutSignal } from './runWIthTimeoutSignal'
+import { RunAttemptLog } from './types'
 
 interface runWithRetriesParams {
     totalAttempts: number

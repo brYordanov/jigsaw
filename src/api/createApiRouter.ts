@@ -18,5 +18,9 @@ export function createApiRouter(container: Container) {
         setTimeout(() => res.status(200).send('test EP hit'), 5000)
     })
 
+    api.use('/test-second', (req, res) => {
+        res.status(200).send('second test EP')
+    })
+
     return api
 }

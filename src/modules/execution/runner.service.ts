@@ -5,7 +5,6 @@ import { ConcurrencyGate } from './concurrencyGate.service'
 import { runEmailJob } from './runners/email.runner'
 import { RunAttemptLog, RunnerMap } from './types'
 import { runShellJob } from './runners/shell.runner'
-import { runHealthcheckJob } from './runners/healthcheck.runner'
 import { JobService } from '../jobs/job.service'
 import { JobConfig, validateJobConfig } from '../jobs/dtos/module.dtos'
 import { JobRunService } from '../job-runs/job-runs.service'
@@ -158,5 +157,4 @@ const getRunner: RunnerMap = {
     http: runHttpJob,
     email: runEmailJob,
     shell: runShellJob,
-    healthcheck: runHealthcheckJob,
 }

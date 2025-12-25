@@ -49,7 +49,6 @@
                         <option value="http" <%= values.job_type === 'http' ? 'selected' : '' %>>http</option>
                         <option value="email" <%= values.job_type === 'email' ? 'selected' : '' %>>email</option>
                         <option value="shell" <%= values.job_type === 'shell' ? 'selected' : '' %>>shell</option>
-                        <option value="healthcheck" <%= values.job_type === 'healthcheck' ? 'selected' : '' %>>healthcheck</option>
                     </select>
                 </div>
                 <% if(errors.job_type) {%> <p class="error"><%= errors.job_type  %></p><% } %>
