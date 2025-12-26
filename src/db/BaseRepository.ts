@@ -30,9 +30,18 @@ export class BaseRepository {
         } = {}
     ): Promise<T[]> {
         const { where, orderBy, dir, include, limit } = config
-        const { whereParts, values } = this.getWhereElements(where)
 
-        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+        let whereSql = ''
+        let values: any[] = []
+        let nextIndex = 1
+
+        if (where && Object.keys(where).length > 0) {
+            const res = this.buildWhereFromFilters(where, 'baseTable', 1)
+            whereSql = res.whereSql
+            values = res.values
+            nextIndex = res.nextIndex
+        }
+
         const orderSql = orderBy
             ? `ORDER BY baseTable.${orderBy} ${(dir || 'ASC').toUpperCase()}`
             : ''
@@ -207,28 +216,6 @@ export class BaseRepository {
         }
     }
 
-    private getWhereElements(whereConfig?: Record<string, any>) {
-        const whereParts: string[] = []
-        const values: any[] = []
-        let i = 1
-        if (whereConfig) {
-            for (const [key, val] of Object.entries(whereConfig)) {
-                const col = `baseTable.${key}`
-                if (Array.isArray(val)) {
-                    whereParts.push(`${col} = ANY($${i++})`)
-                    values.push(val)
-                } else if (val === null) {
-                    whereParts.push(`${col} IS NULL`)
-                } else {
-                    whereParts.push(`${col} = $${i++}`)
-                    values.push(val)
-                }
-            }
-        }
-
-        return { whereParts, values }
-    }
-
     private createIncludeSql(
         include: string[],
         whereSql: string,
@@ -267,7 +254,7 @@ export class BaseRepository {
             .join('\n')
     }
 
-    private buildWhereFromFilters<TFilters extends Record<string, any>>(
+    private buildWhereFromFilters(
         filterConfig: FilterConfig,
         tableAlias = this.tableName,
         startIndex = 1
@@ -278,7 +265,7 @@ export class BaseRepository {
         for (const [key, rawSpec] of Object.entries<FilterSpec>(filterConfig)) {
             if (rawSpec === undefined) continue
             const specObj =
-                typeof rawSpec === 'object' && rawSpec !== null && 'op' in (rawSpec as any)
+                typeof rawSpec === 'object' && rawSpec !== null && 'op' in rawSpec
                     ? (rawSpec as FilterSpecExplicit)
                     : ({ op: 'eq', value: rawSpec } as FilterSpecExplicit)
 
