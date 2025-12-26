@@ -13,18 +13,19 @@ export type FilterOp =
     | 'date_gte'
     | 'date_lte'
 
-export type FilterSpec =
+export type FilterSpecExplicit =
     | {
           op: Exclude<FilterOp, 'is'>
-          fieldName?: string
           value: unknown
+          fieldName?: string
       }
     | {
           op: 'is'
-          fieldName?: string
           value: 'null' | 'not null'
+          fieldName?: string
       }
 
+export type FilterSpec = FilterSpecExplicit | unknown
 export type FilterConfig = Record<string, FilterSpec>
 
 export interface PaginateConfig<TFilters extends Record<string, any>> {

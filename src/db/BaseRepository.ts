@@ -1,5 +1,12 @@
 import { Pool, PoolClient, QueryConfig, QueryResultRow } from 'pg'
-import { FilterConfig, FilterSpec, PaginateConfig, RelationSpec, TxOptions } from './types'
+import {
+    FilterConfig,
+    FilterSpec,
+    FilterSpecExplicit,
+    PaginateConfig,
+    RelationSpec,
+    TxOptions,
+} from './types'
 
 export class BaseRepository {
     constructor(
@@ -268,13 +275,19 @@ export class BaseRepository {
         const whereParts: string[] = []
         const values: any[] = []
         let i = startIndex
-        for (const [key, spec] of Object.entries<FilterSpec>(filterConfig)) {
-            const val = filterConfig[key].value
+        for (const [key, rawSpec] of Object.entries<FilterSpec>(filterConfig)) {
+            if (rawSpec === undefined) continue
+            const specObj =
+                typeof rawSpec === 'object' && rawSpec !== null && 'op' in (rawSpec as any)
+                    ? (rawSpec as FilterSpecExplicit)
+                    : ({ op: 'eq', value: rawSpec } as FilterSpecExplicit)
+
+            const val = specObj.value
             if (val === undefined) continue
 
-            const columnName = spec.fieldName ?? key
+            const columnName = specObj.fieldName ?? key
             const col = columnName.includes('.') ? columnName : `${tableAlias}.${columnName}`
-            const op = spec.op
+            const op = specObj.op
 
             switch (op) {
                 case 'ilike':
@@ -302,7 +315,7 @@ export class BaseRepository {
                     values.push(val)
                     break
                 case 'is':
-                    whereParts.push(`${col} IS ${spec.value.toUpperCase()}`)
+                    whereParts.push(`${col} IS ${specObj.value.toUpperCase()}`)
                     break
                 case 'date_gte':
                     whereParts.push(`${col} >= $${i++}::date`)

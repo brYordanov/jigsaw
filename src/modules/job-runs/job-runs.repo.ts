@@ -11,15 +11,9 @@ export class JobRunRepository extends BaseRepository {
 
     listPaginated(params: listJobRunsQueryDto): Promise<PaginatedResponse<JobRun>> {
         const FILTERS_CONFIG = {
-            job_id: {
-                op: 'eq',
-                value: params.searchJobId ? Number(params.searchJobId) : undefined,
-            },
-            task_id: {
-                op: 'eq',
-                value: params.searchTaskId ? Number(params.searchTaskId) : undefined,
-            },
-            status: { op: 'eq', value: params.status },
+            job_id: params.searchJobId ? Number(params.searchJobId) : undefined,
+            task_id: params.searchTaskId ? Number(params.searchTaskId) : undefined,
+            status: params.status,
             after_date: {
                 op: 'date_gte',
                 fieldName: 'created_at',
