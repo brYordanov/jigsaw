@@ -5,7 +5,7 @@ import {
     listJobRunsQuerySchema,
 } from '../../modules/job-runs/dtos/module.dtos'
 import { getPaginationData } from '../../helpers/getPaginationData'
-import { validate, vParams } from '../../middlewares/validate'
+import { validate, vQuery } from '../../middlewares/validate'
 import { asyncHandler } from '../../helpers/asyncHandler'
 
 export function createjobRunsController(service: JobRunService) {
@@ -13,9 +13,9 @@ export function createjobRunsController(service: JobRunService) {
 
     JobRunsController.get(
         '/',
-        validate(listJobRunsQuerySchema, 'params'),
+        validate(listJobRunsQuerySchema, 'query'),
         asyncHandler(async (req, res) => {
-            const params = vParams<listJobRunsQueryDto>(req)
+            const params = vQuery<listJobRunsQueryDto>(req)
             const { items: jobRuns, total, limit, offset } = await service.paginate(params)
             const paginateData = getPaginationData({ limit, offset, total, filters: params })
 

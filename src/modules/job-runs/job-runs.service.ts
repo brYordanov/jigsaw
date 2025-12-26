@@ -3,7 +3,7 @@ import { JobRow } from '../jobs/job.entity'
 import { CreateJobRunDto } from './dtos/create-job-run.dto'
 import { listJobRunsQueryDto } from './dtos/module.dtos'
 import { JobRun } from './job-runs.entity'
-import { JobRunRepository } from './jon-runs.repository'
+import { JobRunRepository } from './job-runs.repo'
 
 export class JobRunService {
     constructor(private readonly repo: JobRunRepository) {}

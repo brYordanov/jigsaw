@@ -17,6 +17,7 @@ export type FilterSpec =
     | {
           op: Exclude<FilterOp, 'is'>
           fieldName?: string
+          value: unknown
       }
     | {
           op: 'is'
@@ -27,7 +28,6 @@ export type FilterSpec =
 export type FilterConfig = Record<string, FilterSpec>
 
 export interface PaginateConfig<TFilters extends Record<string, any>> {
-    filters: TFilters
     filterConfig: FilterConfig
     sort: string
     dir: Dir

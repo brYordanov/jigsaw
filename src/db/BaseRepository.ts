@@ -107,9 +107,8 @@ export class BaseRepository {
     async paginate<TRow extends QueryResultRow = any, TFilters extends Record<string, any> = any>(
         cfg: PaginateConfig<TFilters>
     ) {
-        const { filters, filterConfig, sort, dir, allowedSort, limit, offset } = cfg
+        const { filterConfig, sort, dir, allowedSort, limit, offset } = cfg
         const { whereSql, values, nextIndex } = this.buildWhereFromFilters(
-            filters,
             filterConfig,
             this.tableName,
             1
@@ -262,7 +261,6 @@ export class BaseRepository {
     }
 
     private buildWhereFromFilters<TFilters extends Record<string, any>>(
-        filters: TFilters,
         filterConfig: FilterConfig,
         tableAlias = this.tableName,
         startIndex = 1
@@ -270,10 +268,8 @@ export class BaseRepository {
         const whereParts: string[] = []
         const values: any[] = []
         let i = startIndex
-
         for (const [key, spec] of Object.entries<FilterSpec>(filterConfig)) {
-            if (!(key in filters)) continue
-            const val = (filters as any)[key]
+            const val = filterConfig[key].value
             if (val === undefined) continue
 
             const columnName = spec.fieldName ?? key
@@ -325,7 +321,6 @@ export class BaseRepository {
         }
 
         const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
-
         return { whereSql, values, nextIndex: i }
     }
 }

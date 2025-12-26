@@ -12,19 +12,14 @@ export class JobRepository extends BaseRepository {
 
     listPaginated(params: ListJobsQueryDto): Promise<PaginatedResponse<JobRow>> {
         const FILTERS_NAME = {
-            job_type: { op: 'eq' },
-            is_enabled: { op: 'eq' },
-            name: { op: 'ilike' },
+            job_type: { op: 'eq', value: params.job_type },
+            is_enabled: { op: 'eq', value: params.is_enabled },
+            name: { op: 'ilike', value: params.search },
         } as const
 
         const ALLOWED_SORT = ['created_at', 'updated_at', 'name'] as const
 
         return this.paginate<JobRow, any>({
-            filters: {
-                job_type: params.job_type,
-                is_enabled: params.is_enabled,
-                name: params.search,
-            },
             filterConfig: FILTERS_NAME,
             sort: params.sort,
             dir: params.dir,
