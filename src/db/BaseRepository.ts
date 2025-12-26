@@ -1,5 +1,5 @@
 import { Pool, PoolClient, QueryConfig, QueryResultRow } from 'pg'
-import { PaginateConfig, RelationSpec, TxOptions } from './types'
+import { FilterConfig, FilterSpec, PaginateConfig, RelationSpec, TxOptions } from './types'
 
 export class BaseRepository {
     constructor(
@@ -108,63 +108,13 @@ export class BaseRepository {
         cfg: PaginateConfig<TFilters>
     ) {
         const { filters, filterConfig, sort, dir, allowedSort, limit, offset } = cfg
-        const whereParts: string[] = []
-        const values: any[] = []
-        let i = 1
+        const { whereSql, values, nextIndex } = this.buildWhereFromFilters(
+            filters,
+            filterConfig,
+            this.tableName,
+            1
+        )
 
-        for (const [key, spec] of Object.entries(filterConfig)) {
-            if (!(key in filters)) continue
-            const val = filters[key]
-            const col = spec.fieldName ?? key
-            if (val === undefined) continue
-            if (typeof spec === 'object' && 'op' in spec) {
-                switch (spec.op) {
-                    case 'ilike':
-                        whereParts.push(`${col} ILIKE $${i++}`)
-                        values.push(typeof val === 'string' ? `%${val}%` : val)
-                        break
-                    case 'in':
-                        whereParts.push(`${col} = ANY($${i++})`)
-                        values.push(val)
-                        break
-                    case 'gte':
-                        whereParts.push(`${col} >= $${i++}`)
-                        values.push(val)
-                        break
-                    case 'lte':
-                        whereParts.push(`${col} <= $${i++}`)
-                        values.push(val)
-                        break
-                    case 'gt':
-                        whereParts.push(`${col} > $${i++}`)
-                        values.push(val)
-                        break
-                    case 'lt':
-                        whereParts.push(`${col} < $${i++}`)
-                        values.push(val)
-                        break
-                    case 'is':
-                        whereParts.push(`${col} IS ${spec.value.toUpperCase()}`)
-                        break
-                    case 'date_gte':
-                        whereParts.push(`${col} >= $${i++}::date`)
-                        values.push(val)
-                        break
-                    case 'date_lte':
-                        whereParts.push(`${col} <= $${i++}::date`)
-                        values.push(val)
-                        break
-                    default:
-                        whereParts.push(`${col} = $${i++}`)
-                        values.push(val)
-                }
-            } else {
-                whereParts.push(`${col} = $${i++}`)
-                values.push(val)
-            }
-        }
-
-        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
         const safeSort = allowedSort.includes(sort) ? sort : allowedSort[0]
         const safeDir = (dir || 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
@@ -172,7 +122,7 @@ export class BaseRepository {
             `SELECT ${this.returningCols} FROM ${this.tableName} ` +
             `${whereSql} ` +
             `ORDER BY ${safeSort} ${safeDir} ` +
-            `LIMIT $${i++} OFFSET $${i++}`
+            `LIMIT $${nextIndex} OFFSET $${nextIndex + 1}`
 
         const listVals = [...values, limit, offset]
 
@@ -309,5 +259,73 @@ export class BaseRepository {
         ]
             .filter(Boolean)
             .join('\n')
+    }
+
+    private buildWhereFromFilters<TFilters extends Record<string, any>>(
+        filters: TFilters,
+        filterConfig: FilterConfig,
+        tableAlias = this.tableName,
+        startIndex = 1
+    ) {
+        const whereParts: string[] = []
+        const values: any[] = []
+        let i = startIndex
+
+        for (const [key, spec] of Object.entries<FilterSpec>(filterConfig)) {
+            if (!(key in filters)) continue
+            const val = (filters as any)[key]
+            if (val === undefined) continue
+
+            const columnName = spec.fieldName ?? key
+            const col = columnName.includes('.') ? columnName : `${tableAlias}.${columnName}`
+            const op = spec.op
+
+            switch (op) {
+                case 'ilike':
+                    whereParts.push(`${col} ILIKE $${i++}`)
+                    values.push(typeof val === 'string' ? `%${val}%` : val)
+                    break
+                case 'in':
+                    whereParts.push(`${col} = ANY($${i++})`)
+                    values.push(val)
+                    break
+                case 'gte':
+                    whereParts.push(`${col} >= $${i++}`)
+                    values.push(val)
+                    break
+                case 'lte':
+                    whereParts.push(`${col} <= $${i++}`)
+                    values.push(val)
+                    break
+                case 'gt':
+                    whereParts.push(`${col} > $${i++}`)
+                    values.push(val)
+                    break
+                case 'lt':
+                    whereParts.push(`${col} < $${i++}`)
+                    values.push(val)
+                    break
+                case 'is':
+                    whereParts.push(`${col} IS ${spec.value.toUpperCase()}`)
+                    break
+                case 'date_gte':
+                    whereParts.push(`${col} >= $${i++}::date`)
+                    values.push(val)
+                    break
+                case 'date_lte':
+                    whereParts.push(`${col} <= $${i++}::date`)
+                    values.push(val)
+                    break
+                case 'eq':
+                default:
+                    whereParts.push(`${col} = $${i++}`)
+                    values.push(val)
+                    break
+            }
+        }
+
+        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+
+        return { whereSql, values, nextIndex: i }
     }
 }

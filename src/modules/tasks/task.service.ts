@@ -28,6 +28,10 @@ export class TaskService {
         return this.getByIdOrFail(taskId, ['jobs'])
     }
 
+    async getTasksToRun(time: Date): Promise<TaskRow[]> {
+        return this.repo.get({ where: { is_enabled: true, next_run_at: time } })
+    }
+
     async paginate(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         return this.repo.listPaginated(params)
     }
