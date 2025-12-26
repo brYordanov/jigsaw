@@ -68,6 +68,7 @@ export class TaskService {
         const next_run_at = calculateNextRunAt(new Date(), {
             interval_type: body.interval_type || currentIntervalType,
             days_of_month: body.days_of_month,
+            days_of_week: body.days_of_week,
             hours: body.hours,
             minutes: body.minutes,
         })
