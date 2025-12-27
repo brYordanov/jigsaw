@@ -1,7 +1,7 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
     <input
         type="text"
-        name="jobs_ids/intArr"
+        name="jobs_ids/strArr"
         hidden
         data-func="id-store"
         value="<%= existingSelectedJobs.map((job) => job.id).join(',')  %>"

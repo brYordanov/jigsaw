@@ -42,6 +42,7 @@ export class JobService {
     }
 
     getManyJobsById(ids: string[]): Promise<JobRow[]> {
-        return this.repo.get<JobRow>({ where: { id: ids } })
+        const numberIds = ids.map(id => Number(id))
+        return this.repo.get<JobRow>({ where: { id: numberIds } })
     }
 }

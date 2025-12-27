@@ -30,7 +30,6 @@ export class BaseRepository {
         } = {}
     ): Promise<T[]> {
         const { where, orderBy, dir, include, limit } = config
-
         let whereSql = ''
         let values: any[] = []
         let nextIndex = 1
@@ -267,7 +266,9 @@ export class BaseRepository {
             const specObj =
                 typeof rawSpec === 'object' && rawSpec !== null && 'op' in rawSpec
                     ? (rawSpec as FilterSpecExplicit)
-                    : ({ op: 'eq', value: rawSpec } as FilterSpecExplicit)
+                    : Array.isArray(rawSpec)
+                      ? ({ op: 'in', value: rawSpec } as FilterSpecExplicit)
+                      : ({ op: 'eq', value: rawSpec } as FilterSpecExplicit)
 
             const val = specObj.value
             if (val === undefined) continue
@@ -282,6 +283,10 @@ export class BaseRepository {
                     values.push(typeof val === 'string' ? `%${val}%` : val)
                     break
                 case 'in':
+                    if (!Array.isArray(val) || val.length === 0) {
+                        whereParts.push('FALSE')
+                        break
+                    }
                     whereParts.push(`${col} = ANY($${i++})`)
                     values.push(val)
                     break
