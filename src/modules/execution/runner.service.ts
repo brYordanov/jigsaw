@@ -8,13 +8,17 @@ import { runShellJob } from './runners/shell.runner'
 import { JobService } from '../jobs/job.service'
 import { JobConfig, validateJobConfig } from '../jobs/dtos/module.dtos'
 import { JobRunService } from '../job-runs/job-runs.service'
+import { TaskJobRow } from '../taks-jobs/tasks-jobs.entity'
+import { TaskService } from '../tasks/task.service'
+import { TaskRow } from '../tasks/task.entity'
 
 export class RunnerService {
     constructor(
         private readonly jobService: JobService,
         private readonly runRegistry: RunRegistry,
         private readonly concurrencyGate: ConcurrencyGate,
-        private readonly logService: JobRunService
+        private readonly logService: JobRunService,
+        private readonly taskService: TaskService
     ) {}
 
     //todo add concurrency
@@ -34,13 +38,14 @@ export class RunnerService {
             return { ok: false, attempts: 0, lastStatus: 'failed', lastError: 'Job not enabled' }
 
         const runner = getRunner[job_type as keyof typeof getRunner]
-        if (!runner)
+        if (!runner) {
             return {
                 ok: false,
                 attempts: 0,
                 lastStatus: 'failed',
                 lastError: `No runner for type ${job_type}`,
             }
+        }
 
         const validatedConfig = validateJobConfig(job_type, config)
 
@@ -116,6 +121,35 @@ export class RunnerService {
         })()
 
         return { runId }
+    }
+
+    async runTask(task: TaskRow) {
+        const { jobs } = await this.taskService.getTaskWithJobs(task.id)
+        if (!jobs || jobs.length === 0) {
+            console.log('⚠️ Task has no jobs')
+            return
+        }
+
+        for (const tj of jobs) {
+            const outcome = await this.executeJobById(tj.id)
+            if (outcome?.lastStatus !== 'ok') {
+                console.log('❌ Job error while running Task')
+                break
+            }
+        }
+
+        const now = new Date()
+        if (task.is_single_time_only) {
+            await this.taskService.updateTask(
+                task.id,
+                {
+                    last_run_at: now,
+                    next_run_at: undefined,
+                    is_enabled: false,
+                },
+                task.interval_type
+            )
+        }
     }
 
     cancelRun(runId: string) {

@@ -1,7 +1,7 @@
 <div class="item-select form-page__item-select js_item_select <%= modifier %>">
     <input
         type="text"
-        name="jobs_ids/strArr"
+        name="jobs_ids/intArr"
         hidden
         data-func="id-store"
         value="<%= existingSelectedJobs.map((job) => job.id).join(',')  %>"
@@ -22,7 +22,13 @@
                     <td data-func="position"><%= index + 1 %></td>
                     <td data-func="id"><%= job.id %></td>
                     <td><%= job.name %></td>
-                    <td><%= job.is_enabled ? "✅" : "❌" %></td>
+                    <td>
+                        <% if(job.is_enabled) {%>
+                        <%- include('./icons/ok', {width: 30, height:30}) %>
+                        <% } else {%>
+                        <%- include('./icons/disabled', {width: 24, height:24}) %>
+                        <% } %>
+                    </td>
                 </tr>
                 <% }) %>
             </tbody>

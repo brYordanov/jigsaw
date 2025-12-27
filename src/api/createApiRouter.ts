@@ -15,7 +15,8 @@ export function createApiRouter(container: Container) {
     api.get('/test', (req, res) => {
         count++
         // if (count < 3) throw new Error('random err')
-        setTimeout(() => res.status(200).send('test EP hit'), 5000)
+        // setTimeout(() => res.status(200).send('test EP hit'), 5000)
+        res.status(200).send('test EP hit')
     })
 
     api.use('/test-second', (req, res) => {

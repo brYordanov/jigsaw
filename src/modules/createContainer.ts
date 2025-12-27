@@ -9,6 +9,7 @@ import { TasksJobsRepository } from './taks-jobs/tasks-jobs.repo'
 import { TasksJobsService } from './taks-jobs/tasks-jobs.service'
 import { TaskRepository } from './tasks/task.repo'
 import { TaskService } from './tasks/task.service'
+import { TaskSchedulerService } from './execution/scheduler.service'
 
 export type Container = ReturnType<typeof createContainer>
 
@@ -23,7 +24,18 @@ export function createContainer() {
     const taskService = new TaskService(taskRepo, jobRepo, tasksJobsService)
     const runRegistry = new RunRegistry()
     const concurrencyGate = new ConcurrencyGate()
-    const runnerService = new RunnerService(jobService, runRegistry, concurrencyGate, jobRunService)
+    const runnerService = new RunnerService(
+        jobService,
+        runRegistry,
+        concurrencyGate,
+        jobRunService,
+        taskService
+    )
+    const taskSchedulerService = new TaskSchedulerService(
+        taskService,
+        tasksJobsService,
+        runnerService
+    )
 
     return {
         jobService,
@@ -35,5 +47,6 @@ export function createContainer() {
         taskService,
         taskRepo,
         runnerService,
+        taskSchedulerService,
     }
 }

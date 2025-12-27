@@ -1,14 +1,17 @@
 import { createApp } from './app'
 import { pool, shutdownDb } from './db/db'
 import { Server } from 'http'
+import { createContainer } from './modules/createContainer'
 
 const PORT = process.env.PORT || 3000
-const app = createApp()
+const container = createContainer()
+const app = createApp(container)
 
 let server: Server
 
 async function start() {
     await pool.query('SELECT 1')
+    // container.taskSchedulerService.startCron()
 
     server = app.listen(PORT, () => {
         console.log(`✅ Server is running on http://localhost:${PORT}`)
@@ -27,6 +30,7 @@ async function gracefulShutdown(signal: string) {
                 server!.close(err => (err ? reject(err) : resolve()))
             )
         }
+        container.taskSchedulerService.stopCron()
         await shutdownDb()
     } catch (e) {
         console.error('Error during shutdown:', e)

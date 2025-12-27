@@ -28,9 +28,14 @@ export class TaskService {
         return this.getByIdOrFail(taskId, ['jobs'])
     }
 
-    async getTasksToRun(time: Date): Promise<TaskRow[]> {
+    async getDueTasks(time: Date): Promise<TaskRow[]> {
         return this.repo.get({
-            where: { is_enabled: true, next_run_at: { op: 'lte', value: time } },
+            where: {
+                is_enabled: true,
+                next_run_at: { op: 'lte', value: time },
+            },
+            dir: 'ASC',
+            orderBy: 'next_run_at',
         })
     }
 
@@ -45,6 +50,7 @@ export class TaskService {
         const next_run_at = calculateNextRunAt(new Date(), {
             interval_type: body.interval_type,
             days_of_month: body.days_of_month,
+            days_of_week: body.days_of_week,
             hours: body.hours,
             minutes: body.minutes,
         })
@@ -64,11 +70,25 @@ export class TaskService {
     }
 
     async updateTask(id: string, body: UpdateTaskBodyDto, currentIntervalType: intervalType) {
-        const jobIds = this.dedupe(body.jobs_ids)
-        const jobs = await this.jobRepository.get({ where: { id: jobIds } })
-        const missingIds = jobIds.filter(id => !jobs.find(j => j.id === id))
-        if (missingIds.length > 0) {
-            throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
+        const hasJobsUpdate = Array.isArray(body.jobs_ids)
+        let jobIds: string[] = []
+        let jobs = []
+
+        if (hasJobsUpdate) {
+            jobIds = this.dedupe(body.jobs_ids!)
+
+            const foundJobs = await this.jobRepository.get({
+                where: { id: jobIds },
+            })
+
+            const missingIds = jobIds.filter(id => !foundJobs.find(j => j.id === id))
+            if (missingIds.length > 0) {
+                throw new Error(`Jobs not found: ${missingIds.join(', ')}`)
+            }
+
+            jobs = foundJobs
+        } else {
+            jobs = await this.tasksJobsService.getJobsForTask(id)
         }
 
         const next_run_at = calculateNextRunAt(new Date(), {
@@ -81,8 +101,15 @@ export class TaskService {
 
         const task = await this.repo.transaction(async client => {
             const { jobs_ids, ...taskData } = body
+
             const updated = await this.repo.update(id, { ...taskData, next_run_at }, client)
-            await this.tasksJobsService.assignJobsToTask(updated.id, jobs_ids, client)
+
+            if (hasJobsUpdate) {
+                console.log(jobIds)
+
+                await this.tasksJobsService.assignJobsToTask(updated.id, jobIds, client)
+            }
+
             return updated
         })
 

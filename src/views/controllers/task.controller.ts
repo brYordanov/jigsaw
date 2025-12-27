@@ -62,10 +62,9 @@ export function createTaskController(service: TaskService, jobService: JobServic
     TaskController.post(
         '/create',
         parseFormValuesMD,
-        validate(createTaskSchema, 'body'),
         asyncHandler(async (req, res) => {
             try {
-                const dto = vBody<CreateTaskBodyDto>(req)
+                const dto = createTaskSchema.parse(req.body)
                 await service.createTask(dto)
 
                 return res.redirect(`/task`)

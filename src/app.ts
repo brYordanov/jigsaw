@@ -2,11 +2,11 @@ import express from 'express'
 import path from 'path'
 import expressLayouts from 'express-ejs-layouts'
 import cookieParser from 'cookie-parser'
-import { createContainer } from './modules/createContainer'
+import { Container, createContainer } from './modules/createContainer'
 import { createApiRouter } from './api/createApiRouter'
 import { createViewController } from './views/controllers/createViewController'
 
-export function createApp() {
+export function createApp(container: Container) {
     const app = express()
 
     app.set('view engine', 'ejs')
@@ -31,7 +31,6 @@ export function createApp() {
 
     app.set('layout', 'layouts/default')
 
-    const container = createContainer()
     app.use('/', createViewController(container))
     app.use('/api', createApiRouter(container))
 
