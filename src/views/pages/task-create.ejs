@@ -41,7 +41,7 @@
                         class="switch__input"
                         name="is_single_time_only/bool"
                         id="is_single_time_only"
-                        <%= values.is_single_time_only ? 'checked' : '' %>
+                        <%= values.is_single_time_only=== false ? '' : 'checked' %>
                         />
                         <span class="switch__slider round"></span>
                     </label>
@@ -53,7 +53,7 @@
                 <div class="field">
                     <p>Enabled</p>
                     <label class="switch" for="is_enabled">
-                        <input type="checkbox" class="switch__input" name="is_enabled/bool" id="is_enabled"  <%= values.is_enabled ? "checked" : "" %>/>
+                        <input type="checkbox" class="switch__input" name="is_enabled/bool" id="is_enabled"  <%= values.is_enabled === false ? "" : "checked" %>/>
                         <span class="switch__slider round"></span>
                     </label>
                 </div>

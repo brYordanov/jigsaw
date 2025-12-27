@@ -52,8 +52,7 @@ export function createTaskRouter(service: TaskService) {
         validate(idParamSchema, 'params'),
         asyncHandler(async (req, res) => {
             const { id } = vParams<idParamDto>(req)
-            const task = await service.getByIdOrFail(id)
-            res.send(await service.updateTask(id, req.body, task.interval_type))
+            res.send(await service.updateTask(id, req.body))
         })
     )
 

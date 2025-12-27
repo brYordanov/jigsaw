@@ -7,7 +7,6 @@ const timestampToDateSchema = z
     .refine(d => !isNaN(d.getTime()), 'Invalid date')
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
-export type intervalType = z.infer<typeof interval_type>
 const daysOfWeek = z.enum([
     'Monday',
     'Tuesday',

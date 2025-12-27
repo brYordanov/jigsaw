@@ -1,7 +1,7 @@
-import { intervalType } from './task.dtos'
+import { IntervalType } from './task.entity'
 
 interface IntervalScheduleInput {
-    interval_type: intervalType
+    interval_type: IntervalType
     days_of_month?: number[] | null
     days_of_week?: number[] | null
     hours?: number[] | null

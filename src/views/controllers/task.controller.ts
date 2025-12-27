@@ -130,7 +130,7 @@ export function createTaskController(service: TaskService, jobService: JobServic
                 const candidate = { ...currentTask, ...req.body }
                 const dto = createTaskSchema.parse(candidate)
 
-                await service.updateTask(id, dto, currentTask.interval_type)
+                await service.updateTask(id, dto)
 
                 return res.redirect(`/task`)
             } catch (err) {

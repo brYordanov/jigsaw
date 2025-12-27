@@ -11,6 +11,7 @@ import { JobRunService } from '../job-runs/job-runs.service'
 import { TaskJobRow } from '../taks-jobs/tasks-jobs.entity'
 import { TaskService } from '../tasks/task.service'
 import { TaskRow } from '../tasks/task.entity'
+import { calculateNextRunAt } from '../tasks/intervalHelpers'
 
 export class RunnerService {
     constructor(
@@ -140,15 +141,24 @@ export class RunnerService {
 
         const now = new Date()
         if (task.is_single_time_only) {
-            await this.taskService.updateTask(
-                task.id,
-                {
-                    last_run_at: now,
-                    next_run_at: undefined,
-                    is_enabled: false,
-                },
-                task.interval_type
-            )
+            await this.taskService.updateTask(task.id, {
+                last_run_at: now,
+                next_run_at: null,
+                is_enabled: false,
+            })
+        } else {
+            const nextRunAt = calculateNextRunAt(now, {
+                interval_type: task.interval_type,
+                days_of_month: task.days_of_month,
+                days_of_week: task.days_of_week,
+                hours: task.hours,
+                minutes: task.minutes,
+            })
+
+            await this.taskService.updateTask(task.id, {
+                last_run_at: now,
+                next_run_at: nextRunAt,
+            })
         }
     }
 

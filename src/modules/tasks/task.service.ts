@@ -1,5 +1,5 @@
 import { PaginatedResponse } from '../../db/types'
-import { CreateTaskBodyDto, intervalType, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
+import { CreateTaskBodyDto, ListTasksQueryDto, UpdateTaskBodyDto } from './task.dtos'
 import { TaskRow } from './task.entity'
 import { TaskRepository } from './task.repo'
 import { TasksJobsService } from '../taks-jobs/tasks-jobs.service'
@@ -69,7 +69,8 @@ export class TaskService {
         return { ...task, jobs }
     }
 
-    async updateTask(id: string, body: UpdateTaskBodyDto, currentIntervalType: intervalType) {
+    async updateTask(id: string, body: UpdateTaskBodyDto) {
+        const currentTask = await this.getByIdOrFail(id)
         const hasJobsUpdate = Array.isArray(body.jobs_ids)
         let jobIds: string[] = []
         let jobs = []
@@ -91,13 +92,16 @@ export class TaskService {
             jobs = await this.tasksJobsService.getJobsForTask(id)
         }
 
-        const next_run_at = calculateNextRunAt(new Date(), {
-            interval_type: body.interval_type || currentIntervalType,
-            days_of_month: body.days_of_month,
-            days_of_week: body.days_of_week,
-            hours: body.hours,
-            minutes: body.minutes,
-        })
+        const next_run_at =
+            body.next_run_at === undefined
+                ? calculateNextRunAt(new Date(), {
+                      interval_type: body.interval_type || currentTask.interval_type,
+                      days_of_month: body.days_of_month || currentTask.days_of_month,
+                      days_of_week: body.days_of_week || currentTask.days_of_week,
+                      hours: body.hours || currentTask.hours,
+                      minutes: body.minutes || currentTask.minutes,
+                  })
+                : body.next_run_at
 
         const task = await this.repo.transaction(async client => {
             const { jobs_ids, ...taskData } = body
@@ -105,8 +109,6 @@ export class TaskService {
             const updated = await this.repo.update(id, { ...taskData, next_run_at }, client)
 
             if (hasJobsUpdate) {
-                console.log(jobIds)
-
                 await this.tasksJobsService.assignJobsToTask(updated.id, jobIds, client)
             }
 
