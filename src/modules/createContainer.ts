@@ -31,11 +31,7 @@ export function createContainer() {
         jobRunService,
         taskService
     )
-    const taskSchedulerService = new TaskSchedulerService(
-        taskService,
-        tasksJobsService,
-        runnerService
-    )
+    const taskSchedulerService = new TaskSchedulerService(taskService, runnerService)
 
     return {
         jobService,

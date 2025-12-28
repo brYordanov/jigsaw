@@ -69,6 +69,7 @@ export const updateTaskSchema = z.object({
     jobs_ids: z.array(z.string()).optional(),
     last_run_at: timestampToDateSchema.optional().nullable(),
     next_run_at: timestampToDateSchema.optional().nullable(),
+    deadman_token: z.string().optional().nullable(),
 })
 export type UpdateTaskBodyDto = z.infer<typeof updateTaskSchema>
 

@@ -8,7 +8,6 @@ export class TaskSchedulerService {
     private intervalId: NodeJS.Timeout | null = null
     constructor(
         private readonly taskService: TaskService,
-        private readonly tasksJobsService: TasksJobsService,
         private readonly runnerService: RunnerService
     ) {}
 

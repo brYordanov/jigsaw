@@ -22,8 +22,7 @@ export class RunnerService {
         private readonly taskService: TaskService
     ) {}
 
-    //todo add concurrency
-    async executeJobById(id: string): Promise<any> {
+    async executeJobById(id: string, taskId?: string): Promise<any> {
         const job = await this.jobService.getByIdOrFail(id)
         const {
             is_enabled,
@@ -49,15 +48,36 @@ export class RunnerService {
         }
 
         const validatedConfig = validateJobConfig(job_type, config)
+        const { runId } = this.runRegistry.create(id)
 
-        return this.concurrencyGate.run(id, max_concurrency, () =>
-            runWithRetries({
-                totalAttempts: max_retries + 1,
-                baseBackoffSeconds: retry_backoff_seconds,
-                perRunTimeoutMs: timeout_seconds * 1000,
-                runOnce: () => runner(validatedConfig as any),
+        try {
+            const outcome = await this.concurrencyGate.run(id, max_concurrency, async () =>
+                this.runWithLoggingAttempt(
+                    job.id,
+                    validatedConfig,
+                    onAttempt =>
+                        runWithRetries({
+                            totalAttempts: max_retries + 1,
+                            baseBackoffSeconds: retry_backoff_seconds,
+                            perRunTimeoutMs: timeout_seconds * 1000,
+                            runOnce: signal => runner(validatedConfig as any, signal),
+                            onAttempt,
+                        }),
+                    taskId
+                )
+            )
+
+            this.runRegistry.finish(runId, outcome)
+            return outcome
+        } catch (e: any) {
+            const msg = String(e?.message ?? e)
+            this.runRegistry.finish(runId, {
+                ok: false,
+                attempts: 0,
+                lastStatus: 'failed',
+                lastError: msg,
             })
-        )
+        }
     }
 
     async startJobById(id: string) {
@@ -84,7 +104,7 @@ export class RunnerService {
         ;(async () => {
             try {
                 const outcome = await this.concurrencyGate.run(
-                    String(id),
+                    id,
                     max_concurrency,
                     async () => {
                         if (controller.signal.aborted) {
@@ -125,19 +145,15 @@ export class RunnerService {
     }
 
     async runTask(task: TaskRow) {
-        const { jobs } = await this.taskService.getTaskWithJobs(task.id)
-        if (!jobs || jobs.length === 0) {
-            console.log('⚠️ Task has no jobs')
-            return
+        if (task.schedule_type === 'deadman') {
+            await this.runDeadmanTask(task)
+        } else {
+            await this.runNormalTask(task)
         }
+    }
 
-        for (const tj of jobs) {
-            const outcome = await this.executeJobById(tj.id)
-            if (outcome?.lastStatus !== 'ok') {
-                console.log('❌ Job error while running Task')
-                break
-            }
-        }
+    async runNormalTask(task: TaskRow) {
+        await this.runTaskJobs(task)
 
         const now = new Date()
         if (task.is_single_time_only) {
@@ -159,6 +175,26 @@ export class RunnerService {
                 last_run_at: now,
                 next_run_at: nextRunAt,
             })
+        }
+    }
+
+    async runDeadmanTask(task: TaskRow) {
+        const token = crypto.randomUUID()
+    }
+
+    async runTaskJobs(task: TaskRow) {
+        const { jobs } = await this.taskService.getTaskWithJobs(task.id)
+        if (!jobs || jobs.length === 0) {
+            console.log('⚠️ Task has no jobs')
+            return
+        }
+
+        for (const tj of jobs) {
+            const outcome = await this.executeJobById(tj.id)
+            if (outcome?.lastStatus !== 'ok') {
+                console.log('❌ Job error while running Task')
+                break
+            }
         }
     }
 

@@ -2,7 +2,7 @@ import { renderTemplate } from '../../email/renderer'
 import { mailer } from '../../email/transport'
 import { EmailConfigDto } from '../../jobs/dtos/email-config.dto'
 
-export const runEmailJob = async (config: EmailConfigDto, signal?: AbortSignal): Promise<any> => {
+export const runEmailJob = async (config: EmailConfigDto): Promise<any> => {
     const { template, variables, subject, to } = config
     const { text } = renderTemplate(template, variables)
     try {

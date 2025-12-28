@@ -11,7 +11,7 @@ let server: Server
 
 async function start() {
     await pool.query('SELECT 1')
-    // container.taskSchedulerService.startCron()
+    container.taskSchedulerService.startCron()
 
     server = app.listen(PORT, () => {
         console.log(`✅ Server is running on http://localhost:${PORT}`)

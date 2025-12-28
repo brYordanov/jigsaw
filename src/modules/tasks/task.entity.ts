@@ -26,6 +26,7 @@ export interface TaskRow {
 
     created_at: string
     updated_at: string
+    deadman_token: string | null
 
     jobs?: JobRow[]
 }
