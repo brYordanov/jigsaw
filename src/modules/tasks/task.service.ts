@@ -17,8 +17,12 @@ export class TaskService {
         return this.repo.get()
     }
 
+    async getById(id: string, include?: string[]): Promise<TaskRow | null> {
+        return this.repo.getOne({ where: { id: id }, include })
+    }
+
     async getByIdOrFail(id: string, include?: string[]): Promise<TaskRow> {
-        const task = await this.repo.getOne({ where: { id: id }, include })
+        const task = await this.getById(id, include)
         if (!task) throw new Error('Task not found')
 
         return task

@@ -9,7 +9,10 @@ export function createViewController(container: Container) {
 
     viewController.use('/job-runs', createjobRunsController(container.jobRunService))
     viewController.use('/job', createJobController(container.jobService, container.runnerService))
-    viewController.use('/task', createTaskController(container.taskService, container.jobService))
+    viewController.use(
+        '/task',
+        createTaskController(container.taskService, container.jobService, container.runnerService)
+    )
 
     viewController.get('/', (req, res) => {
         res.render('pages/index')

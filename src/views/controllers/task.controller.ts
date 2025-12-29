@@ -15,8 +15,13 @@ import { JobService } from '../../modules/jobs/job.service'
 import { validate, vBody, vParams, vQuery } from '../../middlewares/validate'
 import { asyncHandler } from '../../helpers/asyncHandler'
 import { idParamDto, idParamSchema } from '../../commonSchemas'
+import { RunnerService } from '../../modules/execution/runner.service'
 
-export function createTaskController(service: TaskService, jobService: JobService) {
+export function createTaskController(
+    service: TaskService,
+    jobService: JobService,
+    runnerService: RunnerService
+) {
     const TaskController = Router()
 
     TaskController.get(
@@ -168,6 +173,38 @@ export function createTaskController(service: TaskService, jobService: JobServic
             const { id } = vParams<idParamDto>(req)
             await service.deleteById(id)
             return res.status(HttpStatus.OK).send('')
+        })
+    )
+
+    TaskController.post(
+        '/ping/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            const task = await service.getById(id)
+            if (!task) {
+                return res.status(404).send('This deadman link is invalid or task was deleted.')
+            }
+            if (task.schedule_type !== 'deadman') {
+                return res.status(400).send('This is not a deadman task.')
+            }
+
+            runnerService.cancelDeadmanTimer(task.id)
+
+            const now = new Date()
+            if (task.is_single_time_only) {
+                await service.updateTask(task.id, {
+                    is_enabled: false,
+                    next_run_at: null,
+                })
+
+                return res.send('The task was cancelled and will not run.')
+            } else {
+                await service.updateTask(id, {})
+                return res.send(
+                    'The current activation was cancelled. The task will run again later.'
+                )
+            }
         })
     )
 

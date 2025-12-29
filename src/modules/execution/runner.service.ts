@@ -8,7 +8,6 @@ import { runShellJob } from './runners/shell.runner'
 import { JobService } from '../jobs/job.service'
 import { JobConfig, validateJobConfig } from '../jobs/dtos/module.dtos'
 import { JobRunService } from '../job-runs/job-runs.service'
-import { TaskJobRow } from '../taks-jobs/tasks-jobs.entity'
 import { TaskService } from '../tasks/task.service'
 import { TaskRow } from '../tasks/task.entity'
 import { calculateNextRunAt } from '../tasks/intervalHelpers'
@@ -211,7 +210,7 @@ export class RunnerService {
             variables: {
                 taskName: task.name,
                 taskId: task.id,
-                cancelUrl: `${base}/api/task/ping/${task.id}`,
+                cancelUrl: `${base}/task/ping/${task.id}`,
             },
         }
 
@@ -257,7 +256,7 @@ export class RunnerService {
         }
 
         for (const tj of jobs) {
-            const outcome = await this.executeJobById(tj.id)
+            const outcome = await this.executeJobById(tj.id, task.id)
             if (outcome?.lastStatus !== 'ok') {
                 console.log('❌ Job error while running Task')
                 break
