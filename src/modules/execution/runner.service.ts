@@ -12,8 +12,10 @@ import { TaskJobRow } from '../taks-jobs/tasks-jobs.entity'
 import { TaskService } from '../tasks/task.service'
 import { TaskRow } from '../tasks/task.entity'
 import { calculateNextRunAt } from '../tasks/intervalHelpers'
+import { getEmailTemplate } from '../email/getEmailTemplate'
 
 export class RunnerService {
+    private readonly deadmanTimers = new Map<string, NodeJS.Timeout>()
     constructor(
         private readonly jobService: JobService,
         private readonly runRegistry: RunRegistry,
@@ -21,64 +23,6 @@ export class RunnerService {
         private readonly logService: JobRunService,
         private readonly taskService: TaskService
     ) {}
-
-    async executeJobById(id: string, taskId?: string): Promise<any> {
-        const job = await this.jobService.getByIdOrFail(id)
-        const {
-            is_enabled,
-            job_type,
-            config,
-            max_retries,
-            retry_backoff_seconds,
-            max_concurrency,
-            timeout_seconds,
-        } = job
-
-        if (!is_enabled)
-            return { ok: false, attempts: 0, lastStatus: 'failed', lastError: 'Job not enabled' }
-
-        const runner = getRunner[job_type as keyof typeof getRunner]
-        if (!runner) {
-            return {
-                ok: false,
-                attempts: 0,
-                lastStatus: 'failed',
-                lastError: `No runner for type ${job_type}`,
-            }
-        }
-
-        const validatedConfig = validateJobConfig(job_type, config)
-        const { runId } = this.runRegistry.create(id)
-
-        try {
-            const outcome = await this.concurrencyGate.run(id, max_concurrency, async () =>
-                this.runWithLoggingAttempt(
-                    job.id,
-                    validatedConfig,
-                    onAttempt =>
-                        runWithRetries({
-                            totalAttempts: max_retries + 1,
-                            baseBackoffSeconds: retry_backoff_seconds,
-                            perRunTimeoutMs: timeout_seconds * 1000,
-                            runOnce: signal => runner(validatedConfig as any, signal),
-                            onAttempt,
-                        }),
-                    taskId
-                )
-            )
-
-            this.runRegistry.finish(runId, outcome)
-            return outcome
-        } catch (e: any) {
-            const msg = String(e?.message ?? e)
-            this.runRegistry.finish(runId, {
-                ok: false,
-                attempts: 0,
-                lastStatus: 'failed',
-                lastError: msg,
-            })
-        }
-    }
 
     async startJobById(id: string) {
         const job = await this.jobService.getByIdOrFail(id)
@@ -115,15 +59,18 @@ export class RunnerService {
                                 lastError: 'aborted',
                             }
                         }
-                        return this.runWithLoggingAttempt(job.id, validatedConfig, onAttempt =>
-                            runWithRetries({
-                                totalAttempts: max_retries + 1,
-                                baseBackoffSeconds: retry_backoff_seconds,
-                                perRunTimeoutMs: timeout_seconds * 1000,
-                                runOnce: signal => runner(validatedConfig as any, signal),
-                                outerSignal: controller.signal,
-                                onAttempt,
-                            })
+                        return this.runWithLoggingAttempt(
+                            validatedConfig,
+                            onAttempt =>
+                                runWithRetries({
+                                    totalAttempts: max_retries + 1,
+                                    baseBackoffSeconds: retry_backoff_seconds,
+                                    perRunTimeoutMs: timeout_seconds * 1000,
+                                    runOnce: signal => runner(validatedConfig as any, signal),
+                                    outerSignal: controller.signal,
+                                    onAttempt,
+                                }),
+                            job.id
                         )
                     },
                     controller.signal
@@ -146,15 +93,84 @@ export class RunnerService {
 
     async runTask(task: TaskRow) {
         if (task.schedule_type === 'deadman') {
-            await this.runDeadmanTask(task)
+            await this.sendDeadmanTaskPingEmail(task)
         } else {
-            await this.runNormalTask(task)
+            await this.runTaskNormally(task)
         }
     }
 
-    async runNormalTask(task: TaskRow) {
-        await this.runTaskJobs(task)
+    async executeJobById(id: string, taskId?: string): Promise<any> {
+        const job = await this.jobService.getByIdOrFail(id)
+        const {
+            is_enabled,
+            job_type,
+            config,
+            max_retries,
+            retry_backoff_seconds,
+            max_concurrency,
+            timeout_seconds,
+        } = job
 
+        if (!is_enabled)
+            return { ok: false, attempts: 0, lastStatus: 'failed', lastError: 'Job not enabled' }
+
+        const runner = getRunner[job_type as keyof typeof getRunner]
+        if (!runner) {
+            return {
+                ok: false,
+                attempts: 0,
+                lastStatus: 'failed',
+                lastError: `No runner for type ${job_type}`,
+            }
+        }
+
+        const validatedConfig = validateJobConfig(job_type, config)
+        const { runId } = this.runRegistry.create(id)
+
+        try {
+            const outcome = await this.concurrencyGate.run(id, max_concurrency, async () =>
+                this.runWithLoggingAttempt(
+                    validatedConfig,
+                    onAttempt =>
+                        runWithRetries({
+                            totalAttempts: max_retries + 1,
+                            baseBackoffSeconds: retry_backoff_seconds,
+                            perRunTimeoutMs: timeout_seconds * 1000,
+                            runOnce: signal => runner(validatedConfig as any, signal),
+                            onAttempt,
+                        }),
+                    job.id,
+                    taskId
+                )
+            )
+
+            this.runRegistry.finish(runId, outcome)
+            return outcome
+        } catch (e: any) {
+            const msg = String(e?.message ?? e)
+            this.runRegistry.finish(runId, {
+                ok: false,
+                attempts: 0,
+                lastStatus: 'failed',
+                lastError: msg,
+            })
+        }
+    }
+
+    cancelDeadmanTimer(taskId: string) {
+        const handle = this.deadmanTimers.get(taskId)
+        if (handle) {
+            clearTimeout(handle)
+            this.deadmanTimers.delete(taskId)
+        }
+    }
+
+    private async runTaskNormally(task: TaskRow) {
+        await this.runTaskJobs(task)
+        await this.takeCareOfTaskDatesOnRun(task)
+    }
+
+    private async takeCareOfTaskDatesOnRun(task: TaskRow) {
         const now = new Date()
         if (task.is_single_time_only) {
             await this.taskService.updateTask(task.id, {
@@ -178,11 +194,62 @@ export class RunnerService {
         }
     }
 
-    async runDeadmanTask(task: TaskRow) {
-        const token = crypto.randomUUID()
+    private async sendDeadmanTaskPingEmail(task: TaskRow) {
+        if (!task.timeout_seconds || task.timeout_seconds <= 0) {
+            throw new Error('Deadman task requires timeout_seconds > 0')
+        }
+
+        const base = process.env.APP_BASE_URL
+        const now = new Date()
+        const timeoutSeconds = task.timeout_seconds ?? 0
+        const expiresAt = new Date(now.getTime() + timeoutSeconds * 1000)
+        const emailTemplate = await getEmailTemplate('deadmanTrigger')
+        const config = {
+            to: 'branimiryordanov75@gmail.com',
+            subject: `${task.name} Deadman Task Activation`,
+            template: emailTemplate,
+            variables: {
+                taskName: task.name,
+                taskId: task.id,
+                cancelUrl: `${base}/api/task/ping/${task.id}`,
+            },
+        }
+
+        await this.runWithLoggingAttempt(config, () => runEmailJob(config), undefined, task.id)
+        await this.taskService.updateTask(task.id, { last_ping_at: now })
+        this.armDeadmanTimer(task.id, expiresAt)
     }
 
-    async runTaskJobs(task: TaskRow) {
+    private armDeadmanTimer(taskId: string, expiresAt: Date) {
+        const existing = this.deadmanTimers.get(taskId)
+        if (existing) {
+            clearTimeout(existing)
+        }
+
+        const delayMs = Math.max(0, expiresAt.getTime() - Date.now())
+        if (delayMs === 0) {
+            setImmediate(() => this.executeDeadmanTimeout(taskId))
+            return
+        }
+
+        const handle = setTimeout(() => {
+            this.deadmanTimers.delete(taskId)
+            this.executeDeadmanTimeout(taskId).catch(err => {
+                console.error('Error executing deadman task', taskId, err)
+            })
+        }, delayMs)
+
+        this.deadmanTimers.set(taskId, handle)
+    }
+
+    private async executeDeadmanTimeout(taskId: string) {
+        const task = await this.taskService.getByIdOrFail(taskId)
+        if (!task.is_enabled) return
+
+        await this.runTaskNormally(task)
+    }
+
+    private async runTaskJobs(task: TaskRow) {
         const { jobs } = await this.taskService.getTaskWithJobs(task.id)
         if (!jobs || jobs.length === 0) {
             console.log('⚠️ Task has no jobs')
@@ -198,22 +265,10 @@ export class RunnerService {
         }
     }
 
-    cancelRun(runId: string) {
-        return this.runRegistry.cancel(runId)
-    }
-
-    subscribe(runId: string, fn: (e: any) => void) {
-        return this.runRegistry.subscribe(runId, fn)
-    }
-
-    getRun(runId: string) {
-        return this.runRegistry.get(runId)
-    }
-
-    async runWithLoggingAttempt<T>(
-        job_id: string,
+    private async runWithLoggingAttempt<T>(
         config_snapshot: JobConfig,
         run: (logAttempt: (log: RunAttemptLog) => Promise<void>) => Promise<T>,
+        job_id?: string,
         task_id?: string
     ) {
         const logAttempt = async ({ status, error, result, aborted, attempt }: RunAttemptLog) => {
@@ -230,6 +285,18 @@ export class RunnerService {
         }
 
         return run(logAttempt)
+    }
+
+    cancelRun(runId: string) {
+        return this.runRegistry.cancel(runId)
+    }
+
+    subscribe(runId: string, fn: (e: any) => void) {
+        return this.runRegistry.subscribe(runId, fn)
+    }
+
+    getRun(runId: string) {
+        return this.runRegistry.get(runId)
     }
 }
 

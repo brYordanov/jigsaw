@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Deadman Task Trigger</title>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background: #f7f7f7;
+                padding: 40px 0;
+                margin: 0;
+            }
+
+            .container {
+                max-width: 520px;
+                margin: 0 auto;
+                background: #ffffff;
+                padding: 32px;
+                border-radius: 6px;
+                border: 1px solid #e5e5e5;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-top: 0;
+                color: #111;
+                font-weight: 600;
+            }
+
+            p {
+                font-size: 15px;
+                line-height: 1.5;
+                color: #333;
+                margin-bottom: 16px;
+            }
+
+            .cta {
+                display: inline-block;
+                background: #c62828;
+                color: #fff !important;
+                padding: 12px 24px;
+                border-radius: 4px;
+                font-size: 15px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .cta:hover {
+                background: #b71c1c;
+            }
+
+            .footer {
+                font-size: 12px;
+                color: #777;
+                margin-top: 32px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Deadman task trigger: {{taskName}}</h1>
+
+            <p>
+                The deadman task <strong>{{taskName}}</strong> (ID: <code>{{taskId}}</code>) is
+                about to run.
+            </p>
+
+            <p>
+                If you want to prevent this task from executing its jobs, click the button below
+                <strong>before the deadline</strong>.
+            </p>
+
+            <p>
+                <a href="{{cancelUrl}}" class="cta">Do NOT run</a>
+            </p>
+
+            <p class="footer">If you didn’t expect this email, you can ignore it.</p>
+        </div>
+    </body>
+</html>

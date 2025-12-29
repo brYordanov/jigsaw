@@ -45,7 +45,7 @@ export const createTaskSchema = z.discriminatedUnion('schedule_type', [
     baseSchema.extend({
         schedule_type: z.literal('deadman'),
         interval_type,
-        last_ping_at: isoDate.nullable().optional(),
+        last_ping_at: timestampToDateSchema.optional().nullable(),
         timeout_seconds: z.number().int().positive(),
     }),
 ])
@@ -64,11 +64,12 @@ export const updateTaskSchema = z.object({
     hours: z.array(z.number().int().min(0).max(23)).nullable().optional(),
     minutes: z.array(z.number().int().min(0).max(59)).nullable().optional(),
     timeout_seconds: z.number().int().positive().nullable().optional(),
-    last_ping_at: isoDate.nullable().optional(),
     expires_at: isoDate.nullable().optional(),
     jobs_ids: z.array(z.string()).optional(),
+
     last_run_at: timestampToDateSchema.optional().nullable(),
     next_run_at: timestampToDateSchema.optional().nullable(),
+    last_ping_at: timestampToDateSchema.optional().nullable(),
     deadman_token: z.string().optional().nullable(),
 })
 export type UpdateTaskBodyDto = z.infer<typeof updateTaskSchema>
