@@ -1,0 +1,45 @@
+import z from 'zod'
+import { emailSchema, qAny, qBool, urlSchema } from '../../../commonSchemas'
+import { HealthcheckConfigDto, HealthcheckConfigSchema } from './healthcheck-config.dto'
+import { HttpConfigDto, HttpConfigSchema } from './http-config.dto'
+import { ShellConfigDto, ShellConfigSchema } from './shell-config.dto'
+import { EmailConfigDto, EmailConfigSchema } from './email-config.dto'
+
+export const JobTypeSchema = z.enum(['http', 'email', 'shell', 'healthcheck'])
+export type JobType = z.infer<typeof JobTypeSchema>
+
+export const validatorsByType = {
+    http: HttpConfigSchema,
+    email: EmailConfigSchema,
+    shell: ShellConfigSchema,
+    healthcheck: HealthcheckConfigSchema,
+} as const
+
+export const validateJobConfig = (job_type: string, config: unknown) => {
+    const parsedType = JobTypeSchema.parse(job_type)
+    const validator = validatorsByType[parsedType]
+    if (!validator) throw new Error(`No validator found for job type: ${parsedType}`)
+    return validator.parse(config)
+}
+
+export const sortOptionsSchema = z.enum(['created_at', 'updated_at', 'name']).default('created_at')
+export type sortOptionsType = z.infer<typeof sortOptionsSchema>
+
+export const listJobsQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(4),
+    offset: z.coerce.number().int().min(0).default(0),
+    sort: sortOptionsSchema,
+    dir: z.enum(['ASC', 'DESC']).default('DESC'),
+    search: z.string().max(200).optional(),
+    job_type: qAny(JobTypeSchema),
+    is_enabled: qBool,
+})
+export type ListJobsQueryDto = z.infer<typeof listJobsQuerySchema>
+
+export const JobConfigSchema = z.discriminatedUnion('type', [
+    HttpConfigSchema,
+    HealthcheckConfigSchema,
+    EmailConfigSchema,
+    ShellConfigSchema,
+])
+export type JobConfig = z.infer<typeof JobConfigSchema>

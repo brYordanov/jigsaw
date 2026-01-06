@@ -9,12 +9,14 @@ enum Commands {
     Up = 'up',
     Down = 'down',
     Status = 'status',
+    Generate = 'generate',
 }
 
 const commands: Record<Commands, () => Promise<void>> = {
     [Commands.Up]: up,
     [Commands.Down]: down,
     [Commands.Status]: status,
+    [Commands.Generate]: generate,
 }
 
 enum MigrateDirection {
@@ -39,6 +41,46 @@ function isCommand(x: string): x is Commands {
 
 function sha256(s: string): string {
     return crypto.createHash('sha256').update(s, 'utf-8').digest('hex')
+}
+
+function ensureDirExists(dir: string) {
+    if (!fs.existsSync(dir)) {
+        throw new Error(`Migrations folder not found: ${dir}`)
+    }
+    const stat = fs.statSync(dir)
+    if (!stat.isDirectory()) {
+        throw new Error(`Migrations path is not a directory: ${dir}`)
+    }
+}
+
+function getNextMigrationNumber(dir: string) {
+    const files = fs.readdirSync(dir)
+
+    let max = -1
+
+    for (const file of files) {
+        const m = /^(\d+)_.*\.(up|down)\.sql$/i.exec(file)
+        if (!m) continue
+
+        const n = Number(m[1])
+        if (Number.isFinite(n)) max = Math.max(max, n)
+    }
+
+    return max + 1
+}
+
+function writeEmptyMigration(filePath: string) {
+    fs.writeFileSync(filePath, '', { encoding: 'utf8', flag: 'wx' })
+}
+
+function slugify(input: string) {
+    return String(input)
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
 }
 
 function listMigrations(direction: MigrateDirection) {
@@ -229,6 +271,43 @@ async function status() {
     })
 }
 
+async function generate() {
+    ensureDirExists(MIGRATIONS_DIR)
+    const rawName = process.argv.slice(3).join(' ')
+
+    if (!rawName) {
+        console.error(
+            `⚠️Missing migration name.\n\nExample:\n  npm run migrate:generate -- "add-index-to-jobs"\n`
+        )
+        process.exit(1)
+    }
+
+    const name = slugify(rawName)
+    if (!name) {
+        console.error(`⚠️Migration name became empty after slugify. Input: "${rawName}"`)
+        process.exit(1)
+    }
+
+    const next = getNextMigrationNumber(MIGRATIONS_DIR)
+    const up = path.join(MIGRATIONS_DIR, `${next}_${name}.up.sql`)
+    const down = path.join(MIGRATIONS_DIR, `${next}_${name}.down.sql`)
+
+    try {
+        writeEmptyMigration(up)
+        writeEmptyMigration(down)
+    } catch (err: any) {
+        if (err && err.code === 'EEXIST') {
+            console.error(`File already exists. Aborting.\n- ${up}\n- ${down}`)
+            process.exit(1)
+        }
+        throw err
+    }
+
+    console.log(
+        `✅ Created:\n- ${path.relative(process.cwd(), up)}\n- ${path.relative(process.cwd(), down)}`
+    )
+}
+
 async function main() {
     const arg = process.argv[2]
     if (!arg || !isCommand(arg)) {
@@ -244,7 +323,7 @@ async function main() {
     console.log('❤️❤️❤️ All done ❤️❤️❤️')
 }
 
-main().catch(e => {
-    console.error(`❌ ${e}`)
+main().catch(err => {
+    console.error(`❌ ${err}`)
     process.exit(1)
 })

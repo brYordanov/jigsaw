@@ -1,10 +1,12 @@
 import { PaginatedResponse } from '../../db/types'
-import { CreateJobBodyDto, ListJobsQueryDto, UpdateJobBodyDto, validateJobConfig } from './job.dtos'
+import { CreateJobBodyDto } from './dtos/create-job.dto'
+import { UpdateJobBodyDto } from './dtos/update-job.dto'
+import { ListJobsQueryDto, validateJobConfig } from './dtos/module.dtos'
 import { JobRow } from './job.entity'
 import { JobRepository } from './job.repo'
 
 export class JobService {
-    constructor(private readonly repo = new JobRepository()) {}
+    constructor(private readonly repo: JobRepository) {}
 
     getAll(): Promise<JobRow[]> {
         return this.repo.get()
@@ -39,7 +41,8 @@ export class JobService {
         await this.repo.deleteById(id)
     }
 
-    getManyJobsByid(ids: string[]): Promise<JobRow[]> {
-        return this.repo.get<JobRow>({ where: { id: ids } })
+    getManyJobsById(ids: string[]): Promise<JobRow[]> {
+        const numberIds = ids.map(id => Number(id))
+        return this.repo.get<JobRow>({ where: { id: numberIds } })
     }
 }

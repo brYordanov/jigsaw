@@ -26,3 +26,6 @@ export const qAny = <T extends z.ZodTypeAny>(schema: T) =>
         if (v === undefined || v === null || v === '' || v === 'any') return undefined
         return v
     }, schema.optional())
+
+export const idParamSchema = z.object({ id: z.string().min(1) })
+export type idParamDto = z.infer<typeof idParamSchema>

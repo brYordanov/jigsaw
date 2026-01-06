@@ -2,13 +2,14 @@
     "name": "jigsaw",
     "version": "1.0.0",
     "description": "",
-    "main": "/src/app.ts",
+    "main": "/src/server.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon",
         "migrate": "ts-node src/scripts/migrate.ts up",
         "migrate:revert": "ts-node src/scripts/migrate.ts down",
         "migrate:status": "ts-node src/scripts/migrate.ts status",
+        "migrate:generate": "ts-node src/scripts/migrate.ts generate",
         "start:db": " docker compose -f docker-compose.dev.yml up -d",
         "start": "npm run start:db && npm run migrate && npm run dev"
     },
@@ -20,6 +21,7 @@
         "@types/express": "^5.0.3",
         "@types/express-ejs-layouts": "^2.5.4",
         "@types/node": "^24.0.14",
+        "@types/nodemailer": "^7.0.3",
         "@types/pg": "^8.15.5",
         "nodemon": "^3.1.10",
         "prettier-plugin-ejs": "^1.0.3",
@@ -33,6 +35,7 @@
         "ejs": "^3.1.10",
         "express": "^5.1.0",
         "express-ejs-layouts": "^2.5.1",
+        "nodemailer": "^7.0.10",
         "pg": "^8.16.3",
         "prettier": "^3.6.2",
         "zod": "^4.1.5"

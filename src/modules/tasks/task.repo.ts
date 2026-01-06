@@ -37,21 +37,15 @@ export class TaskRepository extends BaseRepository {
 
     async listPaginated(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         const FILTERS_NAME = {
-            schedule_type: 'eq',
-            interval_type: 'eq',
-            is_enabled: 'eq',
-            name: { op: 'ilike' },
+            schedule_type: params.schedule_type,
+            interval_type: params.interval_type,
+            is_enabled: params.is_enabled,
+            name: { op: 'ilike', value: params.search },
         } as const
 
         const ALLOWED_SORT = ['created_at', 'updated_at', 'name', 'next_run_at'] as const
 
         return this.paginate<TaskRow, any>({
-            filters: {
-                schedule_type: params.schedule_type,
-                interval_type: params.interval_type,
-                is_enabled: params.is_enabled,
-                name: params.search,
-            },
             filterConfig: FILTERS_NAME,
             sort: params.sort,
             dir: params.dir,

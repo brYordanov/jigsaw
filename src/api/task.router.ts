@@ -1,38 +1,69 @@
 import { Router } from 'express'
 import { TaskService } from '../modules/tasks/task.service'
-import { listTasksQuerySchema } from '../modules/tasks/task.dtos'
+import {
+    CreateTaskBodyDto,
+    createTaskSchema,
+    ListTasksQueryDto,
+    listTasksQuerySchema,
+} from '../modules/tasks/task.dtos'
+import { asyncHandler } from '../helpers/asyncHandler'
+import { validate, vBody, vParams, vQuery } from '../middlewares/validate'
+import { idParamDto, idParamSchema } from '../commonSchemas'
 
-export const taskRouter = Router()
-const service = new TaskService()
+export function createTaskRouter(service: TaskService) {
+    const taskRouter = Router()
 
-taskRouter.get('/', async (req, res) => {
-    res.send(await service.getAll())
-})
+    taskRouter.get(
+        '/',
+        asyncHandler(async (req, res) => {
+            res.send(await service.getAll())
+        })
+    )
 
-taskRouter.get('/paginate', async (req, res) => {
-    const parsed = listTasksQuerySchema.safeParse(req.query)
-    if (!parsed.success) {
-        res.send('param validation error')
-        return
-    }
-    res.send(await service.paginate(parsed.data))
-})
+    taskRouter.get(
+        '/paginate',
+        validate(listTasksQuerySchema, 'query'),
+        asyncHandler(async (req, res) => {
+            const data = vQuery<ListTasksQueryDto>(req)
+            res.send(await service.paginate(data))
+        })
+    )
 
-taskRouter.get('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.getByIdOrFail(Number(id)))
-})
+    taskRouter.get(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            res.send(await service.getByIdOrFail(id))
+        })
+    )
 
-taskRouter.post('/', async (req, res) => {
-    res.send(await service.createTask(req.body))
-})
+    taskRouter.post(
+        '/',
+        validate(createTaskSchema, 'body'),
+        asyncHandler(async (req, res) => {
+            const data = vBody<CreateTaskBodyDto>(req)
+            res.send(await service.createTask(data))
+        })
+    )
 
-taskRouter.patch('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.updateTask(Number(id), req.body))
-})
+    taskRouter.patch(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            res.send(await service.updateTask(id, req.body))
+        })
+    )
 
-taskRouter.delete('/:id', async (req, res) => {
-    const { id } = req.params
-    res.send(await service.deleteById(Number(id)))
-})
+    taskRouter.delete(
+        '/:id',
+        validate(idParamSchema, 'params'),
+        asyncHandler(async (req, res) => {
+            const { id } = vParams<idParamDto>(req)
+            res.send(await service.deleteById(id))
+        })
+    )
+
+    return taskRouter
+}

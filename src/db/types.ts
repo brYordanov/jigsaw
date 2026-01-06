@@ -1,21 +1,34 @@
 import { Pool } from 'pg'
 
 export type Dir = 'ASC' | 'DESC'
-export type FilterSpec =
+export type FilterOp =
     | 'eq'
-    | { op: 'eq' }
-    | { op: 'ilike' }
-    | { op: 'in' }
-    | { op: 'gte' }
-    | { op: 'lte' }
-    | { op: 'gt' }
-    | { op: 'lt' }
-    | { op: 'is'; value: 'null' | 'not null' }
+    | 'ilike'
+    | 'in'
+    | 'gte'
+    | 'lte'
+    | 'gt'
+    | 'lt'
+    | 'is'
+    | 'date_gte'
+    | 'date_lte'
 
+export type FilterSpecExplicit =
+    | {
+          op: Exclude<FilterOp, 'is'>
+          value: unknown
+          fieldName?: string
+      }
+    | {
+          op: 'is'
+          value: 'null' | 'not null'
+          fieldName?: string
+      }
+
+export type FilterSpec = FilterSpecExplicit | unknown
 export type FilterConfig = Record<string, FilterSpec>
 
 export interface PaginateConfig<TFilters extends Record<string, any>> {
-    filters: TFilters
     filterConfig: FilterConfig
     sort: string
     dir: Dir

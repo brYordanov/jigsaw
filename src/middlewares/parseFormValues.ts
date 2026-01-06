@@ -1,5 +1,15 @@
 import { RequestHandler } from 'express'
 
+const daysMap: Record<string, number> = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+}
+
 const coercers = {
     bool: (v: unknown) => {
         if (typeof v === 'boolean') return v
@@ -62,6 +72,26 @@ const coercers = {
         } catch (err) {
             throw new Error(`Cannot coerce to count. value: ${v} type: ${typeof v}`)
         }
+    },
+    daysOfWeek: (v: string[] | string) => {
+        if (Array.isArray(v))
+            return Array.from(
+                new Set(
+                    v.map(d => {
+                        const key = d.trim().toLowerCase()
+                        if (!(key in daysMap)) {
+                            throw new Error(`Invalid day_of_week: "${d}"`)
+                        }
+                        return daysMap[key]
+                    })
+                )
+            ).sort((a, b) => a - b)
+
+        const key = v.trim().toLowerCase()
+        if (!(key in daysMap)) {
+            throw new Error(`Invalid day_of_week: "${v}"`)
+        }
+        return [daysMap[key]]
     },
 } as const
 

@@ -1,0 +1,22 @@
+import { renderTemplate } from '../../email/renderer'
+import { mailer } from '../../email/transport'
+import { EmailConfigDto } from '../../jobs/dtos/email-config.dto'
+
+export const runEmailJob = async (config: EmailConfigDto): Promise<any> => {
+    const { template, variables, subject, to } = config
+    const { text, html } = renderTemplate(template, variables)
+
+    try {
+        const sendInfo = await mailer.sendMail({
+            from: 'info@bigtilt.org',
+            to,
+            subject,
+            text,
+            html,
+        })
+
+        return { ok: true, messageId: sendInfo.messageId }
+    } catch (e: any) {
+        return { ok: false, error: String(e?.message ?? e) }
+    }
+}

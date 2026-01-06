@@ -1,5 +1,12 @@
 import { Pool, PoolClient, QueryConfig, QueryResultRow } from 'pg'
-import { PaginateConfig, RelationSpec, TxOptions } from './types'
+import {
+    FilterConfig,
+    FilterSpec,
+    FilterSpecExplicit,
+    PaginateConfig,
+    RelationSpec,
+    TxOptions,
+} from './types'
 
 export class BaseRepository {
     constructor(
@@ -23,9 +30,17 @@ export class BaseRepository {
         } = {}
     ): Promise<T[]> {
         const { where, orderBy, dir, include, limit } = config
-        const { whereParts, values } = this.getWhereElements(where)
+        let whereSql = ''
+        let values: any[] = []
+        let nextIndex = 1
 
-        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+        if (where && Object.keys(where).length > 0) {
+            const res = this.buildWhereFromFilters(where, 'baseTable', 1)
+            whereSql = res.whereSql
+            values = res.values
+            nextIndex = res.nextIndex
+        }
+
         const orderSql = orderBy
             ? `ORDER BY baseTable.${orderBy} ${(dir || 'ASC').toUpperCase()}`
             : ''
@@ -107,57 +122,13 @@ export class BaseRepository {
     async paginate<TRow extends QueryResultRow = any, TFilters extends Record<string, any> = any>(
         cfg: PaginateConfig<TFilters>
     ) {
-        const { filters, filterConfig, sort, dir, allowedSort, limit, offset } = cfg
+        const { filterConfig, sort, dir, allowedSort, limit, offset } = cfg
+        const { whereSql, values, nextIndex } = this.buildWhereFromFilters(
+            filterConfig,
+            this.tableName,
+            1
+        )
 
-        const whereParts: string[] = []
-        const values: any[] = []
-        let i = 1
-
-        for (const [key, spec] of Object.entries(filterConfig)) {
-            if (!(key in filters)) continue
-            const val = (filters as any)[key]
-            if (val === undefined) continue
-
-            if (typeof spec === 'object' && 'op' in spec) {
-                switch (spec.op) {
-                    case 'ilike':
-                        whereParts.push(`${key} ILIKE $${i++}`)
-                        values.push(typeof val === 'string' ? `%${val}%` : val)
-                        break
-                    case 'in':
-                        whereParts.push(`${key} = ANY($${i++})`)
-                        values.push(val)
-                        break
-                    case 'gte':
-                        whereParts.push(`${key} >= $${i++}`)
-                        values.push(val)
-                        break
-                    case 'lte':
-                        whereParts.push(`${key} <= $${i++}`)
-                        values.push(val)
-                        break
-                    case 'gt':
-                        whereParts.push(`${key} > $${i++}`)
-                        values.push(val)
-                        break
-                    case 'lt':
-                        whereParts.push(`${key} < $${i++}`)
-                        values.push(val)
-                        break
-                    case 'is':
-                        whereParts.push(`${key} IS ${spec.value.toUpperCase()}`)
-                        break
-                    default:
-                        whereParts.push(`${key} = $${i++}`)
-                        values.push(val)
-                }
-            } else {
-                whereParts.push(`${key} = $${i++}`)
-                values.push(val)
-            }
-        }
-
-        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
         const safeSort = allowedSort.includes(sort) ? sort : allowedSort[0]
         const safeDir = (dir || 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
@@ -165,7 +136,7 @@ export class BaseRepository {
             `SELECT ${this.returningCols} FROM ${this.tableName} ` +
             `${whereSql} ` +
             `ORDER BY ${safeSort} ${safeDir} ` +
-            `LIMIT $${i++} OFFSET $${i++}`
+            `LIMIT $${nextIndex} OFFSET $${nextIndex + 1}`
 
         const listVals = [...values, limit, offset]
 
@@ -244,28 +215,6 @@ export class BaseRepository {
         }
     }
 
-    private getWhereElements(whereConfig?: Record<string, any>) {
-        const whereParts: string[] = []
-        const values: any[] = []
-        let i = 1
-        if (whereConfig) {
-            for (const [key, val] of Object.entries(whereConfig)) {
-                const col = `baseTable.${key}`
-                if (Array.isArray(val)) {
-                    whereParts.push(`${col} = ANY($${i++})`)
-                    values.push(val)
-                } else if (val === null) {
-                    whereParts.push(`${col} IS NULL`)
-                } else {
-                    whereParts.push(`${col} = $${i++}`)
-                    values.push(val)
-                }
-            }
-        }
-
-        return { whereParts, values }
-    }
-
     private createIncludeSql(
         include: string[],
         whereSql: string,
@@ -302,5 +251,81 @@ export class BaseRepository {
         ]
             .filter(Boolean)
             .join('\n')
+    }
+
+    private buildWhereFromFilters(
+        filterConfig: FilterConfig,
+        tableAlias = this.tableName,
+        startIndex = 1
+    ) {
+        const whereParts: string[] = []
+        const values: any[] = []
+        let i = startIndex
+        for (const [key, rawSpec] of Object.entries<FilterSpec>(filterConfig)) {
+            if (rawSpec === undefined) continue
+            const specObj =
+                typeof rawSpec === 'object' && rawSpec !== null && 'op' in rawSpec
+                    ? (rawSpec as FilterSpecExplicit)
+                    : Array.isArray(rawSpec)
+                      ? ({ op: 'in', value: rawSpec } as FilterSpecExplicit)
+                      : ({ op: 'eq', value: rawSpec } as FilterSpecExplicit)
+
+            const val = specObj.value
+            if (val === undefined) continue
+
+            const columnName = specObj.fieldName ?? key
+            const col = columnName.includes('.') ? columnName : `${tableAlias}.${columnName}`
+            const op = specObj.op
+
+            switch (op) {
+                case 'ilike':
+                    whereParts.push(`${col} ILIKE $${i++}`)
+                    values.push(typeof val === 'string' ? `%${val}%` : val)
+                    break
+                case 'in':
+                    if (!Array.isArray(val) || val.length === 0) {
+                        whereParts.push('FALSE')
+                        break
+                    }
+                    whereParts.push(`${col} = ANY($${i++})`)
+                    values.push(val)
+                    break
+                case 'gte':
+                    whereParts.push(`${col} >= $${i++}`)
+                    values.push(val)
+                    break
+                case 'lte':
+                    whereParts.push(`${col} <= $${i++}`)
+                    values.push(val)
+                    break
+                case 'gt':
+                    whereParts.push(`${col} > $${i++}`)
+                    values.push(val)
+                    break
+                case 'lt':
+                    whereParts.push(`${col} < $${i++}`)
+                    values.push(val)
+                    break
+                case 'is':
+                    whereParts.push(`${col} IS ${specObj.value.toUpperCase()}`)
+                    break
+                case 'date_gte':
+                    whereParts.push(`${col} >= $${i++}::date`)
+                    values.push(val)
+                    break
+                case 'date_lte':
+                    whereParts.push(`${col} <= $${i++}::date`)
+                    values.push(val)
+                    break
+                case 'eq':
+                default:
+                    whereParts.push(`${col} = $${i++}`)
+                    values.push(val)
+                    break
+            }
+        }
+
+        const whereSql = whereParts.length ? `WHERE ${whereParts.join(' AND ')}` : ''
+        return { whereSql, values, nextIndex: i }
     }
 }

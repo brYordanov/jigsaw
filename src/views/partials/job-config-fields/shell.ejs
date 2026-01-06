@@ -24,12 +24,12 @@
             rows="4"
             placeholder='["-la", "--color=auto"]'
         >
-<%= values.args
-          ? (typeof values.config.args === 'string'
-              ? values.config.args
-              : JSON.stringify(values.config.args, null, 2))
-          : '' %></textarea
-        >
+            <%= values.args
+                ? (typeof values.args === 'string'
+                ? values.args
+                : JSON.stringify(values.args, null, 2))
+            : '' %>
+        </textarea>
     </div>
     <p class="error js_json_error"><%= errors.args %></p>
 </div>
@@ -60,29 +60,13 @@
             rows="6"
             placeholder='{"KEY":"value"}'
         >
-<%= values.env
-          ? (typeof values.config.env === 'string'
-              ? values.config.env
-              : JSON.stringify(values.config.env, null, 2))
-          : '' %></textarea
-        >
+            <%= values.env
+                ? (typeof values.env === 'string'
+                ? values.env
+                : JSON.stringify(values.env, null, 2))
+                : '' 
+            %>
+        </textarea>
     </div>
     <p class="error js_json_error"><%= errors.env %></p>
-</div>
-
-<div class="field-container">
-    <div class="field">
-        <label for="config_timeoutSeconds">Timeout (seconds)</label>
-        <input
-            type="number"
-            name="config[timeoutSeconds/number]"
-            id="config_timeoutSeconds"
-            value="<%= values.timeoutSeconds || '' %>"
-            min="1"
-            placeholder="Optional"
-        />
-    </div>
-    <% if (errors.timeoutSeconds) { %>
-    <p class="error"><%= errors.timeoutSeconds %></p>
-    <% } %>
 </div>

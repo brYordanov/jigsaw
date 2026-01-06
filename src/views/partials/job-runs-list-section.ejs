@@ -1,0 +1,14 @@
+<section
+    class="section"
+    id="results"
+    hx-boost="true"
+    hx-target="#results"
+    hx-swap="outerHTML"
+    hx-push-url="true"
+>
+    <%- include('../partials/job-runs-filters', {filterValues}) %>
+    <%-include('../partials/pagination', {paginateData}) %>
+    <div class="container container--scrollable">
+        <%- include('../partials/job-runs-table', {jobRuns}) %>
+    </div>
+</section>
