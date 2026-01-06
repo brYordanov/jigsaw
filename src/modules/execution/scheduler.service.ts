@@ -14,7 +14,6 @@ export class TaskSchedulerService {
     async tick() {
         if (this.isTickRunning) return
         this.isTickRunning = true
-
         try {
             const now = new Date()
             const dueTasks = await this.taskService.getDueTasks(now)

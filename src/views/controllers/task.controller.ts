@@ -1,13 +1,12 @@
 import { Router } from 'express'
 import {
-    CreateTaskBodyDto,
     createTaskSchema,
     ListTasksQueryDto,
     listTasksQuerySchema,
 } from '../../modules/tasks/task.dtos'
 import { TaskService } from '../../modules/tasks/task.service'
 import { HttpStatus } from '../../helpers/statusCodes'
-import { ZodError } from 'zod'
+import z, { ZodError } from 'zod'
 import { getPaginationData } from '../../helpers/getPaginationData'
 import { groupZodIssues } from '../../helpers/groupZodIssues'
 import { parseFormValuesMD } from '../../middlewares/parseFormValues'
@@ -176,12 +175,18 @@ export function createTaskController(
         })
     )
 
-    TaskController.post(
-        '/ping/:id',
-        validate(idParamSchema, 'params'),
+    const calcelDeadmanTaskParamSchema = z.object({
+        id: z.string().min(1),
+        token: z.string().min(36),
+    })
+    type calcelDeadmanTaskParamDto = z.infer<typeof calcelDeadmanTaskParamSchema>
+
+    TaskController.get(
+        '/:id/ping/:token',
+        validate(calcelDeadmanTaskParamSchema, 'params'),
         asyncHandler(async (req, res) => {
-            const { id } = vParams<idParamDto>(req)
-            const task = await service.getById(id)
+            const { id, token } = vParams<calcelDeadmanTaskParamDto>(req)
+            const task = await service.getCurrentDeadmanTask(id, token)
             if (!task) {
                 return res.status(404).send('This deadman link is invalid or task was deleted.')
             }
@@ -191,16 +196,16 @@ export function createTaskController(
 
             runnerService.cancelDeadmanTimer(task.id)
 
-            const now = new Date()
             if (task.is_single_time_only) {
                 await service.updateTask(task.id, {
                     is_enabled: false,
                     next_run_at: null,
+                    deadman_token: null,
                 })
 
                 return res.send('The task was cancelled and will not run.')
             } else {
-                await service.updateTask(id, {})
+                await service.updateTask(id, { deadman_token: null })
                 return res.send(
                     'The current activation was cancelled. The task will run again later.'
                 )

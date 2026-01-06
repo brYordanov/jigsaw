@@ -1,10 +1,7 @@
 import z from 'zod'
 import { futureDate, isoDate, qAny, qBool } from '../../commonSchemas'
 
-const timestampToDateSchema = z
-    .string()
-    .transform(val => new Date(val.replace(' ', 'T')))
-    .refine(d => !isNaN(d.getTime()), 'Invalid date')
+const timestampToDateSchema = z.coerce.date()
 const schedule_type = z.enum(['fixed', 'deadman'])
 const interval_type = z.enum(['monthly', 'weekly', 'daily', 'hourly'])
 const daysOfWeek = z.enum([

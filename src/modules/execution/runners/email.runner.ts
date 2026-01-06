@@ -5,7 +5,6 @@ import { EmailConfigDto } from '../../jobs/dtos/email-config.dto'
 export const runEmailJob = async (config: EmailConfigDto): Promise<any> => {
     const { template, variables, subject, to } = config
     const { text, html } = renderTemplate(template, variables)
-    console.log(html)
 
     try {
         const sendInfo = await mailer.sendMail({

@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { runHttpJob } from './runners/http.runner'
 import { runWithRetries } from './runWithRetries'
 import { RunRegistry } from './runRegistry.service'
@@ -164,6 +165,25 @@ export class RunnerService {
         }
     }
 
+    async restoreDeadmanTimers() {
+        const tasks = await this.taskService.getActiveDeadmanTasks()
+        const now = Date.now()
+
+        for (const task of tasks) {
+            if (!task.timeout_seconds || !task.last_ping_at) continue
+
+            const lastPing = new Date(task.last_ping_at)
+            const expiresAt = new Date(lastPing.getTime() + task.timeout_seconds * 1000)
+            const remainingMs = expiresAt.getTime() - now
+
+            if (remainingMs <= 0) {
+                await this.executeDeadmanTimeout(task.id)
+            } else {
+                this.armDeadmanTimer(task.id, expiresAt)
+            }
+        }
+    }
+
     private async runTaskNormally(task: TaskRow) {
         await this.runTaskJobs(task)
         await this.takeCareOfTaskDatesOnRun(task)
@@ -176,6 +196,7 @@ export class RunnerService {
                 last_run_at: now,
                 next_run_at: null,
                 is_enabled: false,
+                deadman_token: null,
             })
         } else {
             const nextRunAt = calculateNextRunAt(now, {
@@ -189,6 +210,7 @@ export class RunnerService {
             await this.taskService.updateTask(task.id, {
                 last_run_at: now,
                 next_run_at: nextRunAt,
+                deadman_token: null,
             })
         }
     }
@@ -199,10 +221,13 @@ export class RunnerService {
         }
 
         const base = process.env.APP_BASE_URL
+        if (!base) throw new Error('APP_BASE_URL is not set')
+
         const now = new Date()
-        const timeoutSeconds = task.timeout_seconds ?? 0
+        const timeoutSeconds = task.timeout_seconds
+        const token = crypto.randomUUID()
         const expiresAt = new Date(now.getTime() + timeoutSeconds * 1000)
-        const emailTemplate = await getEmailTemplate('deadmanTrigger')
+        const emailTemplate = await getEmailTemplate('deadmanTrigger.email')
         const config = {
             to: 'branimiryordanov75@gmail.com',
             subject: `${task.name} Deadman Task Activation`,
@@ -210,12 +235,13 @@ export class RunnerService {
             variables: {
                 taskName: task.name,
                 taskId: task.id,
-                cancelUrl: `${base}/task/ping/${task.id}`,
+                cancelUrl: `${base}/task/${task.id}/ping/${token}`,
+                timeout: task.timeout_seconds,
             },
         }
 
         await this.runWithLoggingAttempt(config, () => runEmailJob(config), undefined, task.id)
-        await this.taskService.updateTask(task.id, { last_ping_at: now })
+        await this.taskService.updateTask(task.id, { last_ping_at: now, deadman_token: token })
         this.armDeadmanTimer(task.id, expiresAt)
     }
 

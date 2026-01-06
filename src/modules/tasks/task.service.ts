@@ -43,6 +43,21 @@ export class TaskService {
         })
     }
 
+    async getCurrentDeadmanTask(id: string, token: string): Promise<TaskRow | null> {
+        return await this.repo.getOne({ where: { id: id, deadman_token: token } })
+    }
+
+    async getActiveDeadmanTasks(): Promise<TaskRow[]> {
+        return this.repo.get({
+            where: {
+                schedule_type: 'deadman',
+                is_enabled: true,
+                deadman_token: { op: 'is', value: 'not null' },
+                last_ping_at: { op: 'is', value: 'not null' },
+            },
+        })
+    }
+
     async paginate(params: ListTasksQueryDto): Promise<PaginatedResponse<TaskRow>> {
         return this.repo.listPaginated(params)
     }
