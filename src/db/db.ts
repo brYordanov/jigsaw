@@ -3,17 +3,21 @@ import { Pool } from 'pg'
 
 dotenv.config()
 
-const connectionString = process.env.DATABASE_URL
-if (!connectionString) throw new Error('❌ DATABASE_URL missing from env')
+export function createPool(connectionString?: string) {
+    const cs = connectionString ?? process.env.DATABASE_URL
+    if (!cs) throw new Error('❌ DATABASE_URL missing from env')
 
-export const pool = new Pool({
-    connectionString,
-})
+    const pool = new Pool({ connectionString: cs })
 
-pool.on('connect', () => console.log('✅ [db] connection acquired'))
-pool.on('error', err => console.error('❌ [db] pool error', err))
+    pool.on('connect', () => console.log('✅ [db] connection acquired'))
+    pool.on('error', err => console.error('❌ [db] pool error', err))
 
-export async function shutdownDb() {
+    return pool
+}
+
+export async function shutdownDb(pool: Pool) {
     console.log('✅ [db] shutting down pool…')
     await pool.end()
 }
+
+export const pool = createPool()

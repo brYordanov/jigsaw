@@ -27,9 +27,11 @@ export class BaseRepository {
             dir?: 'ASC' | 'DESC'
             include?: string[]
             limit?: number
-        } = {}
+        } = {},
+        client?: PoolClient | Pool
     ): Promise<T[]> {
         const { where, orderBy, dir, include, limit } = config
+        const db = this.runner(client)
         let whereSql = ''
         let values: any[] = []
         let nextIndex = 1
@@ -51,7 +53,7 @@ export class BaseRepository {
             ? this.createIncludeSql(include!, whereSql, orderSql, limitSql)
             : `SELECT ${this.returningCols} FROM ${this.tableName} AS baseTable ${whereSql} ${orderSql} ${limitSql}`
 
-        const { rows } = await this.pool.query<T>(sql, values)
+        const { rows } = await db.query<T>(sql, values)
 
         return rows
     }
@@ -97,9 +99,10 @@ export class BaseRepository {
         data: Record<string, any>,
         client?: PoolClient | Pool
     ): Promise<T> {
+        const db = this.runner(client)
         const entries = Object.entries(data).filter(([_, v]) => v !== undefined)
         if (!entries.length) {
-            const { rows } = await this.pool.query(
+            const { rows } = await db.query(
                 `SELECT ${this.returningCols} FROM ${this.tableName} WHERE id=$1`,
                 [id]
             )
@@ -110,7 +113,6 @@ export class BaseRepository {
         const values = entries.map(([_, v]) => v)
         values.push(id)
 
-        const db = this.runner(client)
         const { rows } = await db.query({
             text: `UPDATE ${this.tableName} SET ${sets} WHERE id=$${values.length} RETURNING ${this.returningCols}`,
             values,
@@ -120,9 +122,11 @@ export class BaseRepository {
     }
 
     async paginate<TRow extends QueryResultRow = any, TFilters extends Record<string, any> = any>(
-        cfg: PaginateConfig<TFilters>
+        config: PaginateConfig<TFilters>,
+        client?: PoolClient | Pool
     ) {
-        const { filterConfig, sort, dir, allowedSort, limit, offset } = cfg
+        const db = this.runner(client)
+        const { filterConfig, sort, dir, allowedSort, limit, offset } = config
         const { whereSql, values, nextIndex } = this.buildWhereFromFilters(
             filterConfig,
             this.tableName,
@@ -143,8 +147,8 @@ export class BaseRepository {
         const countSql = `SELECT COUNT(*)::int AS count FROM ${this.tableName} ${whereSql}`
 
         const [listRes, countRes] = await Promise.all([
-            this.pool.query<TRow>(listSql, listVals),
-            this.pool.query<{ count: number }>(countSql, values),
+            db.query<TRow>(listSql, listVals),
+            db.query<{ count: number }>(countSql, values),
         ])
 
         return {

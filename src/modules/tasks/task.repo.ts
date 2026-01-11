@@ -1,5 +1,4 @@
 import { Pool } from 'pg'
-import { pool as defaultPool } from '../../db/db'
 import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT, TaskRow } from './task.entity'
 import { ListTasksQueryDto } from './task.dtos'
 import { BaseRepository } from '../../db/BaseRepository'
@@ -31,7 +30,7 @@ const JOBS_RELATION: RelationSpec = {
 } as const
 
 export class TaskRepository extends BaseRepository {
-    constructor(pool: Pool = defaultPool) {
+    constructor(pool: Pool) {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT, { jobs: JOBS_RELATION })
     }
 

@@ -32,7 +32,7 @@ async function gracefulShutdown(signal: string) {
             )
         }
         container.taskSchedulerService.stopCron()
-        await shutdownDb()
+        await shutdownDb(container.pool)
     } catch (e) {
         console.error('Error during shutdown:', e)
     }
