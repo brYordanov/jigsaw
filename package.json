@@ -13,7 +13,9 @@
         "start": "npm run start:db && npm run migrate && npm run dev",
         "test": "vitest",
         "test:run": "vitest run",
-        "test:cov": "vitest run --coverage"
+        "test:cov": "vitest run --coverage",
+        "test-migrate": "cross-env NODE_ENV=test ts-node src/scripts/migrate.ts up",
+        "start:test-db": "docker compose -f docker-compose.test.yml up -d --wait && npm run test-migrate"
     },
     "keywords": [],
     "author": "",
@@ -26,6 +28,7 @@
         "@types/nodemailer": "^7.0.3",
         "@types/pg": "^8.15.5",
         "@vitest/coverage-v8": "^4.0.16",
+        "cross-env": "^10.1.0",
         "nodemon": "^3.1.10",
         "prettier-plugin-ejs": "^1.0.3",
         "prettier-plugin-sql": "^0.19.2",
