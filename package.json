@@ -9,11 +9,12 @@
         "migrate:revert": "ts-node src/scripts/migrate.ts down",
         "migrate:status": "ts-node src/scripts/migrate.ts status",
         "migrate:generate": "ts-node src/scripts/migrate.ts generate",
-        "start:db": " docker compose -f docker-compose.dev.yml up -d",
+        "start:db": "docker compose -f docker-compose.dev.yml up -d --wait",
         "start": "npm run start:db && npm run migrate && npm run dev",
         "test": "vitest",
         "test:run": "vitest run",
         "test:cov": "vitest run --coverage",
+        "test:itest": "vitest run tests/integration --pool=threads --maxWorkers=1",
         "test-migrate": "cross-env NODE_ENV=test ts-node src/scripts/migrate.ts up",
         "start:test-db": "docker compose -f docker-compose.test.yml up -d --wait && npm run test-migrate"
     },

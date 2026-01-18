@@ -34,7 +34,7 @@ type Migration = {
 
 const MIGRATIONS_DIR = path.resolve('src/migrations')
 
-export const createPool = () => {
+const createPool = () => {
     const isTest = process.env.NODE_ENV === 'test'
 
     const connectionString = isTest ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL

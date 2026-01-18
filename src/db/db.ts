@@ -19,5 +19,3 @@ export async function shutdownDb(pool: Pool) {
     console.log('✅ [db] shutting down pool…')
     await pool.end()
 }
-
-export const pool = createPool()
