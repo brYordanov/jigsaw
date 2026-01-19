@@ -7,7 +7,7 @@ import { validate } from '../../middlewares/validate'
 
 export class TestTaskRepository extends BaseRepository {
     constructor(pool: Pool) {
-        super(pool, 'tasks', 'id, name, schedule_type, interval_type')
+        super(pool, 'tasks', 'id, name, schedule_type, interval_type, next_run_at')
     }
 }
 
@@ -24,13 +24,23 @@ beforeEach(() => resetTestTables(pool))
 afterAll(() => pool.end())
 
 const seedTask = async (
-    partial: Partial<{ name: string; schedule_type: ScheduleType; interval_type: IntervalType }>
+    partial: Partial<{
+        name: string
+        schedule_type: ScheduleType
+        interval_type: IntervalType
+        next_run_at: Date | null
+    }>
 ) => {
     const name = partial?.name ?? `task_${Math.random().toString(16).slice(2)}`
     const schedule_type = partial?.schedule_type ?? 'fixed'
     const interval_type = partial?.interval_type ?? 'monthly'
 
-    return repo.create<TaskRow>({ name, schedule_type, interval_type })
+    return repo.create<TaskRow>({
+        name,
+        schedule_type,
+        interval_type,
+        next_run_at: partial.next_run_at,
+    })
 }
 
 describe('BaseRepository (integration) create, get, getOne, paginate, update, delete', () => {
@@ -274,5 +284,44 @@ describe('BaseRepository (integration) get() where ops', () => {
             dir: 'ASC',
         })
         expect(lte2.map(r => r.id)).toEqual([t1.id, t2.id])
+    })
+
+    it('gt/lt', async () => {
+        const t1 = await seedTask({ name: 'a' })
+        const t2 = await seedTask({ name: 'b' })
+        const t3 = await seedTask({ name: 'c' })
+
+        const gt2 = await repo.get({
+            where: { id: { op: 'gt', value: t2.id } },
+            orderBy: 'id',
+            dir: 'ASC',
+        })
+        expect(gt2.map(r => r.id)).toEqual([t3.id])
+
+        const lt2 = await repo.get({
+            where: { id: { op: 'lt', value: t2.id } },
+            orderBy: 'id',
+            dir: 'ASC',
+        })
+        expect(lt2.map(r => r.id)).toEqual([t1.id])
+    })
+
+    it('is null / is not null', async () => {
+        const a = await seedTask({ name: 'a', next_run_at: null })
+        const b = await seedTask({ name: 'b', next_run_at: new Date() })
+
+        const isNull = await repo.get({
+            where: { next_run_at: { op: 'is', value: 'null' } },
+            orderBy: 'id',
+            dir: 'ASC',
+        })
+        expect(isNull.map(r => r.id)).toEqual([a.id])
+
+        const isNotNull = await repo.get({
+            where: { next_run_at: { op: 'is', value: 'not null' } },
+            orderBy: 'id',
+            dir: 'ASC',
+        })
+        expect(isNotNull.map(r => r.id)).toEqual([b.id])
     })
 })
