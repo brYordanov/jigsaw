@@ -311,7 +311,10 @@ export class BaseRepository {
                     values.push(val)
                     break
                 case 'is':
-                    whereParts.push(`${col} IS ${specObj.value.toUpperCase()}`)
+                    const v = String(specObj.value).toLowerCase()
+                    if (v !== 'null' && v !== 'not null')
+                        throw new Error(`Invalid IS value: ${specObj.value}`)
+                    whereParts.push(`${col} IS ${v.toUpperCase()}`)
                     break
                 case 'date_gte':
                     whereParts.push(`${col} >= $${i++}::date`)
