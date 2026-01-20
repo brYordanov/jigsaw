@@ -3,11 +3,10 @@ import { createTestPool, resetTestTables } from '../test-db'
 import { IntervalType, ScheduleType, TaskRow } from '../../modules/tasks/task.entity'
 import { BaseRepository } from '../../db/BaseRepository'
 import type { Pool } from 'pg'
-import { validate } from '../../middlewares/validate'
 
 export class TestTaskRepository extends BaseRepository {
     constructor(pool: Pool) {
-        super(pool, 'tasks', 'id, name, schedule_type, interval_type, next_run_at')
+        super(pool, 'tasks', 'id, name, schedule_type, interval_type, next_run_at, created_at')
     }
 }
 
@@ -61,11 +60,15 @@ describe('BaseRepository (integration) create, get, getOne, paginate, update, de
         await seedTask({ name: 'b' })
         await seedTask({ name: 'c' })
 
-        const rowsAsc = await repo.get<TaskRow>({ orderBy: 'id', dir: 'ASC' })
+        const rowsAsc = await repo.get<TaskRow>({ orderBy: 'created_at', dir: 'ASC' })
         expect(rowsAsc.length).toBe(3)
         expect(rowsAsc.map(r => r.name)).toEqual(['a', 'b', 'c'])
 
-        const rowDescLimit2 = await repo.get<TaskRow>({ orderBy: 'id', dir: 'DESC', limit: 2 })
+        const rowDescLimit2 = await repo.get<TaskRow>({
+            orderBy: 'created_at',
+            dir: 'DESC',
+            limit: 2,
+        })
         expect(rowDescLimit2.length).toBe(2)
         expect(rowDescLimit2[0].name).toBe('c')
         expect(rowDescLimit2[1].name).toBe('b')
@@ -149,12 +152,14 @@ describe('BaseRepository (integration) create, get, getOne, paginate, update, de
 describe('BaseRepository (integration) transaction, withSavePoint', () => {
     it('transaction() commits on success', async () => {
         const out = await repo.transaction(async client => {
-            const innerRepo = new TestTaskRepository(client as any)
-            const created = await innerRepo.create<TaskRow>({
-                name: 'tx_ok',
-                schedule_type: 'fixed',
-                interval_type: 'weekly',
-            })
+            const created = await repo.create<TaskRow>(
+                {
+                    name: 'tx_ok',
+                    schedule_type: 'fixed',
+                    interval_type: 'weekly',
+                },
+                client
+            )
 
             return created
         })
@@ -166,12 +171,14 @@ describe('BaseRepository (integration) transaction, withSavePoint', () => {
     it('transaction() rolls back on error', async () => {
         await expect(
             repo.transaction(async client => {
-                const innerRepo = new TestTaskRepository(client as any)
-                const created = await innerRepo.create<TaskRow>({
-                    name: 'tx_fail',
-                    schedule_type: 'fixed',
-                    interval_type: 'weekly',
-                })
+                const created = await repo.create<TaskRow>(
+                    {
+                        name: 'tx_fail',
+                        schedule_type: 'fixed',
+                        interval_type: 'weekly',
+                    },
+                    client
+                )
                 throw new Error('innevitable')
             })
         ).rejects.toThrow('innevitable')
@@ -182,9 +189,7 @@ describe('BaseRepository (integration) transaction, withSavePoint', () => {
 
     it(' withSavepoint() rolls back to savepoint but keeps outer transaction alive', async () => {
         await repo.transaction(async client => {
-            const innerRepo = new TestTaskRepository(client as any)
-
-            await innerRepo.create<TaskRow>(
+            await repo.create<TaskRow>(
                 {
                     name: 'outer_ok_1',
                     schedule_type: 'fixed',
@@ -194,8 +199,8 @@ describe('BaseRepository (integration) transaction, withSavePoint', () => {
             )
 
             await expect(
-                innerRepo.withSavepoint(client, async spClient => {
-                    await innerRepo.create<TaskRow>(
+                repo.withSavepoint(client, async spClient => {
+                    await repo.create<TaskRow>(
                         {
                             name: 'sp_fail',
                             schedule_type: 'fixed',
@@ -208,7 +213,7 @@ describe('BaseRepository (integration) transaction, withSavePoint', () => {
                 })
             ).rejects.toThrow('innevitable sp err')
 
-            await innerRepo.create<TaskRow>(
+            await repo.create<TaskRow>(
                 {
                     name: 'outer_ok_2',
                     schedule_type: 'fixed',
@@ -267,43 +272,51 @@ describe('BaseRepository (integration) get() where ops', () => {
     })
 
     it('gte/lte', async () => {
-        const t1 = await seedTask({ name: 'a' })
-        const t2 = await seedTask({ name: 'b' })
-        const t3 = await seedTask({ name: 'c' })
+        const d1 = new Date('2026-01-01T00:00:00.000Z')
+        const d2 = new Date('2026-02-01T00:00:00.000Z')
+        const d3 = new Date('2026-03-01T00:00:00.000Z')
 
-        const gte2 = await repo.get({
-            where: { id: { op: 'gte', value: t2.id } },
-            orderBy: 'id',
+        await seedTask({ name: 'a', next_run_at: d1 })
+        await seedTask({ name: 'b', next_run_at: d2 })
+        await seedTask({ name: 'c', next_run_at: d3 })
+
+        const gte = await repo.get({
+            where: { next_run_at: { op: 'gte', value: d2 } },
+            orderBy: 'next_run_at',
             dir: 'ASC',
         })
-        expect(gte2.map(r => r.id)).toEqual([t2.id, t3.id])
+        expect(gte.map(r => r.name)).toEqual(['b', 'c'])
 
-        const lte2 = await repo.get({
-            where: { id: { op: 'lte', value: t2.id } },
-            orderBy: 'id',
+        const lte = await repo.get({
+            where: { next_run_at: { op: 'lte', value: d2 } },
+            orderBy: 'next_run_at',
             dir: 'ASC',
         })
-        expect(lte2.map(r => r.id)).toEqual([t1.id, t2.id])
+        expect(lte.map(r => r.name)).toEqual(['a', 'b'])
     })
 
     it('gt/lt', async () => {
-        const t1 = await seedTask({ name: 'a' })
-        const t2 = await seedTask({ name: 'b' })
-        const t3 = await seedTask({ name: 'c' })
+        const d1 = new Date('2026-01-01T00:00:00.000Z')
+        const d2 = new Date('2026-02-01T00:00:00.000Z')
+        const d3 = new Date('2026-03-01T00:00:00.000Z')
 
-        const gt2 = await repo.get({
-            where: { id: { op: 'gt', value: t2.id } },
-            orderBy: 'id',
+        await seedTask({ name: 'a', next_run_at: d1 })
+        await seedTask({ name: 'b', next_run_at: d2 })
+        await seedTask({ name: 'c', next_run_at: d3 })
+
+        const gt = await repo.get({
+            where: { next_run_at: { op: 'gt', value: d2 } },
+            orderBy: 'next_run_at',
             dir: 'ASC',
         })
-        expect(gt2.map(r => r.id)).toEqual([t3.id])
+        expect(gt.map(r => r.name)).toEqual(['c'])
 
-        const lt2 = await repo.get({
-            where: { id: { op: 'lt', value: t2.id } },
-            orderBy: 'id',
+        const lt = await repo.get({
+            where: { next_run_at: { op: 'lt', value: d2 } },
+            orderBy: 'next_run_at',
             dir: 'ASC',
         })
-        expect(lt2.map(r => r.id)).toEqual([t1.id])
+        expect(lt.map(r => r.name)).toEqual(['a'])
     })
 
     it('is null / is not null', async () => {
@@ -312,16 +325,28 @@ describe('BaseRepository (integration) get() where ops', () => {
 
         const isNull = await repo.get({
             where: { next_run_at: { op: 'is', value: 'null' } },
-            orderBy: 'id',
+            orderBy: 'created_at',
             dir: 'ASC',
         })
         expect(isNull.map(r => r.id)).toEqual([a.id])
 
         const isNotNull = await repo.get({
             where: { next_run_at: { op: 'is', value: 'not null' } },
-            orderBy: 'id',
+            orderBy: 'created_at',
             dir: 'ASC',
         })
         expect(isNotNull.map(r => r.id)).toEqual([b.id])
+    })
+
+    it('in with empty array returns no rows', async () => {
+        await seedTask({ name: 'a' })
+        const rows = await repo.get({ where: { interval_type: { op: 'in', value: [] } } })
+        expect(rows).toEqual([])
+    })
+
+    it('is rejects invalid value', async () => {
+        await expect(
+            repo.get({ where: { next_run_at: { op: 'is', value: 'lol' } } })
+        ).rejects.toThrow()
     })
 })
