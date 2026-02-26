@@ -1,11 +1,11 @@
+import { Pool } from 'pg'
 import { BaseRepository } from '../../db/BaseRepository'
-import { pool } from '../../db/db'
 import { PaginatedResponse } from '../../db/types'
 import { listJobRunsQueryDto } from './dtos/module.dtos'
 import { JobRun, RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT } from './job-runs.entity'
 
 export class JobRunRepository extends BaseRepository {
-    constructor() {
+    constructor(pool: Pool) {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT)
     }
 

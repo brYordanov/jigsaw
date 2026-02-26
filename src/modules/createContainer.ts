@@ -10,17 +10,25 @@ import { TasksJobsService } from './taks-jobs/tasks-jobs.service'
 import { TaskRepository } from './tasks/task.repo'
 import { TaskService } from './tasks/task.service'
 import { TaskSchedulerService } from './execution/scheduler.service'
+import { Pool } from 'pg'
+import { createPool } from '../db/db'
 
 export type Container = ReturnType<typeof createContainer>
 
-export function createContainer() {
-    const jobRepo = new JobRepository()
+type ContainerOpts = {
+    db?: Pool
+}
+
+export function createContainer(opts: ContainerOpts = {}) {
+    const pool = opts.db ?? createPool()
+
+    const jobRepo = new JobRepository(pool)
     const jobService = new JobService(jobRepo)
-    const jobRunRepo = new JobRunRepository()
+    const jobRunRepo = new JobRunRepository(pool)
     const jobRunService = new JobRunService(jobRunRepo)
-    const tasksJobsRepo = new TasksJobsRepository()
+    const tasksJobsRepo = new TasksJobsRepository(pool)
     const tasksJobsService = new TasksJobsService(tasksJobsRepo)
-    const taskRepo = new TaskRepository()
+    const taskRepo = new TaskRepository(pool)
     const taskService = new TaskService(taskRepo, jobRepo, tasksJobsService)
     const runRegistry = new RunRegistry()
     const concurrencyGate = new ConcurrencyGate()
@@ -34,6 +42,7 @@ export function createContainer() {
     const taskSchedulerService = new TaskSchedulerService(taskService, runnerService)
 
     return {
+        pool,
         jobService,
         jobRepo,
         jobRunService,

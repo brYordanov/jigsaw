@@ -110,7 +110,7 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 
 const exponentialBackoffMs = (baseSeconds: number, attempt: number) => {
     const baseMs = baseSeconds * 1000
-    const exp = Math.max(1, attempt - 1)
+    const exp = Math.max(0, attempt)
     const raw = baseMs * Math.pow(2, exp)
     const jitter = 0.8 + Math.random() * 0.4
     return Math.round(raw * jitter)

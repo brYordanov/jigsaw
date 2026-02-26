@@ -32,7 +32,7 @@ export class RunRegistry {
         run.state = 'finished'
         run.result = outcome
         this.emit(runId, { type: 'finished', runId, outcome })
-        setTimeout(() => this.runs.delete(runId), 60_000)
+        setTimeout(() => this.runs.delete(runId), 60_000).unref()
     }
 
     get(runId: string) {
@@ -48,7 +48,7 @@ export class RunRegistry {
 
         this.emit(runId, { type: 'canceled', runId })
 
-        setTimeout(() => this.runs.delete(runId), 60_000)
+        setTimeout(() => this.runs.delete(runId), 60_000).unref()
 
         return true
     }

@@ -33,7 +33,24 @@ type Migration = {
 }
 
 const MIGRATIONS_DIR = path.resolve('src/migrations')
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+
+const createPool = () => {
+    const isTest = process.env.NODE_ENV === 'test'
+
+    const connectionString = isTest ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL
+
+    if (!connectionString) {
+        throw new Error('Database connection string is missing')
+    }
+
+    if (isTest && !connectionString.includes('test')) {
+        throw new Error('Refusing to run in TEST mode without a test database URL')
+    }
+
+    return new Pool({ connectionString })
+}
+
+const pool = createPool()
 
 function isCommand(x: string): x is Commands {
     return (Object.values(Commands) as string[]).includes(x)
@@ -310,6 +327,7 @@ async function generate() {
 
 async function main() {
     const arg = process.argv[2]
+
     if (!arg || !isCommand(arg)) {
         console.error('❌ Invalid command.')
         console.warn(

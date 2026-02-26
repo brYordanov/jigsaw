@@ -263,6 +263,7 @@ export class RunnerService {
                 console.error('Error executing deadman task', taskId, err)
             })
         }, delayMs)
+        handle.unref()
 
         this.deadmanTimers.set(taskId, handle)
     }

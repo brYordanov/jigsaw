@@ -1,10 +1,9 @@
 import { Pool, PoolClient } from 'pg'
-import { pool as defaultPool } from '../../db/db'
 import { RETURN_COLS_DEFAULT, TABLE_NAME_DEFAULT } from './tasks-jobs.entity'
 import { BaseRepository } from '../../db/BaseRepository'
 
 export class TasksJobsRepository extends BaseRepository {
-    constructor(pool: Pool = defaultPool) {
+    constructor(pool: Pool) {
         super(pool, TABLE_NAME_DEFAULT, RETURN_COLS_DEFAULT)
     }
 
