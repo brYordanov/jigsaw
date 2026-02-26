@@ -1,20 +1,17 @@
 import { Server } from 'http'
 import { createApp } from './app'
-import { createPool, shutdownDb } from './db/db'
+import { shutdownDb } from './db/db'
 import { createContainer } from './modules/createContainer'
 
 const PORT = process.env.PORT || 3000
 const container = createContainer()
 const app = createApp(container)
 
-const connectionStr = process.env.DATABASE_URL
-if (!connectionStr) throw new Error('❌ Missing Test Connection String')
-const pool = createPool(connectionStr)
-
 let server: Server
+let isShuttingDown = false
 
 async function start() {
-    await pool.query('SELECT 1')
+    await container.pool.query('SELECT 1')
 
     // container.taskSchedulerService.startCron()
     // container.runnerService.restoreDeadmanTimers()
@@ -29,17 +26,23 @@ async function start() {
 }
 
 async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return
+    isShuttingDown = true
     console.log(`Received ${signal}, shutting down gracefully...`)
     try {
         if (server) {
-            await new Promise<void>((resolve, reject) =>
-                server!.close(err => (err ? reject(err) : resolve()))
-            )
+            server.closeAllConnections()
+            server.close()
         }
         container.taskSchedulerService.stopCron()
+        console.log(`pool: total=${container.pool.totalCount} idle=${container.pool.idleCount} waiting=${container.pool.waitingCount}`)
         await shutdownDb(container.pool)
+        console.log('[shutdown] pool closed')
     } catch (e) {
-        console.error('Error during shutdown:', e)
+        console.error('[shutdown] error:', e)
+    } finally {
+        console.log('[shutdown] calling process.exit(0)')
+        process.exit(0)
     }
 }
 

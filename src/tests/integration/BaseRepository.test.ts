@@ -1,8 +1,8 @@
-import { afterAll, describe, expect, beforeEach, it, beforeAll } from 'vitest'
-import { createTestPool, resetTestTables } from '../test-db'
-import { IntervalType, ScheduleType, TaskRow } from '../../modules/tasks/task.entity'
-import { BaseRepository } from '../../db/BaseRepository'
 import type { Pool } from 'pg'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { BaseRepository } from '../../db/BaseRepository'
+import { IntervalType, ScheduleType, TaskRow } from '../../modules/tasks/task.entity'
+import { createTestPool, resetTestTables } from '../test-db'
 
 export class TestTaskRepository extends BaseRepository {
     constructor(pool: Pool) {
