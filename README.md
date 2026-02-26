@@ -169,10 +169,14 @@ Unit and integration tests use [Vitest](https://vitest.dev/).
 Integration tests require a test database. Start it first:
 
 ```bash
-npm run start:test-db   # spins up a separate Docker DB and runs migrations
-npm run test:itest      # runs integration tests serially
+npm run start:test-db
+npm run test:itest
 ```
 
 ## Screenshots
 
-<!-- Add screenshots here -->
+![Jigsaw Task List](assets/task-list.png)
+![Jigsaw Add Task](assets/add-task.png)
+![Jigsaw Edit Job](assets/edit-job.png)
+![Jigsaw Job List](assets/job-list.png)
+![Jigsaw Logs List](assets/logs-list.png)
