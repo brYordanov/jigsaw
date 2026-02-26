@@ -1,16 +1,21 @@
-import { createApp } from './app'
-import { pool, shutdownDb } from './db/db'
 import { Server } from 'http'
+import { createApp } from './app'
+import { createPool, shutdownDb } from './db/db'
 import { createContainer } from './modules/createContainer'
 
 const PORT = process.env.PORT || 3000
 const container = createContainer()
 const app = createApp(container)
 
+const connectionStr = process.env.DATABASE_URL
+if (!connectionStr) throw new Error('❌ Missing Test Connection String')
+const pool = createPool(connectionStr)
+
 let server: Server
 
 async function start() {
     await pool.query('SELECT 1')
+
     // container.taskSchedulerService.startCron()
     // container.runnerService.restoreDeadmanTimers()
 

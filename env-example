@@ -1,0 +1,13 @@
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=db
+DB_USER=root
+DB_PASSWORD=0000
+
+PORT=3000
+APP_BASE_URL=http://localhost:3000
+
+SMTP_HOST=smtp.something.com
+SMTP_PORT=2222
+SMTP_USER=user
+SMTP_PASS=0000
