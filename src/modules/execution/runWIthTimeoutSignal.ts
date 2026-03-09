@@ -5,7 +5,7 @@ export const withTimeoutSignal = async <T>(
 ) => {
     const controller = new AbortController()
 
-    const useTimer = Number.isFinite(ms as number) && (ms as number) > 0
+    const useTimer = Number.isFinite(ms) && ms > 0
     const timeout = useTimer ? setTimeout(() => controller.abort(), ms) : null
     const onExternalAbort = () => controller.abort()
 
